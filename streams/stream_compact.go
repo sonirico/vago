@@ -19,9 +19,9 @@ type (
 	}
 )
 
-// NewCompactStream creates a new stream that groups consecutive items with the same key.
+// Compact creates a new stream that groups consecutive items with the same key.
 // The keyFunc is used to extract the grouping key from each item (like Python's itemgetter).
-func NewCompactStream[T any, K comparable](inner ReadStream[T], keyFunc func(T) K) ReadStream[[]T] {
+func Compact[T any, K comparable](inner ReadStream[T], keyFunc func(T) K) ReadStream[[]T] {
 	return &CompactStream[T, K]{
 		inner:   inner,
 		keyFunc: keyFunc,
@@ -102,13 +102,13 @@ func (s *CompactStream[T, K]) Iter() iter.Seq[[]T] {
 	return Iter(s)
 }
 
-// NewCompactStreamFactory creates a factory for CompactStream instances.
-func NewCompactStreamFactory[T any, K comparable](
+// CompactFactory creates a factory for CompactStream instances.
+func CompactFactory[T any, K comparable](
 	innerFactory ReadStreamFactory[T],
 	keyFunc func(T) K,
 ) ReadStreamFactory[[]T] {
 	return func(rc io.ReadCloser) ReadStream[[]T] {
-		return NewCompactStream(innerFactory(rc), keyFunc)
+		return Compact(innerFactory(rc), keyFunc)
 	}
 }
 

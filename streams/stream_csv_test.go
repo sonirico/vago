@@ -32,7 +32,7 @@ nombre3,apellido3, ,
 
 `)))
 
-	s := NewStreamCSV[csvTest](buf, ",")
+	s := newStreamCSV[csvTest](buf, ",")
 
 	expected := []csvTest{
 		{"nombre", "apellido"},
@@ -55,7 +55,7 @@ nombre3,apellido3, ,
 
 func TestCSVStreamClose(t *testing.T) {
 	buf := io.NopCloser(strings.NewReader("nombre,apellido"))
-	s := NewStreamCSV[csvTest](buf, ",")
+	s := newStreamCSV[csvTest](buf, ",")
 
 	err := s.Close()
 	assert.NoError(t, err)
@@ -68,7 +68,7 @@ value1,value2,value3
 a,b,c
 `)))
 
-	s := NewStreamCSV[[]string](buf, ",")
+	s := newStreamCSV[[]string](buf, ",")
 
 	expected := [][]string{
 		{"field1", "field2", "field3"},

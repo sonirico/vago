@@ -80,8 +80,8 @@ func TestBatchStream(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			mem := NewMemory(tc.inputItems, tc.inputErr)
-			batch := NewBatchStream(mem, tc.batchSize)
+			mem := MemReader(tc.inputItems, tc.inputErr)
+			batch := Batch(mem, tc.batchSize)
 
 			gotBatches := make([][]int, 0)
 

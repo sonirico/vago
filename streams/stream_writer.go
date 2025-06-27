@@ -56,8 +56,8 @@ func (w *WriterStream) Close() error {
 	return w.err
 }
 
-// NewWriterStream creates a new WriteStream that writes to an io.Writer
-func NewWriterStream(writer io.Writer) *WriterStream {
+// Writer creates a new WriteStream that writes to an io.Writer
+func Writer(writer io.Writer) *WriterStream {
 	return &WriterStream{
 		writer: writer,
 	}

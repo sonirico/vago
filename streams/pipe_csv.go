@@ -92,3 +92,8 @@ func CSVTransform[T csvMarshaler](stream ReadStream[T], separator rune) Transfor
 		separator: separator,
 	}
 }
+
+// PipeJSONEachRow writes the JSON representation of each row in the stream to the provided writer.
+func PipeCSV[T csvMarshaler](stream ReadStream[T], w io.Writer, writeSep rune) (int64, error) {
+	return CSVTransform(stream, writeSep).WriteTo(w)
+}

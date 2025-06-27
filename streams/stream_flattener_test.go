@@ -22,7 +22,7 @@ func TestFlattenerStream(t *testing.T) {
 	}{
 		{
 			name: "basic flattening",
-			inner: NewMemory([][]int{
+			inner: MemReader([][]int{
 				{1, 2}, {3}, {4, 5},
 			}, nil),
 			expected:    []int{1, 2, 3, 4, 5},
@@ -30,7 +30,7 @@ func TestFlattenerStream(t *testing.T) {
 		},
 		{
 			name: "basic flattening with empty",
-			inner: NewMemory([][]int{
+			inner: MemReader([][]int{
 				{1, 2}, {3}, {}, {4, 5},
 			}, nil),
 			expected:    []int{1, 2, 3, 4, 5},
@@ -38,25 +38,25 @@ func TestFlattenerStream(t *testing.T) {
 		},
 		{
 			name:        "empty inner stream",
-			inner:       NewMemory([][]int{}, nil),
+			inner:       MemReader([][]int{}, nil),
 			expected:    empty,
 			expectedErr: nil,
 		},
 		{
 			name:        "single empty slice",
-			inner:       NewMemory([][]int{{}}, nil),
+			inner:       MemReader([][]int{{}}, nil),
 			expected:    empty,
 			expectedErr: nil,
 		},
 		{
 			name:        "multiple empty slices",
-			inner:       NewMemory([][]int{{}, {}}, nil),
+			inner:       MemReader([][]int{{}, {}}, nil),
 			expected:    empty,
 			expectedErr: nil,
 		},
 		{
 			name: "error",
-			inner: NewMemory([][]int{
+			inner: MemReader([][]int{
 				{1, 2}, {3},
 			}, errStream),
 			expected:    empty,
@@ -66,7 +66,7 @@ func TestFlattenerStream(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			stream := NewFlattenerStream[int](tt.inner)
+			stream := Flatten[int](tt.inner)
 			result, err := Consume(stream)
 
 			assert.ErrorIsf(

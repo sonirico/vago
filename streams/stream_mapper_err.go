@@ -43,7 +43,7 @@ func (s *MapperStreamErr[T, V]) Iter2() iter.Seq2[V, error] {
 	return Iter2(s)
 }
 
-func NewMapperStreamErr[T, V any](inner ReadStream[T], mapper func(T) (V, error)) ReadStream[V] {
+func MapErr[T, V any](inner ReadStream[T], mapper func(T) (V, error)) ReadStream[V] {
 	return &MapperStreamErr[T, V]{
 		inner:  inner,
 		mapper: mapper,

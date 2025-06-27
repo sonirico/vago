@@ -61,8 +61,8 @@ func (r *ReaderStream) Close() error {
 	return nil
 }
 
-// NewReaderStream creates a new ReadStream that reads from an io.Reader
-func NewReaderStream(reader io.Reader) ReadStream[[]byte] {
+// Reader creates a new ReadStream that reads from an io.Reader
+func Reader(reader io.Reader) ReadStream[[]byte] {
 	return &ReaderStream{
 		original: reader,
 		reader:   bufio.NewReader(reader),
@@ -132,8 +132,8 @@ func (r *LineReaderStream) Close() error {
 	return nil
 }
 
-// NewLineReaderStream creates a new ReadStream that reads lines as strings from an io.Reader
-func NewLineReaderStream(reader io.Reader) ReadStream[string] {
+// Lines creates a new ReadStream that reads lines as strings from an io.Reader
+func Lines(reader io.Reader) ReadStream[string] {
 	return &LineReaderStream{
 		original: reader,
 		reader:   bufio.NewReader(reader),

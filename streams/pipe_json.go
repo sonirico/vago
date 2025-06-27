@@ -86,3 +86,8 @@ func JSONTransform[T any](r ReadStream[T]) Transform[T] {
 		stream: r,
 	}
 }
+
+// PipeJSON writes the JSON representation of each item in the stream to the provided writer.
+func PipeJSON[T any](stream ReadStream[T], w io.Writer) (int64, error) {
+	return JSONTransform(stream).WriteTo(w)
+}

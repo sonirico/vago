@@ -20,25 +20,25 @@ func TestConsume(t *testing.T) {
 	}{
 		{
 			name:     "Stream with data",
-			stream:   NewMemory([]int{1, 2, 3, 4, 5}, nil),
+			stream:   MemReader([]int{1, 2, 3, 4, 5}, nil),
 			expected: []int{1, 2, 3, 4, 5},
 			wantErr:  nil,
 		},
 		{
 			name:     "Empty stream",
-			stream:   NewMemory([]int{}, nil),
+			stream:   MemReader([]int{}, nil),
 			expected: []int{},
 			wantErr:  nil,
 		},
 		{
 			name:     "Stream with EOF error (should return data)",
-			stream:   NewMemory([]int{10, 20, 30}, io.EOF),
+			stream:   MemReader([]int{10, 20, 30}, io.EOF),
 			expected: []int{10, 20, 30},
 			wantErr:  nil,
 		},
 		{
 			name:     "Stream with generic error",
-			stream:   NewMemory([]int{100, 200}, errors.New("stream error")),
+			stream:   MemReader([]int{100, 200}, errors.New("stream error")),
 			expected: nil,
 			wantErr:  errors.New("stream error"),
 		},
@@ -66,15 +66,15 @@ func TestConsume(t *testing.T) {
 // TestStreamPatterns demonstrates the three main stream patterns:
 // 1. read -> write (simple pipe)
 // 2. read -> filter -> map -> write (chained transformations)
-// 3. read -> multiple writes (multiplex)
+// 3. read -> multiple writes (Multicast)
 func TestStreamPatterns(t *testing.T) {
 	t.Run("Simple Pipe (read -> write)", func(t *testing.T) {
 		// Create source data
 		sourceData := []string{"hello", "world", "golang", "streams"}
-		src := NewMemory(sourceData, nil)
+		src := MemReader(sourceData, nil)
 
 		// Create destination
-		dst := NewMemoryWriteStream[string]()
+		dst := MemWriter[string]()
 
 		// Simple pipe: read -> write
 		bytesWritten, err := Pipe(src, dst)
@@ -94,16 +94,16 @@ func TestStreamPatterns(t *testing.T) {
 	t.Run("Chained Transformations (read -> filter -> map -> write)", func(t *testing.T) {
 		// Create source data
 		sourceData := []string{"hello", "world", "go", "programming", "test", "filter"}
-		src := NewMemory(sourceData, nil)
+		src := MemReader(sourceData, nil)
 
 		// Chain transformations: filter strings with length > 3
-		filtered := NewFilterStream(src, func(s string) bool { return len(s) > 3 })
+		filtered := Filter(src, func(s string) bool { return len(s) > 3 })
 
 		// Then map to uppercase
-		mapped := NewMapperStream(filtered, func(s string) string { return strings.ToUpper(s) })
+		mapped := Map(filtered, func(s string) string { return strings.ToUpper(s) })
 
 		// Write to destination
-		dst := NewMemoryWriteStream[string]()
+		dst := MemWriter[string]()
 		bytesWritten, err := Pipe(mapped, dst)
 		if err != nil {
 			t.Fatalf("Chained pipe failed: %v", err)
@@ -130,23 +130,23 @@ func TestStreamPatterns(t *testing.T) {
 		}
 	})
 
-	t.Run("Multiplex (read -> multiple writes)", func(t *testing.T) {
+	t.Run("Multicast (read -> multiple writes)", func(t *testing.T) {
 		// Create source data
 		sourceData := []int{1, 2, 3, 4, 5}
-		src := NewMemory(sourceData, nil)
+		src := MemReader(sourceData, nil)
 
 		// Create multiple destinations
-		dst1 := NewMemoryWriteStream[int]()
-		dst2 := NewMemoryWriteStream[int]()
-		dst3 := NewMemoryWriteStream[int]()
+		dst1 := MemWriter[int]()
+		dst2 := MemWriter[int]()
+		dst3 := MemWriter[int]()
 
-		// Multiplex: read -> multiple writes
-		bytesWritten, err := Multiplex(src, dst1, dst2, dst3)
+		// Multicast: read -> multiple writes
+		bytesWritten, err := Multicast(src, dst1, dst2, dst3)
 		if err != nil {
-			t.Fatalf("Multiplex failed: %v", err)
+			t.Fatalf("Multicast failed: %v", err)
 		}
 
-		t.Logf("Multiplexed to %d destinations: %v bytes", len(bytesWritten), bytesWritten)
+		t.Logf("Multicasted to %d destinations: %v bytes", len(bytesWritten), bytesWritten)
 
 		// Verify all destinations have the same data
 		destinations := []*MemoryWriteStream[int]{dst1, dst2, dst3}
@@ -196,24 +196,24 @@ func TestRealWorldExample(t *testing.T) {
 		{"alice", "view", 1},
 	}
 
-	src := NewMemory(actions, nil)
+	src := MemReader(actions, nil)
 
 	// Filter only high-value actions (score > 5)
 	highValueFilter := func(action UserAction) bool { return action.Score > 5 }
-	filtered := NewFilterStream(src, highValueFilter)
+	filtered := Filter(src, highValueFilter)
 
 	// Map to user names only
 	userMapper := func(action UserAction) string { return action.User }
-	mapped := NewMapperStream(filtered, userMapper)
+	mapped := Map(filtered, userMapper)
 
 	// Write to multiple destinations:
 	// 1. All high-value users
-	allUsers := NewMemoryWriteStream[string]()
+	allUsers := MemWriter[string]()
 	// 2. Alert system (same data)
-	alertSystem := NewMemoryWriteStream[string]()
+	alertSystem := MemWriter[string]()
 
-	// Process: read -> filter -> map -> multiplex to multiple writes
-	bytesWritten, err := Multiplex(mapped, allUsers, alertSystem)
+	// Process: read -> filter -> map -> Multicast to multiple writes
+	bytesWritten, err := Multicast(mapped, allUsers, alertSystem)
 	if err != nil {
 		t.Fatalf("Real world example failed: %v", err)
 	}
@@ -254,7 +254,7 @@ func TestReadAllBytes(t *testing.T) {
 			{ID: 1, Name: "Alice"},
 			{ID: 2, Name: "Bob"},
 		}
-		stream := NewMemory(data, nil)
+		stream := MemReader(data, nil)
 		transform := JSONTransform(stream)
 
 		result, err := ReadAllBytes[utilsTestMarshaler](transform)
@@ -267,7 +267,7 @@ func TestReadAllBytes(t *testing.T) {
 	})
 
 	t.Run("Transform with error", func(t *testing.T) {
-		stream := NewMemory([]utilsTestMarshaler{}, errors.New("stream error"))
+		stream := MemReader([]utilsTestMarshaler{}, errors.New("stream error"))
 		transform := JSONTransform(stream)
 
 		result, err := ReadAllBytes[utilsTestMarshaler](transform)
@@ -279,7 +279,7 @@ func TestReadAllBytes(t *testing.T) {
 func TestConsumeErrSkip(t *testing.T) {
 	t.Run("Stream with mixed data and errors", func(t *testing.T) {
 		// Create a stream that will have some errors during iteration
-		stream := NewMemory([]int{1, 2, 3, 4, 5}, nil)
+		stream := MemReader([]int{1, 2, 3, 4, 5}, nil)
 
 		// Consume all data (no errors in this case)
 		result := ConsumeErrSkip(stream)
@@ -287,13 +287,13 @@ func TestConsumeErrSkip(t *testing.T) {
 	})
 
 	t.Run("Empty stream", func(t *testing.T) {
-		stream := NewMemory([]int{}, nil)
+		stream := MemReader([]int{}, nil)
 		result := ConsumeErrSkip(stream)
 		assert.Empty(t, result, "Should return empty slice for empty stream")
 	})
 
 	t.Run("Stream with error", func(t *testing.T) {
-		stream := NewMemory([]int{1, 2, 3}, errors.New("stream error"))
+		stream := MemReader([]int{1, 2, 3}, errors.New("stream error"))
 		result := ConsumeErrSkip(stream)
 		// Should return empty slice when stream has error
 		assert.Empty(t, result, "Should return empty result when stream has error")
@@ -302,7 +302,7 @@ func TestConsumeErrSkip(t *testing.T) {
 
 func TestWriteSeq(t *testing.T) {
 	t.Run("Write sequence from slice", func(t *testing.T) {
-		stream := NewMemoryWriteStream[int]()
+		stream := MemWriter[int]()
 		items := []int{1, 2, 3, 4, 5}
 
 		bytesWritten, err := WriteSeq(stream, slices.Values(items))
@@ -314,7 +314,7 @@ func TestWriteSeq(t *testing.T) {
 	})
 
 	t.Run("Write empty sequence", func(t *testing.T) {
-		stream := NewMemoryWriteStream[string]()
+		stream := MemWriter[string]()
 		items := []string{}
 
 		bytesWritten, err := WriteSeq(stream, slices.Values(items))
@@ -326,7 +326,7 @@ func TestWriteSeq(t *testing.T) {
 	})
 
 	t.Run("Stream with write error", func(t *testing.T) {
-		stream := NewMemoryWriteStream[int]()
+		stream := MemWriter[int]()
 		stream.SetError(errors.New("write error"))
 		items := []int{1, 2, 3}
 
@@ -339,7 +339,7 @@ func TestWriteSeq(t *testing.T) {
 
 func TestWriteSeqKeys(t *testing.T) {
 	t.Run("Write keys from map", func(t *testing.T) {
-		stream := NewMemoryWriteStream[string]()
+		stream := MemWriter[string]()
 		data := map[string]int{
 			"apple":  1,
 			"banana": 2,
@@ -362,7 +362,7 @@ func TestWriteSeqKeys(t *testing.T) {
 
 func TestWriteSeqValues(t *testing.T) {
 	t.Run("Write values from map", func(t *testing.T) {
-		stream := NewMemoryWriteStream[int]()
+		stream := MemWriter[int]()
 		data := map[string]int{
 			"apple":  1,
 			"banana": 2,
@@ -385,8 +385,8 @@ func TestWriteSeqValues(t *testing.T) {
 
 func TestPipeErrorHandling(t *testing.T) {
 	t.Run("Source stream error", func(t *testing.T) {
-		src := NewMemory([]int{1, 2}, errors.New("source error"))
-		dst := NewMemoryWriteStream[int]()
+		src := MemReader([]int{1, 2}, errors.New("source error"))
+		dst := MemWriter[int]()
 
 		bytesWritten, err := Pipe(src, dst)
 		assert.Error(t, err, "Should return error from source")
@@ -395,8 +395,8 @@ func TestPipeErrorHandling(t *testing.T) {
 	})
 
 	t.Run("Destination stream error", func(t *testing.T) {
-		src := NewMemory([]int{1, 2, 3}, nil)
-		dst := NewMemoryWriteStream[int]()
+		src := MemReader([]int{1, 2, 3}, nil)
+		dst := MemWriter[int]()
 		dst.SetError(errors.New("write error"))
 
 		bytesWritten, err := Pipe(src, dst)
@@ -406,8 +406,8 @@ func TestPipeErrorHandling(t *testing.T) {
 	})
 
 	t.Run("Successful pipe", func(t *testing.T) {
-		src := NewMemory([]int{1, 2, 3, 4, 5}, nil)
-		dst := NewMemoryWriteStream[int]()
+		src := MemReader([]int{1, 2, 3, 4, 5}, nil)
+		dst := MemWriter[int]()
 
 		bytesWritten, err := Pipe(src, dst)
 		assert.NoError(t, err, "Should pipe successfully")
@@ -418,33 +418,33 @@ func TestPipeErrorHandling(t *testing.T) {
 	})
 }
 
-func TestMultiplexErrorHandling(t *testing.T) {
+func TestMulticastErrorHandling(t *testing.T) {
 	t.Run("No destinations", func(t *testing.T) {
-		src := NewMemory([]int{1, 2, 3}, nil)
+		src := MemReader([]int{1, 2, 3}, nil)
 
-		bytesWritten, err := Multiplex(src)
+		bytesWritten, err := Multicast(src)
 		assert.NoError(t, err, "Should handle no destinations")
 		assert.Empty(t, bytesWritten, "Should return empty bytes slice")
 	})
 
 	t.Run("Source stream error", func(t *testing.T) {
-		src := NewMemory([]int{1, 2}, errors.New("source error"))
-		dst1 := NewMemoryWriteStream[int]()
-		dst2 := NewMemoryWriteStream[int]()
+		src := MemReader([]int{1, 2}, errors.New("source error"))
+		dst1 := MemWriter[int]()
+		dst2 := MemWriter[int]()
 
-		bytesWritten, err := Multiplex(src, dst1, dst2)
+		bytesWritten, err := Multicast(src, dst1, dst2)
 		assert.Error(t, err, "Should return error from source")
 		assert.Contains(t, err.Error(), "read error", "Should contain read error message")
 		assert.Len(t, bytesWritten, 2, "Should return bytes array for all destinations")
 	})
 
 	t.Run("Destination stream error", func(t *testing.T) {
-		src := NewMemory([]int{1, 2, 3}, nil)
-		dst1 := NewMemoryWriteStream[int]()
-		dst2 := NewMemoryWriteStream[int]()
+		src := MemReader([]int{1, 2, 3}, nil)
+		dst1 := MemWriter[int]()
+		dst2 := MemWriter[int]()
 		dst2.SetError(errors.New("write error"))
 
-		bytesWritten, err := Multiplex(src, dst1, dst2)
+		bytesWritten, err := Multicast(src, dst1, dst2)
 		assert.Error(t, err, "Should return error from destination")
 		assert.Contains(
 			t,
@@ -455,14 +455,14 @@ func TestMultiplexErrorHandling(t *testing.T) {
 		assert.Len(t, bytesWritten, 2, "Should return bytes array for all destinations")
 	})
 
-	t.Run("Successful multiplex", func(t *testing.T) {
-		src := NewMemory([]int{1, 2, 3}, nil)
-		dst1 := NewMemoryWriteStream[int]()
-		dst2 := NewMemoryWriteStream[int]()
-		dst3 := NewMemoryWriteStream[int]()
+	t.Run("Successful Multicast", func(t *testing.T) {
+		src := MemReader([]int{1, 2, 3}, nil)
+		dst1 := MemWriter[int]()
+		dst2 := MemWriter[int]()
+		dst3 := MemWriter[int]()
 
-		bytesWritten, err := Multiplex(src, dst1, dst2, dst3)
-		assert.NoError(t, err, "Should multiplex successfully")
+		bytesWritten, err := Multicast(src, dst1, dst2, dst3)
+		assert.NoError(t, err, "Should Multicast successfully")
 		assert.Len(t, bytesWritten, 3, "Should return bytes written for each destination")
 
 		for i, bytes := range bytesWritten {

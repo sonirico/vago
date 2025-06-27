@@ -51,16 +51,13 @@ func (s *JSONEachRowStream[T]) Iter2() iter.Seq2[T, error] {
 	return Iter2(s)
 }
 
-func NewJSONEachRowStream[T any](r io.ReadCloser) *JSONEachRowStream[T] {
+// JSON creates a new JSONEachRowStream that reads from the provided io.ReadCloser.
+// The stream decodes JSON objects from the input, where each object represents a row.
+// This is useful for processing JSON data in a row-oriented manner, such as reading
+func JSON[T any](r io.ReadCloser) *JSONEachRowStream[T] {
 	return &JSONEachRowStream[T]{
 		r:       r,
 		decoder: json.NewDecoder(r),
-	}
-}
-
-func NewJSONEachRowStreamFactory[T any]() ReadStreamFactory[T] {
-	return func(rc io.ReadCloser) ReadStream[T] {
-		return NewJSONEachRowStream[T](rc)
 	}
 }
 

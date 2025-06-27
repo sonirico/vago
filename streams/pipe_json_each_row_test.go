@@ -42,7 +42,7 @@ func TestPipeJSONEachRowTransform_WriteTo(t *testing.T) {
 	}{
 		{
 			name: "valid stream with multiple records",
-			stream: NewMemory([]mockJsonEachRowMarshaler{
+			stream: MemReader([]mockJsonEachRowMarshaler{
 				{ID: 1, Name: "Alice", Email: "alice@example.com"},
 				{ID: 2, Name: "Bob", Email: "bob@example.com"},
 			}, nil),
@@ -51,13 +51,13 @@ func TestPipeJSONEachRowTransform_WriteTo(t *testing.T) {
 		},
 		{
 			name:          "empty stream",
-			stream:        NewMemory([]mockJsonEachRowMarshaler{}, nil),
+			stream:        MemReader([]mockJsonEachRowMarshaler{}, nil),
 			expectedJSON:  ``,
 			expectedError: nil,
 		},
 		{
 			name: "stream with single record",
-			stream: NewMemory([]mockJsonEachRowMarshaler{
+			stream: MemReader([]mockJsonEachRowMarshaler{
 				{ID: 1, Name: "Alice", Email: "alice@example.com"},
 			}, nil),
 			expectedJSON:  `{"id":1,"name":"Alice","email":"alice@example.com"}` + "\n",
@@ -65,19 +65,19 @@ func TestPipeJSONEachRowTransform_WriteTo(t *testing.T) {
 		},
 		{
 			name:          "stream with error",
-			stream:        NewMemory([]mockJsonEachRowMarshaler{}, errors.New("stream error")),
+			stream:        MemReader([]mockJsonEachRowMarshaler{}, errors.New("stream error")),
 			expectedJSON:  ``,
 			expectedError: errors.New("stream error"),
 		},
 		{
 			name:          "stream with error io.EOF",
-			stream:        NewMemory([]mockJsonEachRowMarshaler{}, io.EOF),
+			stream:        MemReader([]mockJsonEachRowMarshaler{}, io.EOF),
 			expectedJSON:  ``,
 			expectedError: nil,
 		},
 		{
 			name: "marshaler with error",
-			stream: NewMemory([]mockJsonEachRowMarshaler{
+			stream: MemReader([]mockJsonEachRowMarshaler{
 				{ID: 1, Name: "Alice", Email: "alice@example.com"},
 				{
 					ID:    2,
@@ -111,7 +111,7 @@ func TestPipeJSONEachRowTransform_WriteTo(t *testing.T) {
 }
 
 func TestPipeJSONEachRowTransform_WriteToFile(t *testing.T) {
-	stream := NewMemory([]mockJsonEachRowMarshaler{
+	stream := MemReader([]mockJsonEachRowMarshaler{
 		{ID: 1, Name: "Alice", Email: "alice@example.com"},
 		{ID: 2, Name: "Bob", Email: "bob@example.com"},
 	}, nil)

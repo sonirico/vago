@@ -22,7 +22,8 @@ type CSVStream[T any] struct {
 	parseFunc func([]string) (T, error)
 }
 
-func NewCSV[T any](opts ...CSVOpt) (*CSVStream[T], error) {
+// CSV creates a new CSVStream that reads from a given reader or file path.
+func CSV[T any](opts ...CSVOpt) (*CSVStream[T], error) {
 	optsDef := &csvOpts{
 		flag:   os.O_RDONLY,
 		perm:   0644,
@@ -35,18 +36,18 @@ func NewCSV[T any](opts ...CSVOpt) (*CSVStream[T], error) {
 		opt.apply(optsDef)
 	}
 
-	if optsDef.path != "" {
+	if optsDef.path == "" {
 		file, err := os.OpenFile(optsDef.path, optsDef.flag, optsDef.perm)
 		if err != nil {
 			return nil, err
 		}
-		return NewStreamCSV[T](file, optsDef.sep), nil
+		return newStreamCSV[T](file, optsDef.sep), nil
 	}
 
-	return NewStreamCSV[T](optsDef.reader, optsDef.sep), nil
+	return newStreamCSV[T](optsDef.reader, optsDef.sep), nil
 }
 
-func NewStreamCSV[T any](r io.ReadCloser, sep string) *CSVStream[T] {
+func newStreamCSV[T any](r io.ReadCloser, sep string) *CSVStream[T] {
 	var zero T
 	stream := &CSVStream[T]{
 		sep:    sep,

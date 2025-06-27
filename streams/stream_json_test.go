@@ -22,7 +22,7 @@ func TestNewJSONEachRowStream(t *testing.T) {
 		Time   string  `json:"t"`
 	}
 
-	s := NewJSONEachRowStream[trade](buf)
+	s := JSON[trade](buf)
 
 	expected := []trade{
 		{Price: 1.1, Volume: 123.345, Time: "1682298820000"},

@@ -10,7 +10,7 @@ import (
 )
 
 func TestMemoryWriteStream(t *testing.T) {
-	stream := NewMemoryWriteStream[string]()
+	stream := MemWriter[string]()
 
 	// Test writing items
 	items := []string{"hello", "world", "test"}
@@ -40,7 +40,7 @@ func TestMemoryWriteStream(t *testing.T) {
 }
 
 func TestMemoryWriteStreamWithError(t *testing.T) {
-	stream := NewMemoryWriteStream[int]()
+	stream := MemWriter[int]()
 
 	// Write some items first
 	_, err := stream.Write(1)
@@ -60,7 +60,7 @@ func TestMemoryWriteStreamWithError(t *testing.T) {
 
 func TestWriterStream(t *testing.T) {
 	var buf bytes.Buffer
-	stream := NewWriterStream(&buf)
+	stream := Writer(&buf)
 
 	// Test writing data
 	testData := [][]byte{
@@ -105,7 +105,7 @@ func TestWriterStreamInterface(t *testing.T) {
 }
 
 func TestWriteAll(t *testing.T) {
-	stream := NewMemoryWriteStream[int]()
+	stream := MemWriter[int]()
 	items := []int{1, 2, 3, 4, 5}
 
 	bytesWritten, err := WriteAll(stream, items)
@@ -123,10 +123,10 @@ func TestWriteAll(t *testing.T) {
 func TestPipeStream(t *testing.T) {
 	// Create source data
 	sourceItems := []string{"hello", "world", "test"}
-	src := NewMemory(sourceItems, nil)
+	src := MemReader(sourceItems, nil)
 
 	// Create destination stream
-	dst := NewMemoryWriteStream[string]()
+	dst := MemWriter[string]()
 
 	// Copy from source to destination
 	bytesWritten, err := Pipe(src, dst)

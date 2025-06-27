@@ -7,11 +7,11 @@ import (
 func TestFilterStream(t *testing.T) {
 	// Test filtering integers
 	sourceData := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
-	source := NewMemory(sourceData, nil)
+	source := MemReader(sourceData, nil)
 
 	// Filter even numbers
 	evenFilter := func(n int) bool { return n%2 == 0 }
-	filtered := NewFilterStream(source, evenFilter)
+	filtered := Filter(source, evenFilter)
 
 	result, err := Consume(filtered)
 	if err != nil {
@@ -33,11 +33,11 @@ func TestFilterStream(t *testing.T) {
 func TestFilterStreamStrings(t *testing.T) {
 	// Test filtering strings
 	sourceData := []string{"hello", "world", "test", "filter", "stream"}
-	source := NewMemory(sourceData, nil)
+	source := MemReader(sourceData, nil)
 
 	// Filter strings with length > 4
 	lengthFilter := func(s string) bool { return len(s) > 4 }
-	filtered := NewFilterStream(source, lengthFilter)
+	filtered := Filter(source, lengthFilter)
 
 	result, err := Consume(filtered)
 	if err != nil {
@@ -59,11 +59,11 @@ func TestFilterStreamStrings(t *testing.T) {
 func TestFilterStreamEmpty(t *testing.T) {
 	// Test filtering that results in empty stream
 	sourceData := []int{1, 3, 5, 7, 9}
-	source := NewMemory(sourceData, nil)
+	source := MemReader(sourceData, nil)
 
 	// Filter even numbers (none exist)
 	evenFilter := func(n int) bool { return n%2 == 0 }
-	filtered := NewFilterStream(source, evenFilter)
+	filtered := Filter(source, evenFilter)
 
 	result, err := Consume(filtered)
 	if err != nil {
@@ -78,11 +78,11 @@ func TestFilterStreamEmpty(t *testing.T) {
 func TestFilterStreamAll(t *testing.T) {
 	// Test filtering that keeps all items
 	sourceData := []int{2, 4, 6, 8, 10}
-	source := NewMemory(sourceData, nil)
+	source := MemReader(sourceData, nil)
 
 	// Filter even numbers (all are even)
 	evenFilter := func(n int) bool { return n%2 == 0 }
-	filtered := NewFilterStream(source, evenFilter)
+	filtered := Filter(source, evenFilter)
 
 	result, err := Consume(filtered)
 	if err != nil {
@@ -103,15 +103,15 @@ func TestFilterStreamAll(t *testing.T) {
 func TestFilterStreamChaining(t *testing.T) {
 	// Test chaining filter with mapper
 	sourceData := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
-	source := NewMemory(sourceData, nil)
+	source := MemReader(sourceData, nil)
 
 	// First filter even numbers
 	evenFilter := func(n int) bool { return n%2 == 0 }
-	filtered := NewFilterStream(source, evenFilter)
+	filtered := Filter(source, evenFilter)
 
 	// Then map to double the values
 	doubler := func(n int) int { return n * 2 }
-	mapped := NewMapperStream(filtered, doubler)
+	mapped := Map(filtered, doubler)
 
 	result, err := Consume(mapped)
 	if err != nil {
@@ -138,11 +138,11 @@ func TestFilterStreamInterface(t *testing.T) {
 func TestFilterStreamIterator(t *testing.T) {
 	// Test using FilterStream with iterator
 	sourceData := []int{1, 2, 3, 4, 5}
-	source := NewMemory(sourceData, nil)
+	source := MemReader(sourceData, nil)
 
 	// Filter odd numbers
 	oddFilter := func(n int) bool { return n%2 == 1 }
-	filtered := NewFilterStream(source, oddFilter).(*FilterStream[int])
+	filtered := Filter(source, oddFilter).(*FilterStream[int])
 
 	var result []int
 	for value := range filtered.Iter() {

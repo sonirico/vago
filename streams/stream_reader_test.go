@@ -14,7 +14,7 @@ func TestReaderStream(t *testing.T) {
 	// Test reading bytes from a string
 	testData := "hello\nworld\ntest\n"
 	reader := strings.NewReader(testData)
-	stream := NewReaderStream(reader)
+	stream := Reader(reader)
 
 	var result [][]byte
 	for stream.Next() {
@@ -40,7 +40,7 @@ func TestReaderStreamNoTrailingNewline(t *testing.T) {
 	// Test reading data without trailing newline
 	testData := "hello\nworld\ntest"
 	reader := strings.NewReader(testData)
-	stream := NewReaderStream(reader)
+	stream := Reader(reader)
 
 	result, err := Consume(stream)
 	require.NoError(t, err, "Should consume stream without error")
@@ -57,7 +57,7 @@ func TestReaderStreamNoTrailingNewline(t *testing.T) {
 func TestReaderStreamEmpty(t *testing.T) {
 	// Test reading from empty reader
 	reader := strings.NewReader("")
-	stream := NewReaderStream(reader)
+	stream := Reader(reader)
 
 	result, err := Consume(stream)
 	require.NoError(t, err, "Should consume empty stream without error")
@@ -68,7 +68,7 @@ func TestReaderStreamClose(t *testing.T) {
 	// Test closing the stream
 	testData := "hello\nworld\n"
 	reader := strings.NewReader(testData)
-	stream := NewReaderStream(reader)
+	stream := Reader(reader)
 
 	// Read first line
 	assert.True(t, stream.Next(), "Should read first line")
@@ -84,7 +84,7 @@ func TestLineReaderStream(t *testing.T) {
 	// Test reading lines as strings
 	testData := "hello\nworld\ntest line\n"
 	reader := strings.NewReader(testData)
-	stream := NewLineReaderStream(reader)
+	stream := Lines(reader)
 
 	var result []string
 	for stream.Next() {
@@ -110,7 +110,7 @@ func TestLineReaderStreamWindowsLineEndings(t *testing.T) {
 	// Test reading Windows line endings (\r\n)
 	testData := "hello\r\nworld\r\ntest\r\n"
 	reader := strings.NewReader(testData)
-	stream := NewLineReaderStream(reader)
+	stream := Lines(reader)
 
 	result, err := Consume(stream)
 	require.NoError(t, err, "Should consume stream without error")
@@ -127,7 +127,7 @@ func TestLineReaderStreamNoTrailingNewline(t *testing.T) {
 	// Test reading lines without trailing newline
 	testData := "hello\nworld\ntest"
 	reader := strings.NewReader(testData)
-	stream := NewLineReaderStream(reader)
+	stream := Lines(reader)
 
 	result, err := Consume(stream)
 	require.NoError(t, err, "Should consume stream without error")
@@ -143,7 +143,7 @@ func TestLineReaderStreamNoTrailingNewline(t *testing.T) {
 func TestLineReaderStreamEmpty(t *testing.T) {
 	// Test reading from empty reader
 	reader := strings.NewReader("")
-	stream := NewLineReaderStream(reader)
+	stream := Lines(reader)
 
 	result, err := Consume(stream)
 	require.NoError(t, err, "Should consume empty stream without error")
@@ -160,10 +160,10 @@ func TestReaderStreamWithWriteStream(t *testing.T) {
 	// Test integration: read from one stream and write to another
 	testData := "line1\nline2\nline3\n"
 	reader := strings.NewReader(testData)
-	readStream := NewReaderStream(reader)
+	readStream := Reader(reader)
 
 	// Write to memory stream
-	writeStream := NewMemoryWriteStream[[]byte]()
+	writeStream := MemWriter[[]byte]()
 
 	// Connect them
 	bytesWritten, err := Pipe(readStream, writeStream)
@@ -184,10 +184,10 @@ func TestLineReaderStreamWithFilter(t *testing.T) {
 	// Test integration with FilterStream
 	testData := "hello\nworld\ntest\nfilter\nstream\n"
 	reader := strings.NewReader(testData)
-	readStream := NewLineReaderStream(reader)
+	readStream := Lines(reader)
 
 	// Filter lines with length > 4
-	filtered := NewFilterStream(readStream, func(line string) bool {
+	filtered := Filter(readStream, func(line string) bool {
 		return len(line) > 4
 	})
 
@@ -211,7 +211,7 @@ func TestReaderStreamLargeData(t *testing.T) {
 		buf.WriteString("\n")
 	}
 
-	stream := NewLineReaderStream(&buf)
+	stream := Lines(&buf)
 	result, err := Consume(stream)
 	require.NoError(t, err, "Should consume large stream without error")
 	assert.Len(t, result, 1000, "Should have 1000 lines")
@@ -224,7 +224,7 @@ func TestReaderStreamLargeData(t *testing.T) {
 func TestReaderStreamErrorHandling(t *testing.T) {
 	// Test error handling during read
 	reader := &errorReader{failAfter: 2}
-	stream := NewReaderStream(reader)
+	stream := Reader(reader)
 
 	// Should read some data before failing
 	assert.True(t, stream.Next(), "Should read first chunk")
@@ -238,7 +238,7 @@ func TestReaderStreamErrorHandling(t *testing.T) {
 func TestLineReaderStreamErrorHandling(t *testing.T) {
 	// Test error handling for line reader
 	reader := &errorReader{failAfter: 1}
-	stream := NewLineReaderStream(reader)
+	stream := Lines(reader)
 
 	// First read should work
 	assert.True(t, stream.Next(), "Should read first line")
@@ -251,7 +251,7 @@ func TestLineReaderStreamErrorHandling(t *testing.T) {
 func TestReaderStreamMultipleClose(t *testing.T) {
 	// Test that multiple closes don't cause issues
 	reader := strings.NewReader("test\n")
-	stream := NewReaderStream(reader)
+	stream := Reader(reader)
 
 	// Close multiple times should not error
 	assert.NoError(t, stream.Close(), "First close should succeed")
@@ -263,15 +263,15 @@ func TestReaderStreamChaining(t *testing.T) {
 	// Test complex chaining: Reader -> Filter -> Map -> Write
 	testData := "apple\nbanana\ncherry\ndate\nelderberry\nfig\n"
 	reader := strings.NewReader(testData)
-	readStream := NewLineReaderStream(reader)
+	readStream := Lines(reader)
 
 	// Filter fruits with length > 4
-	filtered := NewFilterStream(readStream, func(fruit string) bool {
+	filtered := Filter(readStream, func(fruit string) bool {
 		return len(fruit) > 4
 	})
 
 	// Map to uppercase
-	mapped := NewMapperStream(filtered, func(fruit string) string {
+	mapped := Map(filtered, func(fruit string) string {
 		return strings.ToUpper(fruit)
 	})
 
@@ -283,20 +283,20 @@ func TestReaderStreamChaining(t *testing.T) {
 	assert.Equal(t, expected, result, "Should have correct filtered and mapped results")
 }
 
-func TestReaderStreamWithMultiplex(t *testing.T) {
-	// Test multiplexing reader stream to multiple writers
+func TestReaderStreamWithMulticast(t *testing.T) {
+	// Test Multicasting reader stream to multiple writers
 	testData := "line1\nline2\nline3\n"
 	reader := strings.NewReader(testData)
-	readStream := NewReaderStream(reader)
+	readStream := Reader(reader)
 
 	// Create multiple write streams
-	writer1 := NewMemoryWriteStream[[]byte]()
-	writer2 := NewMemoryWriteStream[[]byte]()
-	writer3 := NewMemoryWriteStream[[]byte]()
+	writer1 := MemWriter[[]byte]()
+	writer2 := MemWriter[[]byte]()
+	writer3 := MemWriter[[]byte]()
 
-	// Multiplex to all writers
-	bytesWritten, err := Multiplex(readStream, writer1, writer2, writer3)
-	require.NoError(t, err, "Should multiplex without error")
+	// Multicast to all writers
+	bytesWritten, err := Multicast(readStream, writer1, writer2, writer3)
+	require.NoError(t, err, "Should Multicast without error")
 
 	// All should have written the same amount
 	expectedBytes := []int64{3, 3, 3} // 3 items each

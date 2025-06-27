@@ -4,6 +4,7 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/sonirico/gozo)](https://goreportcard.com/report/github.com/sonirico/gozo)
 [![Go Reference](https://pkg.go.dev/badge/github.com/sonirico/gozo.svg)](https://pkg.go.dev/github.com/sonirico/gozo)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Release](https://img.shields.io/github/v/release/sonirico/gozo.svg)](https://github.com/sonirico/gozo/releases)
 
 [![gozo Art](gozo.png)](https://github.com/sonirico/gozo/gozo.png)
 
@@ -71,31 +72,40 @@ The ultimate toolkit for Go developers. A comprehensive collection of functions,
   - [ToMapIdx](#tomapidx)
   - [Unshift](#unshift)
 - [🌊 Streams](#streams)
+  - [Batch](#batch)
+  - [CSV](#csv)
   - [CSVTransform](#csvtransform)
   - [Collect](#collect)
+  - [Compact](#compact)
+  - [CompactFactory](#compactfactory)
+  - [Consume](#consume)
+  - [ConsumeErrSkip](#consumeerrskip)
+  - [Filter](#filter)
+  - [Flatten](#flatten)
   - [Iter](#iter)
   - [Iter2](#iter2)
+  - [JSON](#json)
   - [JSONEachRowTransform](#jsoneachrowtransform)
   - [JSONTransform](#jsontransform)
-  - [Multiplex](#multiplex)
-  - [NewBatchStream](#newbatchstream)
-  - [NewCompactStream](#newcompactstream)
-  - [NewCompactStreamFactory](#newcompactstreamfactory)
-  - [NewFilterStream](#newfilterstream)
-  - [NewFlattenerStream](#newflattenerstream)
-  - [NewLineReaderStream](#newlinereaderstream)
-  - [NewMapperStream](#newmapperstream)
-  - [NewMemory](#newmemory)
-  - [NewMemoryWriteStream](#newmemorywritestream)
-  - [NewReaderStream](#newreaderstream)
-  - [NewWriterStream](#newwriterstream)
+  - [Lines](#lines)
+  - [Map](#map)
+  - [Mem](#mem)
+  - [MemWriter](#MemWriter)
+  - [Multicast](#multicast)
   - [Pipe](#pipe)
+  - [PipeCSV](#pipecsv)
+  - [PipeJSON](#pipejson)
+  - [PipeJSONEachRow](#pipejsoneachrow)
+  - [ReadAllBytes](#readallbytes)
+  - [Reader](#reader)
+  - [Reduce](#reduce)
   - [SeqKeys](#seqkeys)
   - [SeqValues](#seqvalues)
   - [WriteAll](#writeall)
   - [WriteSeq](#writeseq)
   - [WriteSeqKeys](#writeseqkeys)
   - [WriteSeqValues](#writeseqvalues)
+  - [Writer](#writer)
 
 ## <a name="fp"></a>🪄 Fp
 
@@ -1675,31 +1685,100 @@ func Unshift[T any](arr []T, item T) []T {
 
 ### Functions
 
+- [Batch](#batch)
+- [CSV](#csv)
 - [CSVTransform](#csvtransform)
 - [Collect](#collect)
+- [Compact](#compact)
+- [CompactFactory](#compactfactory)
+- [Consume](#consume)
+- [ConsumeErrSkip](#consumeerrskip)
+- [Filter](#filter)
+- [Flatten](#flatten)
 - [Iter](#iter)
 - [Iter2](#iter2)
+- [JSON](#json)
 - [JSONEachRowTransform](#jsoneachrowtransform)
 - [JSONTransform](#jsontransform)
-- [Multiplex](#multiplex)
-- [NewBatchStream](#newbatchstream)
-- [NewCompactStream](#newcompactstream)
-- [NewCompactStreamFactory](#newcompactstreamfactory)
-- [NewFilterStream](#newfilterstream)
-- [NewFlattenerStream](#newflattenerstream)
-- [NewLineReaderStream](#newlinereaderstream)
-- [NewMapperStream](#newmapperstream)
-- [NewMemory](#newmemory)
-- [NewMemoryWriteStream](#newmemorywritestream)
-- [NewReaderStream](#newreaderstream)
-- [NewWriterStream](#newwriterstream)
+- [Lines](#lines)
+- [Map](#map)
+- [Mem](#mem)
+- [MemWriter](#MemWriter)
+- [Multicast](#multicast)
 - [Pipe](#pipe)
+- [PipeCSV](#pipecsv)
+- [PipeJSON](#pipejson)
+- [PipeJSONEachRow](#pipejsoneachrow)
+- [ReadAllBytes](#readallbytes)
+- [Reader](#reader)
+- [Reduce](#reduce)
 - [SeqKeys](#seqkeys)
 - [SeqValues](#seqvalues)
 - [WriteAll](#writeall)
 - [WriteSeq](#writeseq)
 - [WriteSeqKeys](#writeseqkeys)
 - [WriteSeqValues](#writeseqvalues)
+- [Writer](#writer)
+
+#### <a name="batch"></a>Batch
+
+Batch creates a new batch-oriented stream that reads items from
+`inner` in chunks of `batchSize` and returns them as []T.
+
+
+<details><summary>Code</summary>
+
+```go
+func Batch[T any](inner ReadStream[T], batchSize int) ReadStream[[]T] {
+	return &BatchStream[T]{
+		inner:     inner,
+		batchSize: batchSize,
+	}
+}
+```
+
+</details>
+
+
+---
+
+#### <a name="csv"></a>CSV
+
+CSV creates a new CSVStream that reads from a given reader or file path.
+
+
+<details><summary>Code</summary>
+
+```go
+func CSV[T any](opts ...CSVOpt) (*CSVStream[T], error) {
+	optsDef := &csvOpts{
+		flag:   os.O_RDONLY,
+		perm:   0644,
+		sep:    CSVSeparatorCommaStr,
+		reader: os.Stdin,
+		path:   "",
+	}
+
+	for _, opt := range opts {
+		opt.apply(optsDef)
+	}
+
+	if optsDef.path == "" {
+		file, err := os.OpenFile(optsDef.path, optsDef.flag, optsDef.perm)
+		if err != nil {
+			return nil, err
+		}
+		return newStreamCSV[T](file, optsDef.sep), nil
+	}
+
+	return newStreamCSV[T](optsDef.reader, optsDef.sep), nil
+}
+```
+
+</details>
+
+
+---
 
 #### <a name="csvtransform"></a>CSVTransform
 
@@ -1732,6 +1811,169 @@ Collect collects all elements from an iter.Seq into a slice.
 ```go
 func Collect[T any](stream iter.Seq[T]) []T {
 	return slices.Collect(stream)
+}
+```
+
+</details>
+
+
+---
+
+#### <a name="compact"></a>Compact
+
+Compact creates a new stream that groups consecutive items with the same key.
+The keyFunc is used to extract the grouping key from each item (like Python's itemgetter).
+
+
+<details><summary>Code</summary>
+
+```go
+func Compact[T any, K comparable](inner ReadStream[T], keyFunc func(T) K) ReadStream[[]T] {
+	return &CompactStream[T, K]{
+		inner:   inner,
+		keyFunc: keyFunc,
+	}
+}
+```
+
+</details>
+
+
+---
+
+#### <a name="compactfactory"></a>CompactFactory
+
+CompactFactory creates a factory for CompactStream instances.
+
+
+<details><summary>Code</summary>
+
+```go
+func CompactFactory[T any, K comparable](
+	innerFactory ReadStreamFactory[T],
+	keyFunc func(T) K,
+) ReadStreamFactory[[]T] {
+	return func(rc io.ReadCloser) ReadStream[[]T] {
+		return Compact(innerFactory(rc), keyFunc)
+	}
+}
+```
+
+</details>
+
+
+---
+
+#### <a name="consume"></a>Consume
+
+Consume reads all items from a ReadStream and returns them as a slice.
+If an error occurs during reading, it returns nil and the error.
+If the stream ends with io.EOF, it returns the items read so far without an error.
+This function is useful for collecting all items from a stream into a slice.
+
+
+<details><summary>Code</summary>
+
+```go
+func Consume[T any](stream ReadStream[T]) ([]T, error) {
+	var res []T
+
+	for stream.Next() {
+		res = append(res, stream.Data())
+	}
+
+	err := stream.Err()
+
+	if err != nil {
+		if !errors.Is(err, io.EOF) {
+			return nil, err
+		}
+	}
+
+	return res, nil
+}
+```
+
+</details>
+
+
+---
+
+#### <a name="consumeerrskip"></a>ConsumeErrSkip
+
+ConsumeErrSkip reads all items from a ReadStream, skipping any that cause an error.
+It returns a slice of successfully read items.
+This is useful when you want to collect items from a stream but ignore those that fail due
+to errors, such as parsing issues or other read errors.
+It will not return an error if the stream ends with io.EOF, but will skip any items that
+caused errors during reading.
+This function is useful for collecting items from a stream while ignoring errors.
+
+
+<details><summary>Code</summary>
+
+```go
+func ConsumeErrSkip[T any](stream ReadStream[T]) []T {
+	var res []T
+
+	for stream.Next() {
+		if err := stream.Err(); err == nil {
+			res = append(res, stream.Data())
+		}
+	}
+
+	return res
+}
+```
+
+</details>
+
+
+---
+
+#### <a name="filter"></a>Filter
+
+Filter creates a new ReadStream that filters elements from the inner stream
+using the provided predicate function. Only elements that satisfy the predicate
+(return true) will be included in the resulting stream.
+
+This is useful for creating data processing pipelines where you need to exclude
+certain elements based on custom criteria.
+
+
+<details><summary>Code</summary>
+
+```go
+func Filter[T any](inner ReadStream[T], predicate func(T) bool) ReadStream[T] {
+	return &FilterStream[T]{
+		inner:     inner,
+		predicate: predicate,
+	}
+}
+```
+
+</details>
+
+
+---
+
+#### <a name="flatten"></a>Flatten
+
+Flatten creates a new ReadStream that flattens slices from the inner stream.
+It takes a ReadStream[[]T] and converts it to ReadStream[T] by emitting each
+element from the inner slices individually.
+
+This is useful when you have a stream of slices and want to process each
+individual element, such as flattening batched data or expanding grouped results.
+
+
+<details><summary>Code</summary>
+
+```go
+func Flatten[T any](inner ReadStream[[]T]) ReadStream[T] {
+	return &FlattenerStream[T]{
+		inner: inner,
+	}
 }
 ```
 
@@ -1802,6 +2044,29 @@ func Iter2[T any](stream ReadStream[T]) iter.Seq2[T, error] {
 
 ---
 
+#### <a name="json"></a>JSON
+
+JSON creates a new JSONEachRowStream that reads from the provided io.ReadCloser.
+The stream decodes JSON objects from the input, where each object represents a row.
+This is useful for processing JSON data in a row-oriented manner, such as reading
+
+
+<details><summary>Code</summary>
+
+```go
+func JSON[T any](r io.ReadCloser) *JSONEachRowStream[T] {
+	return &JSONEachRowStream[T]{
+		r:       r,
+		decoder: json.NewDecoder(r),
+	}
+}
+```
+
+</details>
+
+
+---
+
 #### <a name="jsoneachrowtransform"></a>JSONEachRowTransform
 
 JSONEachRowTransform creates a Transform that converts a ReadStream to JSON-lines format.
@@ -1852,16 +2117,111 @@ func JSONTransform[T any](r ReadStream[T]) Transform[T] {
 
 ---
 
-#### <a name="multiplex"></a>Multiplex
+#### <a name="lines"></a>Lines
 
-Multiplex copies all items from a ReadStream to multiple WriteStreams
+Lines creates a new ReadStream that reads lines as strings from an io.Reader
+
+
+<details><summary>Code</summary>
+
+```go
+func Lines(reader io.Reader) ReadStream[string] {
+	return &LineReaderStream{
+		original: reader,
+		reader:   bufio.NewReader(reader),
+	}
+}
+```
+
+</details>
+
+
+---
+
+#### <a name="map"></a>Map
+
+Map creates a new ReadStream that transforms elements from the inner stream
+using the provided mapper function. Each element of type T is converted to type V
+using the mapper function.
+
+This is useful for creating data processing pipelines where you need to transform
+data from one type to another, such as converting strings to uppercase or
+extracting specific fields from structs.
+
+
+<details><summary>Code</summary>
+
+```go
+func Map[T, V any](inner ReadStream[T], mapper func(T) V) ReadStream[V] {
+	return &MapperStream[T, V]{
+		inner:  inner,
+		mapper: mapper,
+	}
+}
+```
+
+</details>
+
+
+---
+
+#### <a name="mem"></a>Mem
+
+Mem creates a new ReadStream that reads from a slice in memory.
+This is useful for testing, converting slices to streams, or creating
+simple data sources for streaming pipelines.
+
+The error parameter allows you to simulate error conditions during streaming.
+If err is not nil, the stream will return this error when Err() is called.
+
+
+<details><summary>Code</summary>
+
+```go
+func Mem[T any](items []T, err error) *MemoryStream[T] {
+	return &MemoryStream[T]{
+		items:  items,
+		cursor: -1,
+		error:  err,
+	}
+}
+```
+
+</details>
+
+
+---
+
+#### <a name="MemWriter"></a>MemWriter
+
+MemWriter creates a new memory-based WriteStream
+
+
+<details><summary>Code</summary>
+
+```go
+func MemWriter[T any]() *MemoryWriteStream[T] {
+	return &MemoryWriteStream[T]{
+		items: make([]T, 0),
+	}
+}
+```
+
+</details>
+
+
+---
+
+#### <a name="multicast"></a>Multicast
+
+Multicast copies all items from a ReadStream to multiple WriteStreams
 Returns a slice with bytes written to each destination and any error
 
 
 <details><summary>Code</summary>
 
 ```go
-func Multiplex[T any](src ReadStream[T], destinations ...WriteStream[T]) ([]int64, error) {
+func Multicast[T any](src ReadStream[T], destinations ...WriteStream[T]) ([]int64, error) {
 	if len(destinations) == 0 {
 		return []int64{}, nil
 	}
@@ -1893,260 +2253,6 @@ func Multiplex[T any](src ReadStream[T], destinations ...WriteStream[T]) ([]int6
 	}
 
 	return bytesWritten, nil
-}
-```
-
-</details>
-
-
----
-
-#### <a name="newbatchstream"></a>NewBatchStream
-
-NewBatchStream creates a new batch-oriented stream that reads items from
-`inner` in chunks of `batchSize` and returns them as []T.
-
-
-<details><summary>Code</summary>
-
-```go
-func NewBatchStream[T any](inner ReadStream[T], batchSize int) ReadStream[[]T] {
-	return &BatchStream[T]{
-		inner:     inner,
-		batchSize: batchSize,
-	}
-}
-```
-
-</details>
-
-
----
-
-#### <a name="newcompactstream"></a>NewCompactStream
-
-NewCompactStream creates a new stream that groups consecutive items with the same key.
-The keyFunc is used to extract the grouping key from each item (like Python's itemgetter).
-
-
-<details><summary>Code</summary>
-
-```go
-func NewCompactStream[T any, K comparable](inner ReadStream[T], keyFunc func(T) K) ReadStream[[]T] {
-	return &CompactStream[T, K]{
-		inner:   inner,
-		keyFunc: keyFunc,
-	}
-}
-```
-
-</details>
-
-
----
-
-#### <a name="newcompactstreamfactory"></a>NewCompactStreamFactory
-
-NewCompactStreamFactory creates a factory for CompactStream instances.
-
-
-<details><summary>Code</summary>
-
-```go
-func NewCompactStreamFactory[T any, K comparable](
-	innerFactory ReadStreamFactory[T],
-	keyFunc func(T) K,
-) ReadStreamFactory[[]T] {
-	return func(rc io.ReadCloser) ReadStream[[]T] {
-		return NewCompactStream(innerFactory(rc), keyFunc)
-	}
-}
-```
-
-</details>
-
-
----
-
-#### <a name="newfilterstream"></a>NewFilterStream
-
-NewFilterStream creates a new ReadStream that filters elements from the inner stream
-using the provided predicate function. Only elements that satisfy the predicate
-(return true) will be included in the resulting stream.
-
-This is useful for creating data processing pipelines where you need to exclude
-certain elements based on custom criteria.
-
-
-<details><summary>Code</summary>
-
-```go
-func NewFilterStream[T any](inner ReadStream[T], predicate func(T) bool) ReadStream[T] {
-	return &FilterStream[T]{
-		inner:     inner,
-		predicate: predicate,
-	}
-}
-```
-
-</details>
-
-
----
-
-#### <a name="newflattenerstream"></a>NewFlattenerStream
-
-NewFlattenerStream creates a new ReadStream that flattens slices from the inner stream.
-It takes a ReadStream[[]T] and converts it to ReadStream[T] by emitting each
-element from the inner slices individually.
-
-This is useful when you have a stream of slices and want to process each
-individual element, such as flattening batched data or expanding grouped results.
-
-
-<details><summary>Code</summary>
-
-```go
-func NewFlattenerStream[T any](inner ReadStream[[]T]) ReadStream[T] {
-	return &FlattenerStream[T]{
-		inner: inner,
-	}
-}
-```
-
-</details>
-
-
----
-
-#### <a name="newlinereaderstream"></a>NewLineReaderStream
-
-NewLineReaderStream creates a new ReadStream that reads lines as strings from an io.Reader
-
-
-<details><summary>Code</summary>
-
-```go
-func NewLineReaderStream(reader io.Reader) ReadStream[string] {
-	return &LineReaderStream{
-		original: reader,
-		reader:   bufio.NewReader(reader),
-	}
-}
-```
-
-</details>
-
-
----
-
-#### <a name="newmapperstream"></a>NewMapperStream
-
-NewMapperStream creates a new ReadStream that transforms elements from the inner stream
-using the provided mapper function. Each element of type T is converted to type V
-using the mapper function.
-
-This is useful for creating data processing pipelines where you need to transform
-data from one type to another, such as converting strings to uppercase or
-extracting specific fields from structs.
-
-
-<details><summary>Code</summary>
-
-```go
-func NewMapperStream[T, V any](inner ReadStream[T], mapper func(T) V) ReadStream[V] {
-	return &MapperStream[T, V]{
-		inner:  inner,
-		mapper: mapper,
-	}
-}
-```
-
-</details>
-
-
----
-
-#### <a name="newmemory"></a>NewMemory
-
-NewMemory creates a new ReadStream that reads from a slice in memory.
-This is useful for testing, converting slices to streams, or creating
-simple data sources for streaming pipelines.
-
-The error parameter allows you to simulate error conditions during streaming.
-If err is not nil, the stream will return this error when Err() is called.
-
-
-<details><summary>Code</summary>
-
-```go
-func NewMemory[T any](items []T, err error) *MemoryStream[T] {
-	return &MemoryStream[T]{
-		items:  items,
-		cursor: -1,
-		error:  err,
-	}
-}
-```
-
-</details>
-
-
----
-
-#### <a name="newmemorywritestream"></a>NewMemoryWriteStream
-
-NewMemoryWriteStream creates a new memory-based WriteStream
-
-
-<details><summary>Code</summary>
-
-```go
-func NewMemoryWriteStream[T any]() *MemoryWriteStream[T] {
-	return &MemoryWriteStream[T]{
-		items: make([]T, 0),
-	}
-}
-```
-
-</details>
-
-
----
-
-#### <a name="newreaderstream"></a>NewReaderStream
-
-NewReaderStream creates a new ReadStream that reads from an io.Reader
-
-
-<details><summary>Code</summary>
-
-```go
-func NewReaderStream(reader io.Reader) ReadStream[[]byte] {
-	return &ReaderStream{
-		original: reader,
-		reader:   bufio.NewReader(reader),
-	}
-}
-```
-
-</details>
-
-
----
-
-#### <a name="newwriterstream"></a>NewWriterStream
-
-NewWriterStream creates a new WriteStream that writes to an io.Writer
-
-
-<details><summary>Code</summary>
-
-```go
-func NewWriterStream(writer io.Writer) *WriterStream {
-	return &WriterStream{
-		writer: writer,
-	}
 }
 ```
 
@@ -2187,6 +2293,139 @@ func Pipe[T any](src ReadStream[T], dst WriteStream[T]) (int64, error) {
 	}
 
 	return totalBytes, nil
+}
+```
+
+</details>
+
+
+---
+
+#### <a name="pipecsv"></a>PipeCSV
+
+PipeJSONEachRow writes the JSON representation of each row in the stream to the provided writer.
+
+
+<details><summary>Code</summary>
+
+```go
+func PipeCSV[T csvMarshaler](stream ReadStream[T], w io.Writer, writeSep rune) (int64, error) {
+	return CSVTransform(stream, writeSep).WriteTo(w)
+}
+```
+
+</details>
+
+
+---
+
+#### <a name="pipejson"></a>PipeJSON
+
+PipeJSON writes the JSON representation of each item in the stream to the provided writer.
+
+
+<details><summary>Code</summary>
+
+```go
+func PipeJSON[T any](stream ReadStream[T], w io.Writer) (int64, error) {
+	return JSONTransform(stream).WriteTo(w)
+}
+```
+
+</details>
+
+
+---
+
+#### <a name="pipejsoneachrow"></a>PipeJSONEachRow
+
+PipeJSONEachRow writes the JSON representation of each row in the stream to the provided writer.
+
+
+<details><summary>Code</summary>
+
+```go
+func PipeJSONEachRow[T any](stream ReadStream[T], w io.Writer) (int64, error) {
+	return JSONEachRowTransform(stream).WriteTo(w)
+}
+```
+
+</details>
+
+
+---
+
+#### <a name="readallbytes"></a>ReadAllBytes
+
+ReadAllBytes reads all data from a Transform and returns it as a byte slice.
+It uses a bytes.Buffer to accumulate the data and returns the final byte slice.
+If an error occurs during writing, it returns nil and the error.
+
+
+<details><summary>Code</summary>
+
+```go
+func ReadAllBytes[T any](transform Transform[T]) ([]byte, error) {
+	buf := new(bytes.Buffer)
+
+	if _, err := transform.WriteTo(buf); err != nil {
+		return nil, err
+	}
+
+	return buf.Bytes(), nil
+}
+```
+
+</details>
+
+
+---
+
+#### <a name="reader"></a>Reader
+
+Reader creates a new ReadStream that reads from an io.Reader
+
+
+<details><summary>Code</summary>
+
+```go
+func Reader(reader io.Reader) ReadStream[[]byte] {
+	return &ReaderStream{
+		original: reader,
+		reader:   bufio.NewReader(reader),
+	}
+}
+```
+
+</details>
+
+
+---
+
+#### <a name="reduce"></a>Reduce
+
+Reduce applies a reduction function to a ReadStream, accumulating results in a map.
+The function takes the current map and an item from the stream, returning a new map.
+It returns the final accumulated map or an error if the stream encounters one.
+
+
+<details><summary>Code</summary>
+
+```go
+func Reduce[T any, K comparable, V any](
+	s ReadStream[T],
+	fn func(map[K]V, T) map[K]V,
+) (map[K]V, error) {
+	res := make(map[K]V)
+	for s.Next() {
+		if err := s.Err(); err != nil {
+			return nil, err
+		}
+
+		res = fn(res, s.Data())
+	}
+
+	return res, s.Err()
 }
 ```
 
@@ -2326,6 +2565,26 @@ Returns the total number of bytes written and any error
 ```go
 func WriteSeqValues[K, V any](stream WriteStream[V], items iter.Seq2[K, V]) (int64, error) {
 	return WriteSeq(stream, SeqValues(items))
+}
+```
+
+</details>
+
+
+---
+
+#### <a name="writer"></a>Writer
+
+Writer creates a new WriteStream that writes to an io.Writer
+
+
+<details><summary>Code</summary>
+
+```go
+func Writer(writer io.Writer) *WriterStream {
+	return &WriterStream{
+		writer: writer,
+	}
 }
 ```
 

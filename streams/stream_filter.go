@@ -47,25 +47,25 @@ func (s *FilterStream[T]) Iter() iter.Seq[T] {
 	return Iter(s)
 }
 
-// NewFilterStream creates a new ReadStream that filters elements from the inner stream
+// Filter creates a new ReadStream that filters elements from the inner stream
 // using the provided predicate function. Only elements that satisfy the predicate
 // (return true) will be included in the resulting stream.
 //
 // This is useful for creating data processing pipelines where you need to exclude
 // certain elements based on custom criteria.
-func NewFilterStream[T any](inner ReadStream[T], predicate func(T) bool) ReadStream[T] {
+func Filter[T any](inner ReadStream[T], predicate func(T) bool) ReadStream[T] {
 	return &FilterStream[T]{
 		inner:     inner,
 		predicate: predicate,
 	}
 }
 
-func NewFilterStreamFactory[T any](
+func FilterFactory[T any](
 	inner ReadStreamFactory[T],
 	predicate func(T) bool,
 ) ReadStreamFactory[T] {
 	return func(readCloser io.ReadCloser) ReadStream[T] {
-		return NewFilterStream[T](inner(readCloser), predicate)
+		return Filter[T](inner(readCloser), predicate)
 	}
 }
 

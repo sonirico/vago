@@ -75,6 +75,7 @@ func JSONEachRowTransform[T any](stream ReadStream[T]) Transform[T] {
 	}
 }
 
+// PipeJSONEachRow writes the JSON representation of each row in the stream to the provided writer.
 func PipeJSONEachRow[T any](stream ReadStream[T], w io.Writer) (int64, error) {
 	return JSONEachRowTransform(stream).WriteTo(w)
 }

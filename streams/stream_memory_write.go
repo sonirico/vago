@@ -40,8 +40,8 @@ func (w *MemoryWriteStream[T]) SetError(err error) {
 	w.err = err
 }
 
-// NewMemoryWriteStream creates a new memory-based WriteStream
-func NewMemoryWriteStream[T any]() *MemoryWriteStream[T] {
+// MemWriter creates a new memory-based WriteStream
+func MemWriter[T any]() *MemoryWriteStream[T] {
 	return &MemoryWriteStream[T]{
 		items: make([]T, 0),
 	}

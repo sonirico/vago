@@ -15,9 +15,9 @@ type (
 	}
 )
 
-// NewBatchStream creates a new batch-oriented stream that reads items from
+// Batch creates a new batch-oriented stream that reads items from
 // `inner` in chunks of `batchSize` and returns them as []T.
-func NewBatchStream[T any](inner ReadStream[T], batchSize int) ReadStream[[]T] {
+func Batch[T any](inner ReadStream[T], batchSize int) ReadStream[[]T] {
 	return &BatchStream[T]{
 		inner:     inner,
 		batchSize: batchSize,
@@ -67,12 +67,12 @@ func (s *BatchStream[T]) Iter() iter.Seq[[]T] {
 	return Iter(s)
 }
 
-func NewBatchStreamFactory[T any](
+func BatchFactory[T any](
 	innerFactory ReadStreamFactory[T],
 	batchSize int,
 ) ReadStreamFactory[[]T] {
 	return func(rc io.ReadCloser) ReadStream[[]T] {
-		return NewBatchStream(innerFactory(rc), batchSize)
+		return Batch(innerFactory(rc), batchSize)
 	}
 }
 

@@ -21,6 +21,7 @@ const title = `
 [![Go Report Card](https://goreportcard.com/badge/github.com/sonirico/gozo)](https://goreportcard.com/report/github.com/sonirico/gozo)
 [![Go Reference](https://pkg.go.dev/badge/github.com/sonirico/gozo.svg)](https://pkg.go.dev/github.com/sonirico/gozo)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Release](https://img.shields.io/github/v/release/sonirico/gozo.svg)](https://github.com/sonirico/gozo/releases)
 
 [![gozo Art](gozo.png)](https://github.com/sonirico/gozo/gozo.png)
 

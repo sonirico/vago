@@ -10,6 +10,9 @@ import (
 	"errors"
 )
 
+// ReadAllBytes reads all data from a Transform and returns it as a byte slice.
+// It uses a bytes.Buffer to accumulate the data and returns the final byte slice.
+// If an error occurs during writing, it returns nil and the error.
 func ReadAllBytes[T any](transform Transform[T]) ([]byte, error) {
 	buf := new(bytes.Buffer)
 
@@ -20,6 +23,10 @@ func ReadAllBytes[T any](transform Transform[T]) ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
+// Consume reads all items from a ReadStream and returns them as a slice.
+// If an error occurs during reading, it returns nil and the error.
+// If the stream ends with io.EOF, it returns the items read so far without an error.
+// This function is useful for collecting all items from a stream into a slice.
 func Consume[T any](stream ReadStream[T]) ([]T, error) {
 	var res []T
 
@@ -38,6 +45,13 @@ func Consume[T any](stream ReadStream[T]) ([]T, error) {
 	return res, nil
 }
 
+// ConsumeErrSkip reads all items from a ReadStream, skipping any that cause an error.
+// It returns a slice of successfully read items.
+// This is useful when you want to collect items from a stream but ignore those that fail due
+// to errors, such as parsing issues or other read errors.
+// It will not return an error if the stream ends with io.EOF, but will skip any items that
+// caused errors during reading.
+// This function is useful for collecting items from a stream while ignoring errors.
 func ConsumeErrSkip[T any](stream ReadStream[T]) []T {
 	var res []T
 
@@ -116,9 +130,9 @@ func Pipe[T any](src ReadStream[T], dst WriteStream[T]) (int64, error) {
 	return totalBytes, nil
 }
 
-// Multiplex copies all items from a ReadStream to multiple WriteStreams
+// Multicast copies all items from a ReadStream to multiple WriteStreams
 // Returns a slice with bytes written to each destination and any error
-func Multiplex[T any](src ReadStream[T], destinations ...WriteStream[T]) ([]int64, error) {
+func Multicast[T any](src ReadStream[T], destinations ...WriteStream[T]) ([]int64, error) {
 	if len(destinations) == 0 {
 		return []int64{}, nil
 	}

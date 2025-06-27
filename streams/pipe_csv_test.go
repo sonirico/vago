@@ -40,7 +40,7 @@ func TestPipeCSVTransform_WriteTo(t *testing.T) {
 		{
 			name:      "valid stream with multiple records comma separated",
 			separator: CSVSeparatorComma,
-			stream: NewMemory([]mockCsvMarshaler{
+			stream: MemReader([]mockCsvMarshaler{
 				{ID: 1, Name: "Alice", Email: "alice@example.com"},
 				{ID: 2, Name: "Bob", Email: "bob@example.com"},
 			}, nil),
@@ -50,7 +50,7 @@ func TestPipeCSVTransform_WriteTo(t *testing.T) {
 		{
 			name:      "valid stream with multiple records tab separated",
 			separator: CSVSeparatorTab,
-			stream: NewMemory([]mockCsvMarshaler{
+			stream: MemReader([]mockCsvMarshaler{
 				{ID: 1, Name: "Alice", Email: "alice@example.com"},
 				{ID: 2, Name: "Bob", Email: "bob@example.com"},
 			}, nil),
@@ -60,14 +60,14 @@ func TestPipeCSVTransform_WriteTo(t *testing.T) {
 		{
 			name:          "empty stream",
 			separator:     CSVSeparatorComma,
-			stream:        NewMemory([]mockCsvMarshaler{}, nil),
+			stream:        MemReader([]mockCsvMarshaler{}, nil),
 			expectedCSV:   "",
 			expectedError: nil,
 		},
 		{
 			name:      "stream with single record",
 			separator: CSVSeparatorComma,
-			stream: NewMemory([]mockCsvMarshaler{
+			stream: MemReader([]mockCsvMarshaler{
 				{ID: 1, Name: "Alice", Email: "alice@example.com"},
 			}, nil),
 			expectedCSV:   "ID,Name,Email\n1,Alice,alice@example.com\n",
@@ -76,21 +76,21 @@ func TestPipeCSVTransform_WriteTo(t *testing.T) {
 		{
 			name:          "stream with error",
 			separator:     CSVSeparatorComma,
-			stream:        NewMemory([]mockCsvMarshaler{}, errors.New("stream error")),
+			stream:        MemReader([]mockCsvMarshaler{}, errors.New("stream error")),
 			expectedCSV:   "",
 			expectedError: errors.New("stream error"),
 		},
 		{
 			name:          "stream with error io.EOF",
 			separator:     CSVSeparatorComma,
-			stream:        NewMemory([]mockCsvMarshaler{}, io.EOF),
+			stream:        MemReader([]mockCsvMarshaler{}, io.EOF),
 			expectedCSV:   "",
 			expectedError: nil,
 		},
 		{
 			name:      "marshaler with error",
 			separator: CSVSeparatorComma,
-			stream: NewMemory([]mockCsvMarshaler{
+			stream: MemReader([]mockCsvMarshaler{
 				{ID: 1, Name: "Alice", Email: "alice@example.com"},
 				{
 					ID:    2,
@@ -124,7 +124,7 @@ func TestPipeCSVTransform_WriteTo(t *testing.T) {
 }
 
 func TestPipeCSVTransform_WriteToFile(t *testing.T) {
-	stream := NewMemory([]mockCsvMarshaler{
+	stream := MemReader([]mockCsvMarshaler{
 		{ID: 1, Name: "Alice", Email: "alice@example.com"},
 		{ID: 2, Name: "Bob", Email: "bob@example.com"},
 	}, nil)

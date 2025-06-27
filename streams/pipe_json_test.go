@@ -43,7 +43,7 @@ func TestPipeJSONTransform_WriteTo(t *testing.T) {
 	}{
 		{
 			name: "valid stream with multiple records",
-			stream: NewMemory([]mockJsonMarshaler{
+			stream: MemReader([]mockJsonMarshaler{
 				{ID: 1, Name: "Alice", Email: "alice@example.com"},
 				{ID: 2, Name: "Bob", Email: "bob@example.com"},
 			}, nil),
@@ -52,13 +52,13 @@ func TestPipeJSONTransform_WriteTo(t *testing.T) {
 		},
 		{
 			name:          "empty stream",
-			stream:        NewMemory([]mockJsonMarshaler{}, nil),
+			stream:        MemReader([]mockJsonMarshaler{}, nil),
 			expectedJSON:  `[]`,
 			expectedError: nil,
 		},
 		{
 			name: "stream with single record",
-			stream: NewMemory([]mockJsonMarshaler{
+			stream: MemReader([]mockJsonMarshaler{
 				{ID: 1, Name: "Alice", Email: "alice@example.com"},
 			}, nil),
 			expectedJSON:  `[{"id":1,"name":"Alice","email":"alice@example.com"}]`,
@@ -66,19 +66,19 @@ func TestPipeJSONTransform_WriteTo(t *testing.T) {
 		},
 		{
 			name:          "stream with error",
-			stream:        NewMemory([]mockJsonMarshaler{}, errors.New("stream error")),
+			stream:        MemReader([]mockJsonMarshaler{}, errors.New("stream error")),
 			expectedJSON:  ``,
 			expectedError: errors.New("stream error"),
 		},
 		{
 			name:          "stream with error io.EOF",
-			stream:        NewMemory([]mockJsonMarshaler{}, io.EOF),
+			stream:        MemReader([]mockJsonMarshaler{}, io.EOF),
 			expectedJSON:  `[]`,
 			expectedError: nil,
 		},
 		{
 			name: "marshaler with error",
-			stream: NewMemory([]mockJsonMarshaler{
+			stream: MemReader([]mockJsonMarshaler{
 				{ID: 1, Name: "Alice", Email: "alice@example.com"},
 				{
 					ID:    2,
@@ -112,7 +112,7 @@ func TestPipeJSONTransform_WriteTo(t *testing.T) {
 }
 
 func TestPipeJSONTransform_WriteToFile(t *testing.T) {
-	stream := NewMemory([]mockJsonMarshaler{
+	stream := MemReader([]mockJsonMarshaler{
 		{ID: 1, Name: "Alice", Email: "alice@example.com"},
 		{ID: 2, Name: "Bob", Email: "bob@example.com"},
 	}, nil)

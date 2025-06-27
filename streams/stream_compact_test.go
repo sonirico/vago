@@ -11,10 +11,10 @@ func TestCompactStream(t *testing.T) {
 	t.Run("groups consecutive items with same key", func(t *testing.T) {
 		// Arrange
 		data := []string{"a", "a", "b", "b", "b", "a", "c"}
-		memStream := NewMemory(data, nil)
+		memStream := MemReader(data, nil)
 
 		// Use identity function as key extractor
-		compactStream := NewCompactStream(memStream, func(s string) string { return s })
+		compactStream := Compact(memStream, func(s string) string { return s })
 
 		// Act & Assert
 
@@ -62,10 +62,10 @@ func TestCompactStream(t *testing.T) {
 			{"Frank", 25}, // Different age group, not consecutive with first age 25 group
 		}
 
-		memStream := NewMemory(data, nil)
+		memStream := MemReader(data, nil)
 
 		// Group by age
-		compactStream := NewCompactStream(memStream, func(p Person) int { return p.Age })
+		compactStream := Compact(memStream, func(p Person) int { return p.Age })
 
 		// Act & Assert
 
@@ -105,8 +105,8 @@ func TestCompactStream(t *testing.T) {
 	t.Run("handles empty stream", func(t *testing.T) {
 		// Arrange
 		var data []string
-		memStream := NewMemory(data, nil)
-		compactStream := NewCompactStream(memStream, func(s string) string { return s })
+		memStream := MemReader(data, nil)
+		compactStream := Compact(memStream, func(s string) string { return s })
 
 		// Act & Assert
 		assert.False(t, compactStream.Next())
@@ -117,8 +117,8 @@ func TestCompactStream(t *testing.T) {
 	t.Run("handles single item", func(t *testing.T) {
 		// Arrange
 		data := []string{"single"}
-		memStream := NewMemory(data, nil)
-		compactStream := NewCompactStream(memStream, func(s string) string { return s })
+		memStream := MemReader(data, nil)
+		compactStream := Compact(memStream, func(s string) string { return s })
 
 		// Act & Assert
 		require.True(t, compactStream.Next())
@@ -133,8 +133,8 @@ func TestCompactStream(t *testing.T) {
 	t.Run("works with iterator", func(t *testing.T) {
 		// Arrange
 		data := []int{1, 1, 2, 2, 3, 1}
-		memStream := NewMemory(data, nil)
-		compactStream := NewCompactStream(memStream, func(i int) int { return i })
+		memStream := MemReader(data, nil)
+		compactStream := Compact(memStream, func(i int) int { return i })
 
 		// Act
 		var groups [][]int
