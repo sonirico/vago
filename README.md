@@ -89,8 +89,8 @@ The ultimate toolkit for Go developers. A comprehensive collection of functions,
   - [JSONTransform](#jsontransform)
   - [Lines](#lines)
   - [Map](#map)
-  - [Mem](#mem)
-  - [MemWriter](#MemWriter)
+  - [MemReader](#memreader)
+  - [MemWriter](#memwriter)
   - [Multicast](#multicast)
   - [Pipe](#pipe)
   - [PipeCSV](#pipecsv)
@@ -1702,8 +1702,8 @@ func Unshift[T any](arr []T, item T) []T {
 - [JSONTransform](#jsontransform)
 - [Lines](#lines)
 - [Map](#map)
-- [Mem](#mem)
-- [MemWriter](#MemWriter)
+- [MemReader](#memreader)
+- [MemWriter](#memwriter)
 - [Multicast](#multicast)
 - [Pipe](#pipe)
 - [PipeCSV](#pipecsv)
@@ -2165,7 +2165,7 @@ func Map[T, V any](inner ReadStream[T], mapper func(T) V) ReadStream[V] {
 
 ---
 
-#### <a name="mem"></a>Mem
+#### <a name="memreader"></a>MemReader
 
 Mem creates a new ReadStream that reads from a slice in memory.
 This is useful for testing, converting slices to streams, or creating
@@ -2178,7 +2178,7 @@ If err is not nil, the stream will return this error when Err() is called.
 <details><summary>Code</summary>
 
 ```go
-func Mem[T any](items []T, err error) *MemoryStream[T] {
+func MemReader[T any](items []T, err error) *MemoryStream[T] {
 	return &MemoryStream[T]{
 		items:  items,
 		cursor: -1,
@@ -2192,7 +2192,7 @@ func Mem[T any](items []T, err error) *MemoryStream[T] {
 
 ---
 
-#### <a name="MemWriter"></a>MemWriter
+#### <a name="memwriter"></a>MemWriter
 
 MemWriter creates a new memory-based WriteStream
 
