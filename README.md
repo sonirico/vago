@@ -70,6 +70,32 @@ The ultimate toolkit for Go developers. A comprehensive collection of functions,
   - [ToMap](#tomap)
   - [ToMapIdx](#tomapidx)
   - [Unshift](#unshift)
+- [🌊 Streams](#streams)
+  - [CSVTransform](#csvtransform)
+  - [Collect](#collect)
+  - [Iter](#iter)
+  - [Iter2](#iter2)
+  - [JSONEachRowTransform](#jsoneachrowtransform)
+  - [JSONTransform](#jsontransform)
+  - [Multiplex](#multiplex)
+  - [NewBatchStream](#newbatchstream)
+  - [NewCompactStream](#newcompactstream)
+  - [NewCompactStreamFactory](#newcompactstreamfactory)
+  - [NewFilterStream](#newfilterstream)
+  - [NewFlattenerStream](#newflattenerstream)
+  - [NewLineReaderStream](#newlinereaderstream)
+  - [NewMapperStream](#newmapperstream)
+  - [NewMemory](#newmemory)
+  - [NewMemoryWriteStream](#newmemorywritestream)
+  - [NewReaderStream](#newreaderstream)
+  - [NewWriterStream](#newwriterstream)
+  - [Pipe](#pipe)
+  - [SeqKeys](#seqkeys)
+  - [SeqValues](#seqvalues)
+  - [WriteAll](#writeall)
+  - [WriteSeq](#writeseq)
+  - [WriteSeqKeys](#writeseqkeys)
+  - [WriteSeqValues](#writeseqvalues)
 
 ## <a name="fp"></a>🪄 Fp
 
@@ -1629,6 +1655,677 @@ Alias for PushFront, following JavaScript array method naming conventions.
 ```go
 func Unshift[T any](arr []T, item T) []T {
 	return PushFront(arr, item)
+}
+```
+
+</details>
+
+
+---
+
+
+[⬆️ Back to Top](#table-of-contents)
+
+
+<br/>
+
+## <a name="streams"></a>🌊 Streams
+
+
+
+### Functions
+
+- [CSVTransform](#csvtransform)
+- [Collect](#collect)
+- [Iter](#iter)
+- [Iter2](#iter2)
+- [JSONEachRowTransform](#jsoneachrowtransform)
+- [JSONTransform](#jsontransform)
+- [Multiplex](#multiplex)
+- [NewBatchStream](#newbatchstream)
+- [NewCompactStream](#newcompactstream)
+- [NewCompactStreamFactory](#newcompactstreamfactory)
+- [NewFilterStream](#newfilterstream)
+- [NewFlattenerStream](#newflattenerstream)
+- [NewLineReaderStream](#newlinereaderstream)
+- [NewMapperStream](#newmapperstream)
+- [NewMemory](#newmemory)
+- [NewMemoryWriteStream](#newmemorywritestream)
+- [NewReaderStream](#newreaderstream)
+- [NewWriterStream](#newwriterstream)
+- [Pipe](#pipe)
+- [SeqKeys](#seqkeys)
+- [SeqValues](#seqvalues)
+- [WriteAll](#writeall)
+- [WriteSeq](#writeseq)
+- [WriteSeqKeys](#writeseqkeys)
+- [WriteSeqValues](#writeseqvalues)
+
+#### <a name="csvtransform"></a>CSVTransform
+
+CSVTransform creates a new PipeCSVTransform for a given stream.
+
+
+<details><summary>Code</summary>
+
+```go
+func CSVTransform[T csvMarshaler](stream ReadStream[T], separator rune) Transform[T] {
+	return &TransformCSV[T]{
+		stream:    stream,
+		separator: separator,
+	}
+}
+```
+
+</details>
+
+
+---
+
+#### <a name="collect"></a>Collect
+
+Collect collects all elements from an iter.Seq into a slice.
+
+
+<details><summary>Code</summary>
+
+```go
+func Collect[T any](stream iter.Seq[T]) []T {
+	return slices.Collect(stream)
+}
+```
+
+</details>
+
+
+---
+
+#### <a name="iter"></a>Iter
+
+Iter converts a ReadStream into an iter.Seq.
+
+
+<details><summary>Code</summary>
+
+```go
+func Iter[T any](stream ReadStream[T]) iter.Seq[T] {
+	return func(yield func(T) bool) {
+		defer stream.Close()
+
+		for stream.Next() {
+			if !yield(stream.Data()) {
+				break
+			}
+		}
+
+		return
+	}
+}
+```
+
+</details>
+
+
+---
+
+#### <a name="iter2"></a>Iter2
+
+Iter2 converts a ReadStream into an iter.Seq2, yielding both data and error.
+
+
+<details><summary>Code</summary>
+
+```go
+func Iter2[T any](stream ReadStream[T]) iter.Seq2[T, error] {
+	return func(yield func(T, error) bool) {
+		defer stream.Close()
+
+		for stream.Next() {
+			if !yield(stream.Data(), nil) {
+				break
+			}
+		}
+		if err := stream.Err(); err != nil {
+			var x T
+			yield(x, err)
+		}
+		if err := stream.Close(); err != nil {
+			var x T
+			yield(x, err)
+		}
+	}
+}
+```
+
+</details>
+
+
+---
+
+#### <a name="jsoneachrowtransform"></a>JSONEachRowTransform
+
+JSONEachRowTransform creates a Transform that converts a ReadStream to JSON-lines format.
+Each element in the stream becomes a separate JSON object on its own line,
+which is useful for streaming JSON processing and log formats.
+
+This format is also known as NDJSON (Newline Delimited JSON) and is commonly
+used for streaming APIs and log processing systems.
+
+
+<details><summary>Code</summary>
+
+```go
+func JSONEachRowTransform[T any](stream ReadStream[T]) Transform[T] {
+	return &TransformJSONEachRow[T]{
+		stream: stream,
+	}
+}
+```
+
+</details>
+
+
+---
+
+#### <a name="jsontransform"></a>JSONTransform
+
+JSONTransform creates a Transform that converts a ReadStream to JSON format.
+The resulting Transform can be used with WriteTo to output the stream data
+as a JSON array to any io.Writer.
+
+This is useful for converting structured data to JSON for APIs, file output,
+or network transmission.
+
+
+<details><summary>Code</summary>
+
+```go
+func JSONTransform[T any](r ReadStream[T]) Transform[T] {
+	return &TransformJSON[T]{
+		stream: r,
+	}
+}
+```
+
+</details>
+
+
+---
+
+#### <a name="multiplex"></a>Multiplex
+
+Multiplex copies all items from a ReadStream to multiple WriteStreams
+Returns a slice with bytes written to each destination and any error
+
+
+<details><summary>Code</summary>
+
+```go
+func Multiplex[T any](src ReadStream[T], destinations ...WriteStream[T]) ([]int64, error) {
+	if len(destinations) == 0 {
+		return []int64{}, nil
+	}
+
+	bytesWritten := make([]int64, len(destinations))
+
+	for src.Next() {
+		if err := src.Err(); err != nil {
+			if errors.Is(err, io.EOF) {
+				break
+			}
+			return bytesWritten, fmt.Errorf("read error: %w", err)
+		}
+
+		data := src.Data()
+		for i, dst := range destinations {
+			n, err := dst.Write(data)
+			if err != nil {
+				return bytesWritten, fmt.Errorf("write error to destination %d: %w", i, err)
+			}
+			bytesWritten[i] += n
+		}
+	}
+
+	for i, dst := range destinations {
+		if err := dst.Flush(); err != nil {
+			return bytesWritten, fmt.Errorf("flush error for destination %d: %w", i, err)
+		}
+	}
+
+	return bytesWritten, nil
+}
+```
+
+</details>
+
+
+---
+
+#### <a name="newbatchstream"></a>NewBatchStream
+
+NewBatchStream creates a new batch-oriented stream that reads items from
+`inner` in chunks of `batchSize` and returns them as []T.
+
+
+<details><summary>Code</summary>
+
+```go
+func NewBatchStream[T any](inner ReadStream[T], batchSize int) ReadStream[[]T] {
+	return &BatchStream[T]{
+		inner:     inner,
+		batchSize: batchSize,
+	}
+}
+```
+
+</details>
+
+
+---
+
+#### <a name="newcompactstream"></a>NewCompactStream
+
+NewCompactStream creates a new stream that groups consecutive items with the same key.
+The keyFunc is used to extract the grouping key from each item (like Python's itemgetter).
+
+
+<details><summary>Code</summary>
+
+```go
+func NewCompactStream[T any, K comparable](inner ReadStream[T], keyFunc func(T) K) ReadStream[[]T] {
+	return &CompactStream[T, K]{
+		inner:   inner,
+		keyFunc: keyFunc,
+	}
+}
+```
+
+</details>
+
+
+---
+
+#### <a name="newcompactstreamfactory"></a>NewCompactStreamFactory
+
+NewCompactStreamFactory creates a factory for CompactStream instances.
+
+
+<details><summary>Code</summary>
+
+```go
+func NewCompactStreamFactory[T any, K comparable](
+	innerFactory ReadStreamFactory[T],
+	keyFunc func(T) K,
+) ReadStreamFactory[[]T] {
+	return func(rc io.ReadCloser) ReadStream[[]T] {
+		return NewCompactStream(innerFactory(rc), keyFunc)
+	}
+}
+```
+
+</details>
+
+
+---
+
+#### <a name="newfilterstream"></a>NewFilterStream
+
+NewFilterStream creates a new ReadStream that filters elements from the inner stream
+using the provided predicate function. Only elements that satisfy the predicate
+(return true) will be included in the resulting stream.
+
+This is useful for creating data processing pipelines where you need to exclude
+certain elements based on custom criteria.
+
+
+<details><summary>Code</summary>
+
+```go
+func NewFilterStream[T any](inner ReadStream[T], predicate func(T) bool) ReadStream[T] {
+	return &FilterStream[T]{
+		inner:     inner,
+		predicate: predicate,
+	}
+}
+```
+
+</details>
+
+
+---
+
+#### <a name="newflattenerstream"></a>NewFlattenerStream
+
+NewFlattenerStream creates a new ReadStream that flattens slices from the inner stream.
+It takes a ReadStream[[]T] and converts it to ReadStream[T] by emitting each
+element from the inner slices individually.
+
+This is useful when you have a stream of slices and want to process each
+individual element, such as flattening batched data or expanding grouped results.
+
+
+<details><summary>Code</summary>
+
+```go
+func NewFlattenerStream[T any](inner ReadStream[[]T]) ReadStream[T] {
+	return &FlattenerStream[T]{
+		inner: inner,
+	}
+}
+```
+
+</details>
+
+
+---
+
+#### <a name="newlinereaderstream"></a>NewLineReaderStream
+
+NewLineReaderStream creates a new ReadStream that reads lines as strings from an io.Reader
+
+
+<details><summary>Code</summary>
+
+```go
+func NewLineReaderStream(reader io.Reader) ReadStream[string] {
+	return &LineReaderStream{
+		original: reader,
+		reader:   bufio.NewReader(reader),
+	}
+}
+```
+
+</details>
+
+
+---
+
+#### <a name="newmapperstream"></a>NewMapperStream
+
+NewMapperStream creates a new ReadStream that transforms elements from the inner stream
+using the provided mapper function. Each element of type T is converted to type V
+using the mapper function.
+
+This is useful for creating data processing pipelines where you need to transform
+data from one type to another, such as converting strings to uppercase or
+extracting specific fields from structs.
+
+
+<details><summary>Code</summary>
+
+```go
+func NewMapperStream[T, V any](inner ReadStream[T], mapper func(T) V) ReadStream[V] {
+	return &MapperStream[T, V]{
+		inner:  inner,
+		mapper: mapper,
+	}
+}
+```
+
+</details>
+
+
+---
+
+#### <a name="newmemory"></a>NewMemory
+
+NewMemory creates a new ReadStream that reads from a slice in memory.
+This is useful for testing, converting slices to streams, or creating
+simple data sources for streaming pipelines.
+
+The error parameter allows you to simulate error conditions during streaming.
+If err is not nil, the stream will return this error when Err() is called.
+
+
+<details><summary>Code</summary>
+
+```go
+func NewMemory[T any](items []T, err error) *MemoryStream[T] {
+	return &MemoryStream[T]{
+		items:  items,
+		cursor: -1,
+		error:  err,
+	}
+}
+```
+
+</details>
+
+
+---
+
+#### <a name="newmemorywritestream"></a>NewMemoryWriteStream
+
+NewMemoryWriteStream creates a new memory-based WriteStream
+
+
+<details><summary>Code</summary>
+
+```go
+func NewMemoryWriteStream[T any]() *MemoryWriteStream[T] {
+	return &MemoryWriteStream[T]{
+		items: make([]T, 0),
+	}
+}
+```
+
+</details>
+
+
+---
+
+#### <a name="newreaderstream"></a>NewReaderStream
+
+NewReaderStream creates a new ReadStream that reads from an io.Reader
+
+
+<details><summary>Code</summary>
+
+```go
+func NewReaderStream(reader io.Reader) ReadStream[[]byte] {
+	return &ReaderStream{
+		original: reader,
+		reader:   bufio.NewReader(reader),
+	}
+}
+```
+
+</details>
+
+
+---
+
+#### <a name="newwriterstream"></a>NewWriterStream
+
+NewWriterStream creates a new WriteStream that writes to an io.Writer
+
+
+<details><summary>Code</summary>
+
+```go
+func NewWriterStream(writer io.Writer) *WriterStream {
+	return &WriterStream{
+		writer: writer,
+	}
+}
+```
+
+</details>
+
+
+---
+
+#### <a name="pipe"></a>Pipe
+
+Pipe copies all items from a ReadStream to a WriteStream
+Returns the total number of bytes written and any error
+
+
+<details><summary>Code</summary>
+
+```go
+func Pipe[T any](src ReadStream[T], dst WriteStream[T]) (int64, error) {
+	var totalBytes int64
+
+	for src.Next() {
+		if err := src.Err(); err != nil {
+			if errors.Is(err, io.EOF) {
+				break
+			}
+			return totalBytes, fmt.Errorf("read error: %w", err)
+		}
+
+		n, err := dst.Write(src.Data())
+		if err != nil {
+			return totalBytes, fmt.Errorf("write error: %w", err)
+		}
+		totalBytes += n
+	}
+
+	if err := dst.Flush(); err != nil {
+		return totalBytes, fmt.Errorf("flush error: %w", err)
+	}
+
+	return totalBytes, nil
+}
+```
+
+</details>
+
+
+---
+
+#### <a name="seqkeys"></a>SeqKeys
+
+SeqKeys collects all keys from an iter.Seq2 into another Seq.
+
+
+<details><summary>Code</summary>
+
+```go
+func SeqKeys[K, V any](iter iter.Seq2[K, V]) iter.Seq[K] {
+	return func(yield func(K) bool) {
+		for k := range iter {
+			if !yield(k) {
+				break
+			}
+		}
+	}
+}
+```
+
+</details>
+
+
+---
+
+#### <a name="seqvalues"></a>SeqValues
+
+SeqValues collects all values from an iter.Seq2 into another Seq.
+
+
+<details><summary>Code</summary>
+
+```go
+func SeqValues[K, V any](iter iter.Seq2[K, V]) iter.Seq[V] {
+	return func(yield func(V) bool) {
+		for _, v := range iter {
+			if !yield(v) {
+				break
+			}
+		}
+	}
+}
+```
+
+</details>
+
+
+---
+
+#### <a name="writeall"></a>WriteAll
+
+WriteAll writes all items from a slice to a WriteStream
+Returns the total number of bytes written and any error
+
+
+<details><summary>Code</summary>
+
+```go
+func WriteAll[T any](stream WriteStream[T], items []T) (int64, error) {
+	return WriteSeq(stream, slices.Values(items))
+}
+```
+
+</details>
+
+
+---
+
+#### <a name="writeseq"></a>WriteSeq
+
+WriteSeq writes all items from an iter.Seq to a WriteStream
+Returns the total number of bytes written and any error
+
+
+<details><summary>Code</summary>
+
+```go
+func WriteSeq[T any](stream WriteStream[T], items iter.Seq[T]) (int64, error) {
+	bytesWritten := int64(0)
+
+	for v := range items {
+		n, err := stream.Write(v)
+		if err != nil {
+			return 0, fmt.Errorf("write error: %w", err)
+		}
+		if n == 0 {
+			continue
+		}
+		bytesWritten += n
+	}
+	if err := stream.Flush(); err != nil {
+		return 0, fmt.Errorf("flush error: %w", err)
+	}
+	return bytesWritten, nil
+}
+```
+
+</details>
+
+
+---
+
+#### <a name="writeseqkeys"></a>WriteSeqKeys
+
+WriteSeqKeys writes all keys from an iter.Seq2 to a WriteStream
+Returns the total number of bytes written and any error
+
+
+<details><summary>Code</summary>
+
+```go
+func WriteSeqKeys[K, V any](stream WriteStream[K], items iter.Seq2[K, V]) (int64, error) {
+	return WriteSeq(stream, SeqKeys(items))
+}
+```
+
+</details>
+
+
+---
+
+#### <a name="writeseqvalues"></a>WriteSeqValues
+
+WriteSeqValues writes all values from an iter.Seq2 to a WriteStream
+Returns the total number of bytes written and any error
+
+
+<details><summary>Code</summary>
+
+```go
+func WriteSeqValues[K, V any](stream WriteStream[V], items iter.Seq2[K, V]) (int64, error) {
+	return WriteSeq(stream, SeqValues(items))
 }
 ```
 

@@ -107,14 +107,15 @@ func cleanComment(c string) string {
 }
 
 var moduleEmojis = map[string]string{
-	"slices": "⛓️", // Chain/Sequence
-	"maps":   "🗝️", // Keys
-	"fp":     "🪄",  // Magic/Transformation
+	"slices":  "⛓️", // Chain/Sequence
+	"maps":    "🗝️", // Keys
+	"fp":      "🪄",  // Magic/Transformation
+	"streams": "🌊",  // Water/Flow
 }
 
 func readme() {
 	modules := []string{
-		"slices", "maps", "fp",
+		"slices", "maps", "fp", "streams",
 	}
 
 	// Open README.md for writing (truncate if exists)
@@ -153,7 +154,7 @@ func readme() {
 			if !exists {
 				m = &mod{
 					title:       pkgName,
-					description: cleanComment(f.Doc.Text()), // Get description from the first file encountered
+					description: cleanComment(f.Doc.Text()),
 					funs:        make([]fun, 0),
 				}
 				modsMap[pkgName] = m
