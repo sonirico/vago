@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"os"
 	"testing"
@@ -119,4 +120,57 @@ func TestPipeJSONTransform_WriteToFile(t *testing.T) {
 
 	_, err := JSONTransform(stream).WriteTo(os.Stdout)
 	assert.NoError(t, err)
+}
+
+// ExampleJSONTransform demonstrates converting a stream to JSON array format.
+func ExampleJSONTransform() {
+	// Define a simple structure for demonstration
+	type Person struct {
+		ID   int    `json:"id"`
+		Name string `json:"name"`
+	}
+
+	// Create a stream from a slice of persons
+	people := []Person{
+		{ID: 1, Name: "Alice"},
+		{ID: 2, Name: "Bob"},
+		{ID: 3, Name: "Charlie"},
+	}
+	stream := MemReader(people, nil)
+
+	// Transform to JSON and write to stdout
+	transform := JSONTransform(stream)
+	transform.WriteTo(os.Stdout)
+
+	// Output:
+	// [{"id":1,"name":"Alice"},{"id":2,"name":"Bob"},{"id":3,"name":"Charlie"}]
+}
+
+// ExamplePipeJSON demonstrates using the PipeJSON convenience function.
+func ExamplePipeJSON() {
+	// Define a simple structure
+	type Product struct {
+		ID    int     `json:"id"`
+		Name  string  `json:"name"`
+		Price float64 `json:"price"`
+	}
+
+	// Create a stream of products
+	products := []Product{
+		{ID: 1, Name: "Laptop", Price: 999.99},
+		{ID: 2, Name: "Mouse", Price: 29.99},
+	}
+	stream := MemReader(products, nil)
+
+	// Use PipeJSON to write directly to stdout
+	bytesWritten, err := PipeJSON(stream, os.Stdout)
+	if err != nil {
+		fmt.Printf("Error: %v\n", err)
+		return
+	}
+	fmt.Printf("\nBytes written: %d\n", bytesWritten)
+
+	// Output:
+	// [{"id":1,"name":"Laptop","price":999.99},{"id":2,"name":"Mouse","price":29.99}]
+	// Bytes written: 79
 }

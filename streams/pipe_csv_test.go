@@ -3,6 +3,7 @@ package streams
 import (
 	"bytes"
 	"errors"
+	"fmt"
 	"io"
 	"os"
 	"strconv"
@@ -131,4 +132,104 @@ func TestPipeCSVTransform_WriteToFile(t *testing.T) {
 
 	_, err := CSVTransform(stream, CSVSeparatorTab).WriteTo(os.Stdout)
 	assert.NoError(t, err)
+}
+
+// Employee struct for CSV examples
+type Employee struct {
+	ID         int
+	Name       string
+	Department string
+	Salary     float64
+}
+
+// MarshalCSV implements the csvMarshaler interface for Employee
+func (e Employee) MarshalCSV() ([]string, []string, error) {
+	header := []string{"ID", "Name", "Department", "Salary"}
+	record := []string{
+		strconv.Itoa(e.ID),
+		e.Name,
+		e.Department,
+		fmt.Sprintf("%.2f", e.Salary),
+	}
+	return header, record, nil
+}
+
+// ExampleCSVTransform demonstrates converting a stream to CSV format.
+func ExampleCSVTransform() {
+	// Create a stream of employees
+	employees := []Employee{
+		{ID: 1, Name: "Alice Johnson", Department: "Engineering", Salary: 75000.00},
+		{ID: 2, Name: "Bob Smith", Department: "Marketing", Salary: 65000.00},
+		{ID: 3, Name: "Charlie Brown", Department: "Engineering", Salary: 80000.00},
+	}
+	stream := MemReader(employees, nil)
+
+	// Transform to CSV with comma separator
+	transform := CSVTransform(stream, CSVSeparatorComma)
+	transform.WriteTo(os.Stdout)
+
+	// Output:
+	// ID,Name,Department,Salary
+	// 1,Alice Johnson,Engineering,75000.00
+	// 2,Bob Smith,Marketing,65000.00
+	// 3,Charlie Brown,Engineering,80000.00
+}
+
+// ProductCSV wraps Product to implement csvMarshaler interface
+type ProductCSV struct {
+	SKU   string
+	Name  string
+	Price float64
+}
+
+func (p ProductCSV) MarshalCSV() ([]string, []string, error) {
+	header := []string{"SKU", "Product Name", "Price"}
+	record := []string{p.SKU, p.Name, fmt.Sprintf("$%.2f", p.Price)}
+	return header, record, nil
+}
+
+// ExampleCSVTransform_tabSeparated demonstrates CSV with tab separator.
+func ExampleCSVTransform_tabSeparated() {
+
+	// Create a stream of products
+	products := []ProductCSV{
+		{SKU: "LAPTOP-001", Name: "Gaming Laptop", Price: 1299.99},
+		{SKU: "MOUSE-002", Name: "Wireless Mouse", Price: 49.99},
+		{SKU: "KEYBOARD-003", Name: "Mechanical Keyboard", Price: 129.99},
+	}
+	stream := MemReader(products, nil)
+
+	// Transform to CSV with tab separator
+	transform := CSVTransform(stream, CSVSeparatorTab)
+	transform.WriteTo(os.Stdout)
+
+	// Output:
+	// SKU	Product Name	Price
+	// LAPTOP-001	Gaming Laptop	$1299.99
+	// MOUSE-002	Wireless Mouse	$49.99
+	// KEYBOARD-003	Mechanical Keyboard	$129.99
+}
+
+// ExamplePipeCSV demonstrates using the PipeCSV convenience function.
+func ExamplePipeCSV() {
+	// Create a stream of employees
+	employees := []Employee{
+		{ID: 101, Name: "Diana Prince", Department: "Legal", Salary: 90000.00},
+		{ID: 102, Name: "Clark Kent", Department: "Journalism", Salary: 55000.00},
+	}
+	stream := MemReader(employees, nil)
+
+	// Use PipeCSV to write directly to stdout with comma separator
+	rowsWritten, err := PipeCSV(stream, os.Stdout, CSVSeparatorComma)
+	if err != nil {
+		fmt.Printf("Error: %v\n", err)
+		return
+	}
+	fmt.Printf("Rows written: %d\n", rowsWritten)
+
+	// Output:
+	// ID,Name,Department,Salary
+	// 101,Diana Prince,Legal,90000.00
+	// 102,Clark Kent,Journalism,55000.00
+	// Rows written: 3
 }
