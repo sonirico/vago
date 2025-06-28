@@ -12,7 +12,7 @@ type (
 		inner      ReadStream[T]
 		keyFunc    func(T) K
 		buffer     []T
-		currentKey *K
+		currentKey K
 		err        error
 		done       bool
 		hasNext    bool
@@ -33,8 +33,8 @@ func (s *CompactStream[T, K]) Next() bool {
 		return false
 	}
 
-	// Clear the buffer for the next group
-	s.buffer = s.buffer[:0]
+	// Create a new buffer for the next group instead of reusing
+	s.buffer = make([]T, 0)
 
 	// If we don't have a next item, we're done
 	if !s.hasNext && !s.inner.Next() {
@@ -60,7 +60,7 @@ func (s *CompactStream[T, K]) Next() bool {
 	}
 
 	s.buffer = append(s.buffer, firstItem)
-	s.currentKey = &groupKey
+	s.currentKey = groupKey
 
 	// Collect all consecutive items with the same key
 	for s.inner.Next() {

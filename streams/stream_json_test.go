@@ -1,6 +1,7 @@
 package streams
 
 import (
+	"fmt"
 	"io"
 	"strings"
 	"testing"
@@ -42,4 +43,32 @@ func TestNewJSONEachRowStream(t *testing.T) {
 		assert.Equal(t, actual, expected[i])
 		i++
 	}
+}
+
+// ExampleJSON demonstrates reading JSON data line by line.
+func ExampleJSON() {
+	// Create JSON-lines data (each line is a separate JSON object)
+	jsonData := `{"name":"Alice","age":25}
+{"name":"Bob","age":30}
+{"name":"Charlie","age":35}`
+
+	reader := strings.NewReader(jsonData)
+
+	// Create a JSON stream for a simple struct
+	type Person struct {
+		Name string `json:"name"`
+		Age  int    `json:"age"`
+	}
+
+	jsonStream := JSON[Person](io.NopCloser(reader))
+
+	// Collect the results
+	result, _ := Consume(jsonStream)
+	for _, person := range result {
+		fmt.Printf("Person: %s, Age: %d\n", person.Name, person.Age)
+	}
+	// Output:
+	// Person: Alice, Age: 25
+	// Person: Bob, Age: 30
+	// Person: Charlie, Age: 35
 }

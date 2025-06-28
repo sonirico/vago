@@ -1,5 +1,10 @@
 package streams
 
+import (
+	"errors"
+	"io"
+)
+
 // Reduce applies a reduction function to a ReadStream, accumulating results in a map.
 // The function takes the current map and an item from the stream, returning a new map.
 // It returns the final accumulated map or an error if the stream encounters one.
@@ -16,5 +21,9 @@ func Reduce[T any, K comparable, V any](
 		res = fn(res, s.Data())
 	}
 
-	return res, s.Err()
+	if err := s.Err(); err != nil && !errors.Is(err, io.EOF) {
+		return nil, err
+	}
+
+	return res, nil
 }

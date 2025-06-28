@@ -1,6 +1,7 @@
 package streams
 
 import (
+	"fmt"
 	"testing"
 )
 
@@ -63,4 +64,25 @@ func TestStreamChannel(t *testing.T) {
 			}
 		})
 	}
+}
+
+func ExampleChannel() {
+	// Create a channel and send data to it
+	ch := make(chan int, 3)
+	ch <- 10
+	ch <- 20
+	ch <- 30
+	close(ch)
+
+	// Create a stream from the channel
+	stream := Channel[int](ch)
+
+	// Process all values from the channel
+	for stream.Next() {
+		fmt.Println(stream.Data())
+	}
+	// Output:
+	// 10
+	// 20
+	// 30
 }

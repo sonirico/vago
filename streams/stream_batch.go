@@ -29,7 +29,8 @@ func (s *BatchStream[T]) Next() bool {
 		return false
 	}
 
-	s.buffer = s.buffer[:0]
+	// Create a new buffer for each batch instead of reusing
+	s.buffer = make([]T, 0, s.batchSize)
 
 	for len(s.buffer) < s.batchSize {
 		if !s.inner.Next() {

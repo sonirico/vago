@@ -1,6 +1,7 @@
 package streams
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -139,10 +140,7 @@ func TestCompactStream(t *testing.T) {
 		// Act
 		var groups [][]int
 		for group := range Iter(compactStream) {
-			// Make a copy to avoid slice aliasing issues
-			groupCopy := make([]int, len(group))
-			copy(groupCopy, group)
-			groups = append(groups, groupCopy)
+			groups = append(groups, group)
 		}
 
 		// Assert
@@ -155,4 +153,48 @@ func TestCompactStream(t *testing.T) {
 		assert.Equal(t, expected, groups)
 		assert.NoError(t, compactStream.Close())
 	})
+
+	t.Run("works with Consume", func(t *testing.T) {
+		// Arrange
+		data := []string{"apple", "apricot", "banana", "blueberry", "cherry", "coconut"}
+		memStream := MemReader(data, nil)
+		compactStream := Compact(memStream, func(s string) rune {
+			return rune(s[0])
+		})
+
+		// Act
+		groups, err := Consume(compactStream)
+
+		// Assert
+		require.NoError(t, err)
+		expected := [][]string{
+			{"apple", "apricot"},
+			{"banana", "blueberry"},
+			{"cherry", "coconut"},
+		}
+		assert.Equal(t, expected, groups)
+		assert.NoError(t, compactStream.Close())
+	})
+}
+
+// ExampleCompact demonstrates grouping consecutive items with the same key.
+func ExampleCompact() {
+	// Create a stream from a slice of strings
+	data := []string{"apple", "apricot", "banana", "blueberry", "cherry", "coconut"}
+	stream := MemReader(data, nil)
+
+	// Group by first letter
+	compacted := Compact(stream, func(s string) rune {
+		return rune(s[0])
+	})
+
+	// Collect the results
+	result, _ := Consume(compacted)
+	for _, group := range result {
+		fmt.Printf("Group: %v\n", group)
+	}
+	// Output:
+	// Group: [apple apricot]
+	// Group: [banana blueberry]
+	// Group: [cherry coconut]
 }

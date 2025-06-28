@@ -1,6 +1,7 @@
 package streams
 
 import (
+	"fmt"
 	"testing"
 )
 
@@ -159,4 +160,21 @@ func TestFilterStreamIterator(t *testing.T) {
 			t.Errorf("Expected item %d to be %d, got %d", i, expectedVal, result[i])
 		}
 	}
+}
+
+// ExampleFilter demonstrates filtering a stream of integers to keep only even numbers.
+func ExampleFilter() {
+	// Create a stream from a slice of integers
+	data := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
+	stream := MemReader(data, nil)
+
+	// Filter to keep only even numbers
+	evenStream := Filter(stream, func(n int) bool {
+		return n%2 == 0
+	})
+
+	// Collect the results
+	result, _ := Consume(evenStream)
+	fmt.Println(result)
+	// Output: [2 4 6 8 10]
 }

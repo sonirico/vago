@@ -36,7 +36,7 @@ func CSV[T any](opts ...CSVOpt) (*CSVStream[T], error) {
 		opt.apply(optsDef)
 	}
 
-	if optsDef.path == "" {
+	if optsDef.path != "" {
 		file, err := os.OpenFile(optsDef.path, optsDef.flag, optsDef.perm)
 		if err != nil {
 			return nil, err

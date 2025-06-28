@@ -1,6 +1,7 @@
 package streams
 
 import (
+	"fmt"
 	"testing"
 
 	"errors"
@@ -88,9 +89,7 @@ func TestBatchStream(t *testing.T) {
 			for batch.Next() {
 				gotBatch := batch.Data()
 				// make a copy to avoid aliasing issues in subsequent loops
-				copied := make([]int, len(gotBatch))
-				copy(copied, gotBatch)
-				gotBatches = append(gotBatches, copied)
+				gotBatches = append(gotBatches, gotBatch)
 			}
 			gotErr := batch.Err()
 
@@ -98,4 +97,25 @@ func TestBatchStream(t *testing.T) {
 			assert.Equal(t, tc.expectedBatches, gotBatches)
 		})
 	}
+}
+
+// ExampleBatch demonstrates grouping stream elements into batches.
+func ExampleBatch() {
+	// Create a stream from a slice of integers
+	data := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
+	stream := MemReader(data, nil)
+
+	// Group into batches of 3
+	batchStream := Batch(stream, 3)
+
+	// Collect the results
+	result, _ := Consume(batchStream)
+	for i, batch := range result {
+		fmt.Printf("Batch %d: %v\n", i+1, batch)
+	}
+	// Output:
+	// Batch 1: [1 2 3]
+	// Batch 2: [4 5 6]
+	// Batch 3: [7 8 9]
+	// Batch 4: [10]
 }

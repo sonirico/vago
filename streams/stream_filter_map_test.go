@@ -1,6 +1,7 @@
 package streams
 
 import (
+	"fmt"
 	"strconv"
 	"testing"
 
@@ -81,4 +82,24 @@ func TestFilterMapOptStreamEmpty(t *testing.T) {
 	}
 
 	assert.Len(t, result, 0, "Expected no items, got %d", len(result))
+}
+
+// ExampleFilterMap demonstrates filtering and transforming in a single operation.
+func ExampleFilterMap() {
+	// Create a stream from a slice of integers
+	data := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
+	stream := MemReader(data, nil)
+
+	// Filter even numbers and convert them to strings
+	evenStrings := FilterMap(stream, func(n int) (string, bool) {
+		if n%2 == 0 {
+			return strconv.Itoa(n), true
+		}
+		return "", false
+	})
+
+	// Collect the results
+	result, _ := Consume(evenStrings)
+	fmt.Println(result)
+	// Output: [2 4 6 8 10]
 }

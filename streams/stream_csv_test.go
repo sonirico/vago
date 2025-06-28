@@ -87,3 +87,27 @@ a,b,c
 		i++
 	}
 }
+
+// ExampleCSV demonstrates reading CSV data from a string.
+func ExampleCSV() {
+	// Create a CSV reader from a string
+	csvData := "name,age,city\nAlice,25,NYC\nBob,30,LA\nCharlie,35,Chicago"
+	reader := io.NopCloser(strings.NewReader(csvData))
+
+	// Create a CSV stream directly
+	csvStream, _ := CSV[[]string](
+		WithCSVReader(reader),
+		WithCSVSeparator(","),
+	)
+
+	// Collect the results
+	result, _ := Consume(csvStream)
+	for i, row := range result {
+		fmt.Printf("Row %d: %v\n", i+1, row)
+	}
+	// Output:
+	// Row 1: [name age city]
+	// Row 2: [Alice 25 NYC]
+	// Row 3: [Bob 30 LA]
+	// Row 4: [Charlie 35 Chicago]
+}

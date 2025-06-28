@@ -1,6 +1,7 @@
 package streams
 
 import (
+	"fmt"
 	"testing"
 
 	"errors"
@@ -80,4 +81,19 @@ func TestFlattenerStream(t *testing.T) {
 			assert.Equal(t, tt.expected, result)
 		})
 	}
+}
+
+// ExampleFlatten demonstrates flattening a stream of slices.
+func ExampleFlatten() {
+	// Create a stream from a slice of slices
+	data := [][]int{{1, 2}, {3, 4, 5}, {6}, {7, 8, 9}}
+	stream := MemReader(data, nil)
+
+	// Flatten the slices
+	flattened := Flatten(stream)
+
+	// Collect the results
+	result, _ := Consume(flattened)
+	fmt.Println(result)
+	// Output: [1 2 3 4 5 6 7 8 9]
 }

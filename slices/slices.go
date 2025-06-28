@@ -139,11 +139,6 @@ func (s Slice[T]) FilterInPlace(predicate func(x T) bool) Slice[T] {
 	return FilterInPlace(s, predicate)
 }
 
-// FilterInPlaceCopy filters the slice in place and returns a copy of the result.
-func (s Slice[T]) FilterInPlaceCopy(predicate func(x T) bool) Slice[T] {
-	return FilterInPlaceCopy(s, predicate)
-}
-
 // Reduce compacts the slice into a single value by iteratively applying
 // the reduction function to each element.
 func (s Slice[T]) Reduce(predicate func(x, y T) T) T {
@@ -344,28 +339,6 @@ func FilterInPlace[T any](arr []T, predicate func(t T) bool) []T {
 	arr = arr[:n]
 
 	return arr
-}
-
-// FilterInPlaceCopy filters the slice in place and returns a copy of the result.
-// This combines the efficiency of FilterInPlace with the safety of creating a new slice.
-func FilterInPlaceCopy[T any](arr []T, predicate func(t T) bool) []T {
-	n := 0
-	for i, x := range arr {
-		if predicate(x) {
-			if n != i {
-				arr[n] = x
-			}
-			n++
-		}
-	}
-
-	arr = arr[:n]
-
-	res := make([]T, n)
-
-	copy(res, arr[:n])
-
-	return res
 }
 
 // Reduce compacts the slice into a single value by iteratively applying
@@ -598,6 +571,7 @@ func PopFront[T any](arr []T) (res []T, item T, ok bool) {
 	}
 
 	item, res = arr[0], arr[1:]
+	ok = true
 	return
 }
 

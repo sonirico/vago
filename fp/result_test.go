@@ -2,6 +2,7 @@ package fp
 
 import (
 	"errors"
+	"fmt"
 	"testing"
 )
 
@@ -270,4 +271,144 @@ func TestResult_MapOrElse(t *testing.T) {
 	if value != 1 {
 		t.Errorf("unexpected result, want 1, have %d", value)
 	}
+}
+
+// ExampleResult demonstrates basic usage of the Result type.
+func ExampleResult() {
+	// Create successful and error results
+	success := Ok("Hello, World!")
+	failure := Err[string](errors.New("something went wrong"))
+
+	// Check if results are ok
+	fmt.Printf("Success is ok: %v\n", success.IsOk())
+	fmt.Printf("Failure is ok: %v\n", failure.IsOk())
+
+	// Extract values safely
+	if value, err := success.Unwrap(); err == nil {
+		fmt.Printf("Success value: %s\n", value)
+	}
+
+	if _, err := failure.Unwrap(); err != nil {
+		fmt.Printf("Failure error: %v\n", err)
+	}
+
+	// Output:
+	// Success is ok: true
+	// Failure is ok: false
+	// Success value: Hello, World!
+	// Failure error: something went wrong
+}
+
+// ExampleResult_Map demonstrates transforming values inside Result.
+func ExampleResult_Map() {
+	// Start with a result containing a number
+	result := Ok(5)
+
+	// Transform to its square
+	squared := result.Map(func(x int) int { return x * x })
+
+	// Transform an error result
+	errorResult := Err[int](errors.New("invalid input"))
+	errorSquared := errorResult.Map(func(x int) int { return x * x })
+
+	fmt.Printf("Square of 5: %v\n", squared.UnwrapOr(0))
+	fmt.Printf("Square of error: %v\n", errorSquared.UnwrapOr(-1))
+
+	// Output:
+	// Square of 5: 25
+	// Square of error: -1
+}
+
+// ExampleResult_Match demonstrates pattern matching with Result.
+func ExampleResult_Match() {
+	// Helper function that may fail
+	divide := func(x, y int) Result[int] {
+		if y == 0 {
+			return Err[int](errors.New("division by zero"))
+		}
+		return Ok(x / y)
+	}
+
+	// Pattern match on results
+	success := divide(10, 2)
+	failure := divide(10, 0)
+
+	result1 := success.Match(
+		func(value int) Result[int] {
+			return Ok(value * 2)
+		},
+		func(err error) Result[int] {
+			return Err[int](fmt.Errorf("handled: %w", err))
+		},
+	)
+
+	result2 := failure.Match(
+		func(value int) Result[int] {
+			return Ok(value * 2)
+		},
+		func(err error) Result[int] {
+			return Err[int](fmt.Errorf("handled: %w", err))
+		},
+	)
+
+	fmt.Printf("Success result: %v\n", result1.UnwrapOr(-1))
+	fmt.Printf("Failure handled: %v\n", result2.IsErr())
+
+	// Output:
+	// Success result: 10
+	// Failure handled: true
+}
+
+// ExampleResult_Or demonstrates providing fallback results.
+func ExampleResult_Or() {
+	// Create primary and fallback results
+	primary := Err[string](errors.New("primary failed"))
+	fallback := Ok("fallback value")
+
+	// Use fallback when primary fails
+	result := primary.Or(fallback)
+
+	fmt.Printf("Result: %s\n", result.UnwrapOr("default"))
+
+	// Output:
+	// Result: fallback value
+}
+
+// ExampleOk demonstrates creating a successful Result.
+func ExampleOk() {
+	// Create a successful result
+	result := Ok("Success!")
+
+	fmt.Printf("Is ok: %t\n", result.IsOk())
+	fmt.Printf("Value: %s\n", result.UnwrapOr("default"))
+
+	// Output:
+	// Is ok: true
+	// Value: Success!
+}
+
+// ExampleErr demonstrates creating an error Result.
+func ExampleErr() {
+	// Create an error result
+	result := Err[string](errors.New("something failed"))
+
+	fmt.Printf("Is error: %t\n", result.IsErr())
+	fmt.Printf("Value: %s\n", result.UnwrapOr("default"))
+
+	// Output:
+	// Is error: true
+	// Value: default
+}
+
+// ExampleOkZero demonstrates creating a Result with zero value.
+func ExampleOkZero() {
+	// Create a successful result with zero value
+	result := OkZero[int]()
+
+	fmt.Printf("Is ok: %t\n", result.IsOk())
+	fmt.Printf("Value: %d\n", result.UnwrapOr(-1))
+
+	// Output:
+	// Is ok: true
+	// Value: 0
 }

@@ -1,3 +1,5 @@
+// Package main generates the README.md file for the gozo project
+// by extracting examples from test files and creating documentation.
 package main
 
 import (
@@ -5,15 +7,15 @@ import (
 	"bytes"
 	"fmt"
 	"go/ast"
-	"go/format"
 	"go/parser"
 	"go/token"
-	"io/fs"
 	"os"
 	"path/filepath"
 	"sort"
 	"strings"
 )
+
+// Constants and template definitions
 
 const title = `
 # gozo
@@ -30,6 +32,13 @@ The ultimate toolkit for Go developers. A comprehensive collection of functions,
 ## Modules
 
 `
+
+var moduleEmojis = map[string]string{
+	"fp":      "🪄",
+	"maps":    "🗝️",
+	"slices":  "⛓️",
+	"streams": "🌊",
+}
 
 type (
 	fun struct {
@@ -52,68 +61,238 @@ func (m *mod) sortFunctionsByName() {
 	})
 }
 
+// String generates the markdown representation of a module.
 func (m mod) String() string {
 	buf := bytes.NewBuffer(nil)
 
-	// Module header with Emoji
-	// Use lowercase anchor link for the module itself
+	// Module header with emoji
 	moduleAnchor := strings.ToLower(m.title)
 	emoji := moduleEmojis[m.title]
 	if emoji == "" {
-		emoji = "⚙️" // Default emoji
+		emoji = "⚙️"
 	}
 	buf.WriteString(fmt.Sprintf("## <a name=\"%s\"></a>%s %s\n\n", moduleAnchor, emoji, strings.ToUpper(m.title[:1])+m.title[1:]))
 	buf.WriteString(m.description)
 	buf.WriteString("\n\n")
 
-	// Module-specific table of contents
+	// Table of contents
 	buf.WriteString("### Functions\n\n")
 	for _, fn := range m.funs {
-		// Use lowercase anchor links consistent with global ToC
-		buf.WriteString(fmt.Sprintf("- [%s](#%s)\n", fn.name, strings.ToLower(fn.name)))
+		anchor := strings.ToLower(strings.ReplaceAll(m.title+" "+fn.name, " ", "-"))
+		buf.WriteString(fmt.Sprintf("- [%s](#%s)\n", fn.name, anchor))
 	}
 	buf.WriteString("\n")
 
 	// Function details
 	for _, fn := range m.funs {
-		buf.WriteString(fn.String())
-		// Use a standard markdown horizontal rule
+		buf.WriteString(fmt.Sprintf("#### %s %s\n\n", m.title, fn.name))
+		buf.WriteString(fn.comment)
+
+		buf.WriteString("\n\n<details><summary>Code</summary>\n\n")
+		buf.WriteString("```go\n" + strings.TrimSpace(fn.body.String()) + "\n```\n\n</details>\n")
 		buf.WriteString("\n\n---\n\n")
 	}
 
-	// Add Back to Top link
 	buf.WriteString("\n[⬆️ Back to Top](#table-of-contents)\n")
 
 	return buf.String()
 }
 
-func (f fun) String() string {
-	buf := bytes.NewBuffer(nil)
-
-	// Function header (using H4 for better hierarchy)
-	// Anchor link for the function name itself
-	buf.WriteString(fmt.Sprintf("#### <a name=\"%s\"></a>%s\n\n", strings.ToLower(f.name), f.name))
-	buf.WriteString(f.comment)
-
-	// Code block with collapsible details
-	buf.WriteString("\n\n<details><summary>Code</summary>\n\n")
-	// Ensure consistent code block formatting
-	buf.WriteString("```go\n" + strings.TrimSpace(f.body.String()) + "\n```\n\n</details>\n")
-
-	return buf.String()
-}
-
+// cleanComment removes Go comment markers (//) and cleans up comment text.
 func cleanComment(c string) string {
 	return strings.ReplaceAll(c, "// ", "")
 }
 
-var moduleEmojis = map[string]string{
-	"slices":  "⛓️", // Chain/Sequence
-	"maps":    "🗝️", // Keys
-	"fp":      "🪄",  // Magic/Transformation
-	"streams": "🌊",  // Water/Flow
+// createModuleFromExamples creates a module by parsing example functions from test files.
+func createModuleFromExamples(moduleName string) *mod {
+	m := &mod{
+		title: moduleName,
+		funs:  make([]fun, 0),
+	}
+
+	// Get module description from main module file if it exists
+	mainFile := fmt.Sprintf("%s/%s.go", moduleName, moduleName)
+	if _, err := os.Stat(mainFile); err == nil {
+		if fset := token.NewFileSet(); fset != nil {
+			if f, err := parser.ParseFile(fset, mainFile, nil, parser.ParseComments); err == nil && f.Doc != nil {
+				m.description = cleanComment(f.Doc.Text())
+			}
+		}
+	}
+
+	// Set default descriptions for known modules
+	if m.description == "" {
+		switch moduleName {
+		case "streams":
+			m.description = "Powerful data streaming and processing utilities with fluent API for functional programming patterns."
+		case "slices":
+			m.description = "Comprehensive slice manipulation utilities with functional programming patterns."
+		case "maps":
+			m.description = "Map manipulation and transformation utilities."
+		case "fp":
+			m.description = "Functional programming utilities including Option and Result types."
+		}
+	}
+
+	// Find all test files in the module directory
+	testPattern := fmt.Sprintf("%s/*_test.go", moduleName)
+	testFiles, err := filepath.Glob(testPattern)
+	if err != nil {
+		return m
+	}
+
+	for _, filePath := range testFiles {
+		fset := token.NewFileSet()
+		f, err := parser.ParseFile(fset, filePath, nil, parser.ParseComments)
+		if err != nil {
+			continue
+		}
+
+		// Extract Example functions
+		for _, decl := range f.Decls {
+			if fn, ok := decl.(*ast.FuncDecl); ok {
+				if fn.Doc == nil || !strings.HasPrefix(fn.Name.String(), "Example") {
+					continue
+				}
+
+				// Extract the function name without "Example" prefix
+				funcName := strings.TrimPrefix(fn.Name.String(), "Example")
+				if funcName == "" {
+					continue
+				}
+
+				modFun := fun{
+					name:    funcName,
+					comment: cleanComment(fn.Doc.Text()),
+					body:    new(bytes.Buffer),
+				}
+
+				// For example functions, extract source with comments preserved
+				if err := extractSourceWithComments(modFun.body, fset, fn, filePath); err != nil {
+					continue
+				}
+
+				m.funs = append(m.funs, modFun)
+			}
+		}
+	}
+
+	return m
 }
 
+// extractSourceWithComments extracts the source code of a function preserving comments
+func extractSourceWithComments(buf *bytes.Buffer, fset *token.FileSet, fn *ast.FuncDecl, filePath string) error {
+	// Read the source file
+	content, err := os.ReadFile(filePath)
+	if err != nil {
+		return err
+	}
+
+	// Get the position of the function in the source
+	start := fset.Position(fn.Pos())
+	end := fset.Position(fn.End())
+
+	// Convert to lines
+	lines := strings.Split(string(content), "\n")
+
+	// Extract function lines (adjust for 1-based line numbers)
+	if start.Line > len(lines) || end.Line > len(lines) {
+		return fmt.Errorf("function position out of bounds")
+	}
+
+	// Extract the function body (skip the func declaration line, keep the body)
+	bodyLines := []string{}
+	inBody := false
+	braceCount := 0
+
+	for i := start.Line - 1; i < len(lines) && i < end.Line; i++ {
+		line := lines[i]
+
+		// Find opening brace to start body extraction
+		if !inBody && strings.Contains(line, "{") {
+			inBody = true
+			// Extract everything after the opening brace
+			bracePos := strings.Index(line, "{")
+			if bracePos < len(line)-1 {
+				bodyContent := line[bracePos+1:]
+				if strings.TrimSpace(bodyContent) != "" {
+					bodyLines = append(bodyLines, bodyContent)
+				}
+			}
+			braceCount = 1
+			continue
+		}
+
+		if inBody {
+			// Count braces to know when we've reached the end
+			openBraces := strings.Count(line, "{")
+			closeBraces := strings.Count(line, "}")
+			braceCount += openBraces - closeBraces
+
+			// If we're at the closing brace, extract content before it
+			if braceCount == 0 {
+				if closeBracePos := strings.LastIndex(line, "}"); closeBracePos > 0 {
+					bodyContent := line[:closeBracePos]
+					bodyLines = append(bodyLines, bodyContent)
+				}
+				break
+			} else {
+				// Always add the line as-is to preserve comments and formatting
+				bodyLines = append(bodyLines, line)
+			}
+		}
+	}
+
+	// Write the body content with proper indentation removed
+	if len(bodyLines) > 0 {
+		// Find common indentation to remove (ignore empty lines and pure comment lines)
+		minIndent := 1000
+		for _, line := range bodyLines {
+			trimmed := strings.TrimSpace(line)
+			if trimmed != "" && !strings.HasPrefix(trimmed, "//") {
+				indent := 0
+				for _, char := range line {
+					if char == ' ' || char == '\t' {
+						indent++
+					} else {
+						break
+					}
+				}
+				if indent < minIndent {
+					minIndent = indent
+				}
+			}
+		}
+
+		// If no code lines found, use 0 as minimum indent
+		if minIndent == 1000 {
+			minIndent = 0
+		}
+
+		// Write function signature first
+		buf.WriteString(fmt.Sprintf("func %s() {\n", fn.Name.Name))
+
+		// Write body with adjusted indentation
+		for _, line := range bodyLines {
+			trimmed := strings.TrimSpace(line)
+			if trimmed == "" {
+				// Empty line - preserve it
+				buf.WriteString("\n")
+			} else if len(line) > minIndent {
+				// Remove common indentation and add one tab
+				buf.WriteString("\t" + line[minIndent:] + "\n")
+			} else {
+				// Line is shorter than minIndent (probably a comment or short line)
+				buf.WriteString("\t" + line + "\n")
+			}
+		}
+		buf.WriteString("}")
+	}
+
+	return nil
+}
+
+// readme generates the complete README.md file for the gozo project.
 func readme() {
 	modules := []string{
 		"slices", "maps", "fp", "streams",
@@ -130,70 +309,18 @@ func readme() {
 	buf := bufio.NewWriter(file)
 	_, _ = buf.WriteString(title)
 
-	// Use map to aggregate functions by package name
-	modsMap := make(map[string]*mod)
-
+	// Create modules from examples
+	mods := make([]*mod, 0, len(modules))
 	for _, modName := range modules {
-		_ = filepath.WalkDir(modName, func(path string, d fs.DirEntry, err error) error {
-			if d.IsDir() || strings.Contains(path, "_test") || !strings.HasSuffix(path, ".go") {
-				return nil
+		fmt.Printf("Processing module '%s'...\n", modName)
+		if exampleMod := createModuleFromExamples(modName); exampleMod != nil {
+			if len(exampleMod.funs) > 0 {
+				mods = append(mods, exampleMod)
+				fmt.Printf("Found %d examples in '%s'\n", len(exampleMod.funs), modName)
+			} else {
+				fmt.Printf("No examples found in '%s'\n", modName)
 			}
-
-			fset := token.NewFileSet()
-
-			fmt.Printf("parsing '%s'...\n", path) // Debugging log
-			// Parse src but stop after processing the imports.
-			f, err := parser.ParseFile(fset, path, nil, parser.ParseComments)
-			if err != nil {
-				fmt.Printf("Error parsing %s: %v\n", path, err) // Log parsing errors
-				return nil                                      // Continue with other files
-			}
-			fmt.Println("...done") // Debugging log
-
-			pkgName := f.Name.Name
-			m, exists := modsMap[pkgName]
-			if !exists {
-				m = &mod{
-					title:       pkgName,
-					description: cleanComment(f.Doc.Text()),
-					funs:        make([]fun, 0),
-				}
-				modsMap[pkgName] = m
-			}
-
-			// Add functions from this file
-			for _, decl := range f.Decls {
-				if fn, ok := decl.(*ast.FuncDecl); ok {
-					if fn.Doc == nil || fn.Recv != nil || !fn.Name.IsExported() {
-						continue
-					}
-
-					modFun := fun{
-						name:    fn.Name.String(),
-						comment: cleanComment(fn.Doc.Text()),
-						body:    new(bytes.Buffer),
-					}
-
-					// remove comments from node in order to make go/format print the body without comments
-					fn.Doc = nil
-
-					if err = format.Node(modFun.body, fset, fn); err != nil {
-						fmt.Printf("Error formatting node for %s in %s: %v\n", modFun.name, path, err) // Log formatting errors
-						continue
-					}
-
-					m.funs = append(m.funs, modFun)
-				}
-			}
-
-			return nil
-		})
-	}
-
-	// Convert map to slice for sorting
-	mods := make([]*mod, 0, len(modsMap))
-	for _, m := range modsMap {
-		mods = append(mods, m)
+		}
 	}
 
 	// Sort modules alphabetically by title
@@ -202,21 +329,17 @@ func readme() {
 	})
 
 	// Global table of contents
-	// Add an anchor for the Table of Contents itself
 	_, _ = buf.WriteString("## <a name=\"table-of-contents\"></a>Table of Contents\n\n")
 	for _, m := range mods {
-		// Sort functions within each module alphabetically before generating ToC
-		m.sortFunctionsByName() // Renamed function call
+		m.sortFunctionsByName()
 		emoji := moduleEmojis[m.title]
 		if emoji == "" {
-			emoji = "⚙️" // Default emoji
+			emoji = "⚙️"
 		}
-		// Use lowercase anchor links for modules
 		moduleAnchor := strings.ToLower(m.title)
 		_, _ = buf.WriteString(fmt.Sprintf("- [%s %s](#%s)\n", emoji, strings.ToUpper(m.title[:1])+m.title[1:], moduleAnchor))
 		for _, fn := range m.funs {
-			// Use lowercase anchor links for functions
-			functionAnchor := strings.ToLower(fn.name)
+			functionAnchor := strings.ToLower(strings.ReplaceAll(m.title+" "+fn.name, " ", "-"))
 			_, _ = buf.WriteString(fmt.Sprintf("  - [%s](#%s)\n", fn.name, functionAnchor))
 		}
 	}
@@ -224,9 +347,7 @@ func readme() {
 
 	// Module content
 	for _, m := range mods {
-		// Functions are already sorted from the ToC generation step
 		_, _ = buf.WriteString(m.String())
-		// Add a visual break between modules
 		_, _ = buf.WriteString("\n\n<br/>\n\n")
 	}
 

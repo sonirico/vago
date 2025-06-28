@@ -2,6 +2,7 @@ package streams
 
 import (
 	"bytes"
+	"fmt"
 	"io"
 	"strings"
 	"testing"
@@ -314,6 +315,28 @@ func TestReaderStreamWithMulticast(t *testing.T) {
 			assert.Equal(t, expectedLine, string(items[j]), "Writer %d, item %d should match", i, j)
 		}
 	}
+}
+
+// ExampleReader demonstrates reading byte chunks from an io.Reader.
+func ExampleReader() {
+	// Create data to read
+	data := "line1\nline2\nline3\n"
+	reader := strings.NewReader(data)
+
+	// Create a byte stream
+	stream := Reader(reader)
+
+	// Read all chunks
+	var chunks []string
+	for stream.Next() {
+		chunks = append(chunks, string(stream.Data()))
+	}
+
+	fmt.Printf("Chunks: %d\n", len(chunks))
+	fmt.Printf("First chunk: %q\n", chunks[0])
+	// Output:
+	// Chunks: 3
+	// First chunk: "line1\n"
 }
 
 // errorReader is a test helper that fails after a certain number of reads

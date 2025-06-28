@@ -2,6 +2,7 @@ package fp
 
 import (
 	"errors"
+	"fmt"
 	"io"
 	"strings"
 	"testing"
@@ -306,4 +307,166 @@ func TestOptionFromZero(t *testing.T) {
 	if !optionStr.IsNone() {
 		t.Error("unexpected result, want none, have some")
 	}
+}
+
+// ExampleOption demonstrates basic usage of the Option type.
+func ExampleOption() {
+	// Create Some and None options
+	someValue := Some(42)
+	noneValue := None[int]()
+
+	// Check if options have values
+	fmt.Printf("Some has value: %v\n", someValue.IsSome())
+	fmt.Printf("None has value: %v\n", noneValue.IsSome())
+
+	// Extract values safely
+	if value, ok := someValue.Unwrap(); ok {
+		fmt.Printf("Value: %d\n", value)
+	}
+
+	// Output:
+	// Some has value: true
+	// None has value: false
+	// Value: 42
+}
+
+// ExampleOption_Map demonstrates transforming values inside Option.
+func ExampleOption_Map() {
+	// Start with an optional number
+	maybeNumber := Some(5)
+
+	// Transform it to its square
+	maybeSquare := maybeNumber.Map(func(x int) int { return x * x })
+
+	// Transform None value
+	noneNumber := None[int]()
+	noneSquare := noneNumber.Map(func(x int) int { return x * x })
+
+	fmt.Printf("Square of 5: %v\n", maybeSquare.UnwrapOr(0))
+	fmt.Printf("Square of None: %v\n", noneSquare.UnwrapOr(-1))
+
+	// Output:
+	// Square of 5: 25
+	// Square of None: -1
+}
+
+// ExampleOption_Match demonstrates pattern matching with Option.
+func ExampleOption_Match() {
+	// Helper function that may return a value
+	getValue := func(id int) Option[string] {
+		if id > 0 {
+			return Some(fmt.Sprintf("User_%d", id))
+		}
+		return None[string]()
+	}
+
+	// Pattern match on the result
+	validUser := getValue(42)
+	invalidUser := getValue(-1)
+
+	result1 := validUser.Match(
+		func(user string) Option[string] {
+			return Some("Found: " + user)
+		},
+		func() Option[string] {
+			return Some("No user found")
+		},
+	)
+
+	result2 := invalidUser.Match(
+		func(user string) Option[string] {
+			return Some("Found: " + user)
+		},
+		func() Option[string] {
+			return Some("No user found")
+		},
+	)
+
+	fmt.Printf("Valid user: %s\n", result1.UnwrapOr(""))
+	fmt.Printf("Invalid user: %s\n", result2.UnwrapOr(""))
+
+	// Output:
+	// Valid user: Found: User_42
+	// Invalid user: No user found
+}
+
+// ExampleOption_Or demonstrates providing fallback values.
+func ExampleOption_Or() {
+	// Create some options
+	primary := None[string]()
+	secondary := Some("backup")
+	tertiary := Some("fallback")
+
+	// Chain fallbacks
+	result := primary.Or(secondary).Or(tertiary)
+
+	fmt.Printf("Result: %s\n", result.UnwrapOr("default"))
+
+	// Output:
+	// Result: backup
+}
+
+// ExampleSome demonstrates creating an Option with a value.
+func ExampleSome() {
+	// Create an Option containing a string
+	message := Some("Hello, World!")
+
+	fmt.Printf("Has value: %t\n", message.IsSome())
+	fmt.Printf("Value: %s\n", message.UnwrapOr("default"))
+
+	// Output:
+	// Has value: true
+	// Value: Hello, World!
+}
+
+// ExampleNone demonstrates creating an empty Option.
+func ExampleNone() {
+	// Create an empty Option
+	empty := None[string]()
+
+	fmt.Printf("Has value: %t\n", empty.IsSome())
+	fmt.Printf("Value: %s\n", empty.UnwrapOr("default"))
+
+	// Output:
+	// Has value: false
+	// Value: default
+}
+
+// ExampleOptionFromTuple demonstrates creating Option from a tuple pattern.
+func ExampleOptionFromTuple() {
+	// Common Go pattern: value, ok
+	getValue := func(key string) (string, bool) {
+		data := map[string]string{"name": "Alice", "age": "25"}
+		value, ok := data[key]
+		return value, ok
+	}
+
+	// Convert to Option
+	nameOpt := OptionFromTuple(getValue("name"))
+	missingOpt := OptionFromTuple(getValue("missing"))
+
+	fmt.Printf("Name: %s\n", nameOpt.UnwrapOr("unknown"))
+	fmt.Printf("Missing: %s\n", missingOpt.UnwrapOr("unknown"))
+
+	// Output:
+	// Name: Alice
+	// Missing: unknown
+}
+
+// ExampleOptionFromPtr demonstrates creating Option from a pointer.
+func ExampleOptionFromPtr() {
+	// From valid pointer
+	value := "hello"
+	opt1 := OptionFromPtr(&value)
+
+	// From nil pointer
+	var nilPtr *string
+	opt2 := OptionFromPtr(nilPtr)
+
+	fmt.Printf("From pointer: %s\n", opt1.UnwrapOr("empty"))
+	fmt.Printf("From nil: %s\n", opt2.UnwrapOr("empty"))
+
+	// Output:
+	// From pointer: hello
+	// From nil: empty
 }

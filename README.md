@@ -15,126 +15,99 @@ The ultimate toolkit for Go developers. A comprehensive collection of functions,
 ## <a name="table-of-contents"></a>Table of Contents
 
 - [🪄 Fp](#fp)
-  - [Err](#err)
-  - [None](#none)
-  - [Ok](#ok)
-  - [OkZero](#okzero)
-  - [OptionFromPtr](#optionfromptr)
-  - [OptionFromTuple](#optionfromtuple)
-  - [OptionFromZero](#optionfromzero)
-  - [Some](#some)
+  - [Err](#fp-err)
+  - [None](#fp-none)
+  - [Ok](#fp-ok)
+  - [OkZero](#fp-okzero)
+  - [Option](#fp-option)
+  - [OptionFromPtr](#fp-optionfromptr)
+  - [OptionFromTuple](#fp-optionfromtuple)
+  - [Option_Map](#fp-option_map)
+  - [Option_Match](#fp-option_match)
+  - [Option_Or](#fp-option_or)
+  - [Result](#fp-result)
+  - [Result_Map](#fp-result_map)
+  - [Result_Match](#fp-result_match)
+  - [Result_Or](#fp-result_or)
+  - [Some](#fp-some)
 - [🗝️ Maps](#maps)
-  - [Equals](#equals)
-  - [Filter](#filter)
-  - [FilterInPlace](#filterinplace)
-  - [FilterMap](#filtermap)
-  - [FilterMapTuple](#filtermaptuple)
-  - [Fold](#fold)
-  - [Map](#map)
-  - [Reduce](#reduce)
-  - [Slice](#slice)
+  - [Equals](#maps-equals)
+  - [Filter](#maps-filter)
+  - [FilterMap](#maps-filtermap)
+  - [FilterMapTuple](#maps-filtermaptuple)
+  - [Fold](#maps-fold)
+  - [Map](#maps-map)
+  - [Reduce](#maps-reduce)
+  - [Slice](#maps-slice)
 - [⛓️ Slices](#slices)
-  - [All](#all)
-  - [Any](#any)
-  - [Append](#append)
-  - [AppendVector](#appendvector)
-  - [Contains](#contains)
-  - [Cut](#cut)
-  - [Delete](#delete)
-  - [DeleteOrder](#deleteorder)
-  - [Equals](#equals)
-  - [Extract](#extract)
-  - [ExtractIdx](#extractidx)
-  - [Filter](#filter)
-  - [FilterInPlace](#filterinplace)
-  - [FilterInPlaceCopy](#filterinplacecopy)
-  - [FilterMap](#filtermap)
-  - [FilterMapTuple](#filtermaptuple)
-  - [Find](#find)
-  - [FindIdx](#findidx)
-  - [Fold](#fold)
-  - [FoldSame](#foldsame)
-  - [Includes](#includes)
-  - [IndexOf](#indexof)
-  - [Insert](#insert)
-  - [InsertVector](#insertvector)
-  - [Map](#map)
-  - [MapInPlace](#mapinplace)
-  - [Peek](#peek)
-  - [Pop](#pop)
-  - [PopFront](#popfront)
-  - [PushFront](#pushfront)
-  - [Reduce](#reduce)
-  - [ReduceSame](#reducesame)
-  - [Shift](#shift)
-  - [Some](#some)
-  - [ToMap](#tomap)
-  - [ToMapIdx](#tomapidx)
-  - [Unshift](#unshift)
+  - [All](#slices-all)
+  - [Contains](#slices-contains)
+  - [Filter](#slices-filter)
+  - [FilterMap](#slices-filtermap)
+  - [Find](#slices-find)
+  - [Fold](#slices-fold)
+  - [Map](#slices-map)
+  - [Reduce](#slices-reduce)
+  - [Some](#slices-some)
+  - [ToMap](#slices-tomap)
 - [🌊 Streams](#streams)
-  - [Batch](#batch)
-  - [CSV](#csv)
-  - [CSVTransform](#csvtransform)
-  - [Collect](#collect)
-  - [Compact](#compact)
-  - [CompactFactory](#compactfactory)
-  - [Consume](#consume)
-  - [ConsumeErrSkip](#consumeerrskip)
-  - [Filter](#filter)
-  - [Flatten](#flatten)
-  - [Iter](#iter)
-  - [Iter2](#iter2)
-  - [JSON](#json)
-  - [JSONEachRowTransform](#jsoneachrowtransform)
-  - [JSONTransform](#jsontransform)
-  - [Lines](#lines)
-  - [Map](#map)
-  - [MemReader](#memreader)
-  - [MemWriter](#memwriter)
-  - [Multicast](#multicast)
-  - [Pipe](#pipe)
-  - [PipeCSV](#pipecsv)
-  - [PipeJSON](#pipejson)
-  - [PipeJSONEachRow](#pipejsoneachrow)
-  - [ReadAllBytes](#readallbytes)
-  - [Reader](#reader)
-  - [Reduce](#reduce)
-  - [SeqKeys](#seqkeys)
-  - [SeqValues](#seqvalues)
-  - [WriteAll](#writeall)
-  - [WriteSeq](#writeseq)
-  - [WriteSeqKeys](#writeseqkeys)
-  - [WriteSeqValues](#writeseqvalues)
-  - [Writer](#writer)
+  - [Batch](#streams-batch)
+  - [CSV](#streams-csv)
+  - [Compact](#streams-compact)
+  - [ConsumeErrSkip](#streams-consumeerrskip)
+  - [Filter](#streams-filter)
+  - [FilterMap](#streams-filtermap)
+  - [Flatten](#streams-flatten)
+  - [JSON](#streams-json)
+  - [Lines](#streams-lines)
+  - [Map](#streams-map)
+  - [MemWriter](#streams-memwriter)
+  - [Multicast](#streams-multicast)
+  - [Pipe](#streams-pipe)
+  - [Reader](#streams-reader)
+  - [Reduce](#streams-reduce)
+  - [WriteAll](#streams-writeall)
 
 ## <a name="fp"></a>🪄 Fp
 
-Package fp provides functional programming primitives for Go.
-It implements monadic types like Option and Result for more expressive error handling.
-
+Functional programming utilities including Option and Result types.
 
 ### Functions
 
-- [Err](#err)
-- [None](#none)
-- [Ok](#ok)
-- [OkZero](#okzero)
-- [OptionFromPtr](#optionfromptr)
-- [OptionFromTuple](#optionfromtuple)
-- [OptionFromZero](#optionfromzero)
-- [Some](#some)
+- [Err](#fp-err)
+- [None](#fp-none)
+- [Ok](#fp-ok)
+- [OkZero](#fp-okzero)
+- [Option](#fp-option)
+- [OptionFromPtr](#fp-optionfromptr)
+- [OptionFromTuple](#fp-optionfromtuple)
+- [Option_Map](#fp-option_map)
+- [Option_Match](#fp-option_match)
+- [Option_Or](#fp-option_or)
+- [Result](#fp-result)
+- [Result_Map](#fp-result_map)
+- [Result_Match](#fp-result_match)
+- [Result_Or](#fp-result_or)
+- [Some](#fp-some)
 
-#### <a name="err"></a>Err
+#### fp Err
 
-Err creates a new Result in the error state with the given error.
-This is a constructor function for creating a Result that represents failure.
+ExampleErr demonstrates creating an error Result.
 
 
 <details><summary>Code</summary>
 
 ```go
-func Err[T any](err error) Result[T] {
-	return Result[T]{err: err}
+func ExampleErr() {
+	// Create an error result
+	result := Err[string](errors.New("something failed"))
+
+	fmt.Printf("Is error: %t\n", result.IsErr())
+	fmt.Printf("Value: %s\n", result.UnwrapOr("default"))
+
+	// Output:
+	// Is error: true
+	// Value: default
 }
 ```
 
@@ -143,17 +116,24 @@ func Err[T any](err error) Result[T] {
 
 ---
 
-#### <a name="none"></a>None
+#### fp None
 
-None creates a new Option in the None state.
-This is a constructor function for creating an Option that does not contain a value.
+ExampleNone demonstrates creating an empty Option.
 
 
 <details><summary>Code</summary>
 
 ```go
-func None[T any]() Option[T] {
-	return Option[T]{}
+func ExampleNone() {
+	// Create an empty Option
+	empty := None[string]()
+
+	fmt.Printf("Has value: %t\n", empty.IsSome())
+	fmt.Printf("Value: %s\n", empty.UnwrapOr("default"))
+
+	// Output:
+	// Has value: false
+	// Value: default
 }
 ```
 
@@ -162,17 +142,24 @@ func None[T any]() Option[T] {
 
 ---
 
-#### <a name="ok"></a>Ok
+#### fp Ok
 
-Ok creates a new Result in the Ok state with the given value.
-This is a constructor function for creating a Result that represents success.
+ExampleOk demonstrates creating a successful Result.
 
 
 <details><summary>Code</summary>
 
 ```go
-func Ok[T any](v T) Result[T] {
-	return Result[T]{value: v, err: nil}
+func ExampleOk() {
+	// Create a successful result
+	result := Ok("Success!")
+
+	fmt.Printf("Is ok: %t\n", result.IsOk())
+	fmt.Printf("Value: %s\n", result.UnwrapOr("default"))
+
+	// Output:
+	// Is ok: true
+	// Value: Success!
 }
 ```
 
@@ -181,18 +168,24 @@ func Ok[T any](v T) Result[T] {
 
 ---
 
-#### <a name="okzero"></a>OkZero
+#### fp OkZero
 
-OkZero creates a new Result in the Ok state with the zero value.
-This is a constructor function for creating a Result that represents success
-but doesn't carry a meaningful value.
+ExampleOkZero demonstrates creating a Result with zero value.
 
 
 <details><summary>Code</summary>
 
 ```go
-func OkZero[T any]() Result[T] {
-	return Result[T]{err: nil}
+func ExampleOkZero() {
+	// Create a successful result with zero value
+	result := OkZero[int]()
+
+	fmt.Printf("Is ok: %t\n", result.IsOk())
+	fmt.Printf("Value: %d\n", result.UnwrapOr(-1))
+
+	// Output:
+	// Is ok: true
+	// Value: 0
 }
 ```
 
@@ -201,21 +194,32 @@ func OkZero[T any]() Result[T] {
 
 ---
 
-#### <a name="optionfromptr"></a>OptionFromPtr
+#### fp Option
 
-OptionFromPtr creates an Option from a pointer.
-If the pointer is nil, returns None, otherwise returns Some with the dereferenced value.
-This is useful for converting nullable pointers to the Option type.
+ExampleOption demonstrates basic usage of the Option type.
 
 
 <details><summary>Code</summary>
 
 ```go
-func OptionFromPtr[T any](x *T) Option[T] {
-	if x == nil {
-		return None[T]()
+func ExampleOption() {
+	// Create Some and None options
+	someValue := Some(42)
+	noneValue := None[int]()
+
+	// Check if options have values
+	fmt.Printf("Some has value: %v\n", someValue.IsSome())
+	fmt.Printf("None has value: %v\n", noneValue.IsSome())
+
+	// Extract values safely
+	if value, ok := someValue.Unwrap(); ok {
+		fmt.Printf("Value: %d\n", value)
 	}
-	return Some(*x)
+
+	// Output:
+	// Some has value: true
+	// None has value: false
+	// Value: 42
 }
 ```
 
@@ -224,21 +228,63 @@ func OptionFromPtr[T any](x *T) Option[T] {
 
 ---
 
-#### <a name="optionfromtuple"></a>OptionFromTuple
+#### fp OptionFromPtr
 
-OptionFromTuple creates an Option from a tuple-like return (value, ok).
-If ok is true, returns Some(x), otherwise returns None.
-This is useful for converting Go's common (value, ok) pattern to an Option.
+ExampleOptionFromPtr demonstrates creating Option from a pointer.
 
 
 <details><summary>Code</summary>
 
 ```go
-func OptionFromTuple[T any](x T, ok bool) Option[T] {
-	if ok {
-		return Some(x)
+func ExampleOptionFromPtr() {
+	// From valid pointer
+	value := "hello"
+	opt1 := OptionFromPtr(&value)
+
+	// From nil pointer
+	var nilPtr *string
+	opt2 := OptionFromPtr(nilPtr)
+
+	fmt.Printf("From pointer: %s\n", opt1.UnwrapOr("empty"))
+	fmt.Printf("From nil: %s\n", opt2.UnwrapOr("empty"))
+
+	// Output:
+	// From pointer: hello
+	// From nil: empty
+}
+```
+
+</details>
+
+
+---
+
+#### fp OptionFromTuple
+
+ExampleOptionFromTuple demonstrates creating Option from a tuple pattern.
+
+
+<details><summary>Code</summary>
+
+```go
+func ExampleOptionFromTuple() {
+	// Common Go pattern: value, ok
+	getValue := func(key string) (string, bool) {
+		data := map[string]string{"name": "Alice", "age": "25"}
+		value, ok := data[key]
+		return value, ok
 	}
-	return None[T]()
+
+	// Convert to Option
+	nameOpt := OptionFromTuple(getValue("name"))
+	missingOpt := OptionFromTuple(getValue("missing"))
+
+	fmt.Printf("Name: %s\n", nameOpt.UnwrapOr("unknown"))
+	fmt.Printf("Missing: %s\n", missingOpt.UnwrapOr("unknown"))
+
+	// Output:
+	// Name: Alice
+	// Missing: unknown
 }
 ```
 
@@ -247,22 +293,84 @@ func OptionFromTuple[T any](x T, ok bool) Option[T] {
 
 ---
 
-#### <a name="optionfromzero"></a>OptionFromZero
+#### fp Option_Map
 
-OptionFromZero creates an Option from a value, treating zero values as None.
-If the value equals the zero value for its type, returns None, otherwise returns Some(x).
-This is useful when zero values are treated as invalid or unset.
+ExampleOption_Map demonstrates transforming values inside Option.
 
 
 <details><summary>Code</summary>
 
 ```go
-func OptionFromZero[T comparable](x T) Option[T] {
-	var zero T
-	if x == zero {
-		return None[T]()
+func ExampleOption_Map() {
+	// Start with an optional number
+	maybeNumber := Some(5)
+
+	// Transform it to its square
+	maybeSquare := maybeNumber.Map(func(x int) int { return x * x })
+
+	// Transform None value
+	noneNumber := None[int]()
+	noneSquare := noneNumber.Map(func(x int) int { return x * x })
+
+	fmt.Printf("Square of 5: %v\n", maybeSquare.UnwrapOr(0))
+	fmt.Printf("Square of None: %v\n", noneSquare.UnwrapOr(-1))
+
+	// Output:
+	// Square of 5: 25
+	// Square of None: -1
+}
+```
+
+</details>
+
+
+---
+
+#### fp Option_Match
+
+ExampleOption_Match demonstrates pattern matching with Option.
+
+
+<details><summary>Code</summary>
+
+```go
+func ExampleOption_Match() {
+	// Helper function that may return a value
+	getValue := func(id int) Option[string] {
+		if id > 0 {
+			return Some(fmt.Sprintf("User_%d", id))
+		}
+		return None[string]()
 	}
-	return Some(x)
+
+	// Pattern match on the result
+	validUser := getValue(42)
+	invalidUser := getValue(-1)
+
+	result1 := validUser.Match(
+		func(user string) Option[string] {
+			return Some("Found: " + user)
+		},
+		func() Option[string] {
+			return Some("No user found")
+		},
+	)
+
+	result2 := invalidUser.Match(
+		func(user string) Option[string] {
+			return Some("Found: " + user)
+		},
+		func() Option[string] {
+			return Some("No user found")
+		},
+	)
+
+	fmt.Printf("Valid user: %s\n", result1.UnwrapOr(""))
+	fmt.Printf("Invalid user: %s\n", result2.UnwrapOr(""))
+
+	// Output:
+	// Valid user: Found: User_42
+	// Invalid user: No user found
 }
 ```
 
@@ -271,17 +379,206 @@ func OptionFromZero[T comparable](x T) Option[T] {
 
 ---
 
-#### <a name="some"></a>Some
+#### fp Option_Or
 
-Some creates a new Option in the Some state with the given value.
-This is a constructor function for creating an Option that contains a value.
+ExampleOption_Or demonstrates providing fallback values.
 
 
 <details><summary>Code</summary>
 
 ```go
-func Some[T any](t T) Option[T] {
-	return Option[T]{value: t, isSome: true}
+func ExampleOption_Or() {
+	// Create some options
+	primary := None[string]()
+	secondary := Some("backup")
+	tertiary := Some("fallback")
+
+	// Chain fallbacks
+	result := primary.Or(secondary).Or(tertiary)
+
+	fmt.Printf("Result: %s\n", result.UnwrapOr("default"))
+
+	// Output:
+	// Result: backup
+}
+```
+
+</details>
+
+
+---
+
+#### fp Result
+
+ExampleResult demonstrates basic usage of the Result type.
+
+
+<details><summary>Code</summary>
+
+```go
+func ExampleResult() {
+	// Create successful and error results
+	success := Ok("Hello, World!")
+	failure := Err[string](errors.New("something went wrong"))
+
+	// Check if results are ok
+	fmt.Printf("Success is ok: %v\n", success.IsOk())
+	fmt.Printf("Failure is ok: %v\n", failure.IsOk())
+
+	// Extract values safely
+	if value, err := success.Unwrap(); err == nil {
+		fmt.Printf("Success value: %s\n", value)
+	}
+
+	if _, err := failure.Unwrap(); err != nil {
+		fmt.Printf("Failure error: %v\n", err)
+	}
+
+	// Output:
+	// Success is ok: true
+	// Failure is ok: false
+	// Success value: Hello, World!
+	// Failure error: something went wrong
+}
+```
+
+</details>
+
+
+---
+
+#### fp Result_Map
+
+ExampleResult_Map demonstrates transforming values inside Result.
+
+
+<details><summary>Code</summary>
+
+```go
+func ExampleResult_Map() {
+	// Start with a result containing a number
+	result := Ok(5)
+
+	// Transform to its square
+	squared := result.Map(func(x int) int { return x * x })
+
+	// Transform an error result
+	errorResult := Err[int](errors.New("invalid input"))
+	errorSquared := errorResult.Map(func(x int) int { return x * x })
+
+	fmt.Printf("Square of 5: %v\n", squared.UnwrapOr(0))
+	fmt.Printf("Square of error: %v\n", errorSquared.UnwrapOr(-1))
+
+	// Output:
+	// Square of 5: 25
+	// Square of error: -1
+}
+```
+
+</details>
+
+
+---
+
+#### fp Result_Match
+
+ExampleResult_Match demonstrates pattern matching with Result.
+
+
+<details><summary>Code</summary>
+
+```go
+func ExampleResult_Match() {
+	// Helper function that may fail
+	divide := func(x, y int) Result[int] {
+		if y == 0 {
+			return Err[int](errors.New("division by zero"))
+		}
+		return Ok(x / y)
+	}
+
+	// Pattern match on results
+	success := divide(10, 2)
+	failure := divide(10, 0)
+
+	result1 := success.Match(
+		func(value int) Result[int] {
+			return Ok(value * 2)
+		},
+		func(err error) Result[int] {
+			return Err[int](fmt.Errorf("handled: %w", err))
+		},
+	)
+
+	result2 := failure.Match(
+		func(value int) Result[int] {
+			return Ok(value * 2)
+		},
+		func(err error) Result[int] {
+			return Err[int](fmt.Errorf("handled: %w", err))
+		},
+	)
+
+	fmt.Printf("Success result: %v\n", result1.UnwrapOr(-1))
+	fmt.Printf("Failure handled: %v\n", result2.IsErr())
+
+	// Output:
+	// Success result: 10
+	// Failure handled: true
+}
+```
+
+</details>
+
+
+---
+
+#### fp Result_Or
+
+ExampleResult_Or demonstrates providing fallback results.
+
+
+<details><summary>Code</summary>
+
+```go
+func ExampleResult_Or() {
+	// Create primary and fallback results
+	primary := Err[string](errors.New("primary failed"))
+	fallback := Ok("fallback value")
+
+	// Use fallback when primary fails
+	result := primary.Or(fallback)
+
+	fmt.Printf("Result: %s\n", result.UnwrapOr("default"))
+
+	// Output:
+	// Result: fallback value
+}
+```
+
+</details>
+
+
+---
+
+#### fp Some
+
+ExampleSome demonstrates creating an Option with a value.
+
+
+<details><summary>Code</summary>
+
+```go
+func ExampleSome() {
+	// Create an Option containing a string
+	message := Some("Hello, World!")
+
+	fmt.Printf("Has value: %t\n", message.IsSome())
+	fmt.Printf("Value: %s\n", message.UnwrapOr("default"))
+
+	// Output:
+	// Has value: true
+	// Value: Hello, World!
 }
 ```
 
@@ -305,56 +602,150 @@ reducing, and comparing maps.
 
 ### Functions
 
-- [Equals](#equals)
-- [Filter](#filter)
-- [FilterInPlace](#filterinplace)
-- [FilterMap](#filtermap)
-- [FilterMapTuple](#filtermaptuple)
-- [Fold](#fold)
-- [Map](#map)
-- [Reduce](#reduce)
-- [Slice](#slice)
+- [Equals](#maps-equals)
+- [Filter](#maps-filter)
+- [FilterMap](#maps-filtermap)
+- [FilterMapTuple](#maps-filtermaptuple)
+- [Fold](#maps-fold)
+- [Map](#maps-map)
+- [Reduce](#maps-reduce)
+- [Slice](#maps-slice)
 
-#### <a name="equals"></a>Equals
+#### maps Equals
 
-Equals compares two maps and returns whether they are equal in values.
-Two maps are considered equal if:
-- They have the same length
-- They contain the same keys
-- For each key, the values in both maps satisfy the equality function
-
-Maps are compared using the provided equality function for values.
-This allows for deep equality checks on complex value types.
+ExampleEquals demonstrates comparing two maps for equality.
 
 
 <details><summary>Code</summary>
 
 ```go
-func Equals[K comparable, V any](m1, m2 map[K]V, eq func(V, V) bool) bool {
-	if len(m1) != len(m2) {
-		return false
+func ExampleEquals() {
+	// Create two maps
+	map1 := map[string]int{"a": 1, "b": 2, "c": 3}
+	map2 := map[string]int{"a": 1, "b": 2, "c": 3}
+	map3 := map[string]int{"a": 1, "b": 2, "c": 4}
+
+	// Compare using equality function
+	equal1 := Equals(map1, map2, func(x, y int) bool { return x == y })
+	equal2 := Equals(map1, map3, func(x, y int) bool { return x == y })
+
+	fmt.Printf("map1 == map2: %t\n", equal1)
+	fmt.Printf("map1 == map3: %t\n", equal2)
+	// Output:
+	// map1 == map2: true
+	// map1 == map3: false
+}
+```
+
+</details>
+
+
+---
+
+#### maps Filter
+
+ExampleFilter demonstrates filtering a map by key-value pairs.
+
+
+<details><summary>Code</summary>
+
+```go
+func ExampleFilter() {
+	// Create a map of products to prices
+	prices := map[string]int{
+		"apple":  100,
+		"banana": 50,
+		"cherry": 200,
+		"date":   75,
 	}
 
-	if m1 == nil && m2 != nil {
-		return false
+	// Keep only items that cost more than 75
+	expensive := Filter(prices, func(product string, price int) bool {
+		return price > 75
+	})
+
+	fmt.Printf("Expensive items count: %d\n", len(expensive))
+	// Output: Expensive items count: 2
+}
+```
+
+</details>
+
+
+---
+
+#### maps FilterMap
+
+ExampleFilterMap demonstrates filtering and transforming in a single operation.
+
+
+<details><summary>Code</summary>
+
+```go
+func ExampleFilterMap() {
+	// Create a map of names to ages
+	ages := map[string]int{
+		"Alice": 25,
+		"Bob":   17,
+		"Carol": 30,
+		"Dave":  16,
 	}
 
-	if m1 != nil && m2 == nil {
-		return false
-	}
-
-	for k1, v1 := range m1 {
-		v2, ok := m2[k1]
-		if !ok {
-			return false
+	// Keep only adults and transform to ID format
+	adults := FilterMap(ages, func(name string, age int) fp.Option[tuples.Tuple2[string, string]] {
+		if age >= 18 {
+			id := fmt.Sprintf("ID_%s_%d", name, age)
+			return fp.Some(tuples.Tuple2[string, string]{V1: name, V2: id})
 		}
+		return fp.None[tuples.Tuple2[string, string]]()
+	})
 
-		if !eq(v1, v2) {
-			return false
+	fmt.Printf("Adult count: %d\n", len(adults))
+	// Output: Adult count: 2
+}
+```
+
+</details>
+
+
+---
+
+#### maps FilterMapTuple
+
+ExampleFilterMapTuple demonstrates filtering and transforming using tuple returns.
+
+
+<details><summary>Code</summary>
+
+```go
+func ExampleFilterMapTuple() {
+	// Create a map of scores
+	scores := map[string]int{
+		"Alice": 85,
+		"Bob":   70,
+		"Carol": 95,
+		"Dave":  60,
+	}
+
+	// Keep high scores and convert to grade format
+	grades := FilterMapTuple(scores, func(name string, score int) (string, string, bool) {
+		if score >= 80 {
+			var grade string
+			if score >= 90 {
+				grade = "A"
+			} else {
+				grade = "B"
+			}
+			return name, grade, true
 		}
-	}
+		return "", "", false
+	})
 
-	return true
+	fmt.Printf("High performers: %d\n", len(grades))
+	fmt.Printf("Alice's grade: %s\n", grades["Alice"])
+	// Output:
+	// High performers: 2
+	// Alice's grade: B
 }
 ```
 
@@ -363,35 +754,30 @@ func Equals[K comparable, V any](m1, m2 map[K]V, eq func(V, V) bool) bool {
 
 ---
 
-#### <a name="filter"></a>Filter
+#### maps Fold
 
-Filter creates a new map containing only the key-value pairs that satisfy the predicate.
-The predicate function takes a key and value and returns a boolean indicating
-whether to include the entry in the result.
-
-Unlike FilterInPlace, this function creates a new map and does not modify the input map.
+ExampleFold demonstrates folding a map with an initial value.
 
 
 <details><summary>Code</summary>
 
 ```go
-func Filter[K comparable, V any](
-	m map[K]V,
-	p func(K, V) bool,
-) map[K]V {
-	if m == nil {
-		return nil
+func ExampleFold() {
+	// Create a map of item prices
+	prices := map[string]float64{
+		"apple":  1.20,
+		"banana": 0.80,
+		"cherry": 2.50,
 	}
 
-	res := make(map[K]V, len(m))
+	// Calculate total with initial tax
+	totalWithTax := Fold(prices, func(acc float64, item string, price float64) float64 {
+		return acc + price*1.1 // Add 10% tax
+	}, 5.0) // Start with 5.0 base fee
 
-	for k, v := range m {
-		if p(k, v) {
-			res[k] = v
-		}
-	}
-
-	return res
+	fmt.Printf("Total with tax: %.2f\n", totalWithTax)
+	// Output:
+	// Total with tax: 9.95
 }
 ```
 
@@ -400,35 +786,29 @@ func Filter[K comparable, V any](
 
 ---
 
-#### <a name="filterinplace"></a>FilterInPlace
+#### maps Map
 
-FilterInPlace modifies the given map by removing entries that do not satisfy the predicate.
-The predicate function takes a key and value and returns a boolean indicating
-whether to keep the entry in the map.
-
-This function directly modifies the input map for better performance when
-creating a new map is not necessary.
-It returns the modified map for convenience in chaining operations.
+ExampleMap demonstrates transforming keys and values in a map.
 
 
 <details><summary>Code</summary>
 
 ```go
-func FilterInPlace[K comparable, V any](
-	m map[K]V,
-	p func(K, V) bool,
-) map[K]V {
-	if m == nil {
-		return nil
+func ExampleMap() {
+	// Create a map of numbers to their names
+	numbers := map[int]string{
+		1: "one",
+		2: "two",
+		3: "three",
 	}
 
-	for k, v := range m {
-		if !p(k, v) {
-			delete(m, k)
-		}
-	}
+	// Transform to string keys and uppercase values
+	transformed := Map(numbers, func(key int, value string) (string, string) {
+		return fmt.Sprintf("num_%d", key), strings.ToUpper(value)
+	})
 
-	return m
+	fmt.Println(transformed["num_1"])
+	// Output: ONE
 }
 ```
 
@@ -437,39 +817,29 @@ func FilterInPlace[K comparable, V any](
 
 ---
 
-#### <a name="filtermap"></a>FilterMap
+#### maps Reduce
 
-FilterMap both filters and maps a map into a new map, potentially with different key and value types.
-The predicate function should return an fp.Option monad containing a tuple of the new key and value:
-- fp.Some to include the entry in the result (with transformed key and value)
-- fp.None to exclude the entry from the result
-
-This provides a powerful way to simultaneously transform and filter map entries
-while leveraging the Option monad for expressing presence/absence.
+ExampleReduce demonstrates reducing a map to a single value.
 
 
 <details><summary>Code</summary>
 
 ```go
-func FilterMap[K1 comparable, V1 any, K2 comparable, V2 any](
-	m map[K1]V1,
-	p func(K1, V1) fp.Option[tuples.Tuple2[K2, V2]],
-) map[K2]V2 {
-	if m == nil {
-		return nil
+func ExampleReduce() {
+	// Create a map of item quantities
+	inventory := map[string]int{
+		"apples":  10,
+		"bananas": 5,
+		"oranges": 8,
 	}
 
-	res := make(map[K2]V2, len(m))
+	// Calculate total items (Reduce starts with zero value)
+	total := Reduce(inventory, func(acc int, key string, value int) int {
+		return acc + value
+	})
 
-	for k1, v1 := range m {
-		tpl := p(k1, v1)
-		if tpl.IsSome() {
-			v := tpl.UnwrapUnsafe()
-			res[v.V1] = v.V2
-		}
-	}
-
-	return res
+	fmt.Printf("Total items: %d\n", total)
+	// Output: Total items: 23
 }
 ```
 
@@ -478,184 +848,31 @@ func FilterMap[K1 comparable, V1 any, K2 comparable, V2 any](
 
 ---
 
-#### <a name="filtermaptuple"></a>FilterMapTuple
+#### maps Slice
 
-FilterMapTuple both filters and maps the given map into a new map, potentially with different key and value types.
-The predicate function returns three values:
-- The new key (K2)
-- The new value (V2)
-- A boolean indicating whether to include this entry in the result
-
-This function is an alternative to FilterMap that uses Go's native boolean return
-instead of the Option monad for expressing presence/absence.
+ExampleSlice demonstrates converting a map to a slice.
 
 
 <details><summary>Code</summary>
 
 ```go
-func FilterMapTuple[K1 comparable, V1 any, K2 comparable, V2 any](
-	m map[K1]V1,
-	p func(K1, V1) (K2, V2, bool),
-) map[K2]V2 {
-	if m == nil {
-		return nil
+func ExampleSlice() {
+	// Create a map of user data
+	users := map[int]string{
+		1: "Alice",
+		2: "Bob",
+		3: "Carol",
 	}
 
-	res := make(map[K2]V2, len(m))
+	// Convert to slice of formatted strings
+	userList := Slice(users, func(id int, name string) string {
+		return fmt.Sprintf("ID:%d Name:%s", id, name)
+	})
 
-	for k1, v1 := range m {
-		if k2, v2, ok := p(k1, v1); ok {
-			res[k2] = v2
-		}
-	}
-
-	return res
-}
-```
-
-</details>
-
-
----
-
-#### <a name="fold"></a>Fold
-
-Fold compacts a map into a single value by iteratively applying a reduction function
-with an explicit initial value.
-The reduction function takes the accumulator, a key, and a value, and returns
-the updated accumulator.
-
-Unlike Reduce, Fold takes an explicit initial value for the accumulator.
-This is useful when the zero value of the result type is not appropriate
-as the starting value.
-
-
-<details><summary>Code</summary>
-
-```go
-func Fold[K comparable, V any, R any](
-	m map[K]V,
-	p func(R, K, V) R,
-	initial R,
-) R {
-	if m == nil {
-		return initial
-	}
-
-	r := initial
-
-	for k, v := range m {
-		r = p(r, k, v)
-	}
-
-	return r
-}
-```
-
-</details>
-
-
----
-
-#### <a name="map"></a>Map
-
-Map transforms a map into another map, with potentially different key and value types.
-The transformation is applied to each key-value pair by the provided function,
-which returns the new key and value for the resulting map.
-
-This function preserves nil semantics: if the input map is nil, the output will also be nil.
-Otherwise, a new map is created with the transformed key-value pairs.
-
-
-<details><summary>Code</summary>
-
-```go
-func Map[K1 comparable, V1 any, K2 comparable, V2 any](
-	m map[K1]V1,
-	p func(K1, V1) (K2, V2),
-) map[K2]V2 {
-	if m == nil {
-		return nil
-	}
-
-	res := make(map[K2]V2, len(m))
-
-	for k1, v1 := range m {
-		k2, v2 := p(k1, v1)
-		res[k2] = v2
-	}
-
-	return res
-}
-```
-
-</details>
-
-
----
-
-#### <a name="reduce"></a>Reduce
-
-Reduce compacts a map into a single value by iteratively applying a reduction function.
-The reduction function takes the accumulator, a key, and a value, and returns
-the updated accumulator.
-
-The initial value for the accumulator is the zero value of type R.
-If you need a different initial value, use Fold instead.
-
-
-<details><summary>Code</summary>
-
-```go
-func Reduce[K comparable, V any, R any](
-	m map[K]V,
-	p func(R, K, V) R,
-) R {
-	var r R
-
-	if m == nil {
-		return r
-	}
-
-	for k, v := range m {
-		r = p(r, k, v)
-	}
-
-	return r
-}
-```
-
-</details>
-
-
----
-
-#### <a name="slice"></a>Slice
-
-Slice converts a map into a slice by applying a transformation function to each key-value pair.
-The transformation function takes a key and value and returns an element
-for the resulting slice.
-
-The order of elements in the resulting slice is not guaranteed, as map iteration
-in Go is not deterministic.
-
-
-<details><summary>Code</summary>
-
-```go
-func Slice[K comparable, V, R any](
-	m map[K]V,
-	p func(K, V) R,
-) slices.Slice[R] {
-	res := make([]R, len(m))
-	i := 0
-
-	for k, v := range m {
-		res[i] = p(k, v)
-		i++
-	}
-
-	return res
+	fmt.Printf("Users count: %d\n", len(userList))
+	// Note: map iteration order is not guaranteed
+	// Output:
+	// Users count: 3
 }
 ```
 
@@ -679,604 +896,44 @@ searching, and manipulating elements in a type-safe manner.
 
 ### Functions
 
-- [All](#all)
-- [Any](#any)
-- [Append](#append)
-- [AppendVector](#appendvector)
-- [Contains](#contains)
-- [Cut](#cut)
-- [Delete](#delete)
-- [DeleteOrder](#deleteorder)
-- [Equals](#equals)
-- [Extract](#extract)
-- [ExtractIdx](#extractidx)
-- [Filter](#filter)
-- [FilterInPlace](#filterinplace)
-- [FilterInPlaceCopy](#filterinplacecopy)
-- [FilterMap](#filtermap)
-- [FilterMapTuple](#filtermaptuple)
-- [Find](#find)
-- [FindIdx](#findidx)
-- [Fold](#fold)
-- [FoldSame](#foldsame)
-- [Includes](#includes)
-- [IndexOf](#indexof)
-- [Insert](#insert)
-- [InsertVector](#insertvector)
-- [Map](#map)
-- [MapInPlace](#mapinplace)
-- [Peek](#peek)
-- [Pop](#pop)
-- [PopFront](#popfront)
-- [PushFront](#pushfront)
-- [Reduce](#reduce)
-- [ReduceSame](#reducesame)
-- [Shift](#shift)
-- [Some](#some)
-- [ToMap](#tomap)
-- [ToMapIdx](#tomapidx)
-- [Unshift](#unshift)
+- [All](#slices-all)
+- [Contains](#slices-contains)
+- [Filter](#slices-filter)
+- [FilterMap](#slices-filtermap)
+- [Find](#slices-find)
+- [Fold](#slices-fold)
+- [Map](#slices-map)
+- [Reduce](#slices-reduce)
+- [Some](#slices-some)
+- [ToMap](#slices-tomap)
 
-#### <a name="all"></a>All
+#### slices All
 
-All checks if all elements in the slice satisfy the predicate.
-Returns true if all elements match the predicate, false otherwise.
+ExampleAll demonstrates checking if all elements satisfy a condition.
 
 
 <details><summary>Code</summary>
 
 ```go
-func All[T any](arr []T, predicate func(t T) bool) bool {
-	for _, x := range arr {
-		if !predicate(x) {
-			return false
-		}
-	}
-	return true
-}
-```
-
-</details>
-
-
----
-
-#### <a name="any"></a>Any
-
-Any checks if at least one element in the slice satisfies the predicate.
-Returns true if any element matches the predicate, false otherwise.
-Alias for Contains.
-
-
-<details><summary>Code</summary>
-
-```go
-func Any[T any](arr []T, predicate func(t T) bool) bool {
-	return Contains(arr, predicate)
-}
-```
-
-</details>
-
-
----
-
-#### <a name="append"></a>Append
-
-Append adds an element to the end of the slice and returns the result.
-Unlike the builtin append, this function is explicitly named for clarity.
-
-
-<details><summary>Code</summary>
-
-```go
-func Append[T any](arr []T, item T) []T {
-	return append(arr, item)
-}
-```
-
-</details>
-
-
----
-
-#### <a name="appendvector"></a>AppendVector
-
-AppendVector adds all elements from another slice to the end of this slice.
-Returns the resulting concatenated slice.
-
-
-<details><summary>Code</summary>
-
-```go
-func AppendVector[T any](arr, items []T) []T {
-	return append(arr, items...)
-}
-```
-
-</details>
-
-
----
-
-#### <a name="contains"></a>Contains
-
-Contains checks if the slice contains an element that satisfies the predicate.
-Returns true if any element matches the predicate, false otherwise.
-
-
-<details><summary>Code</summary>
-
-```go
-func Contains[T any](arr []T, predicate func(t T) bool) bool {
-	return IndexOf(arr, predicate) >= 0
-}
-```
-
-</details>
-
-
----
-
-#### <a name="cut"></a>Cut
-
-Cut removes a sector from slice given lower and upper bounds. Bounds are
-represented as indices of the slice. E.g:
-Cut([1, 2, 3, 4], 1, 2) -> [1, 4]
-Cut([4], 0, 0) -> []
-Cut will returned the original slice without the cut subslice.
-
-
-<details><summary>Code</summary>
-
-```go
-func Cut[T any](arr []T, from, to int) []T {
-	if len(arr) < 1 {
-		return arr
-	}
-
-	if from < 0 {
-		from = 0
-	}
-
-	if from >= len(arr) {
-		from = len(arr) - 1
-	}
-
-	if to < 0 {
-		to = 0
-	}
-
-	if to >= len(arr) {
-		to = len(arr) - 1
-	}
-
-	if len(arr) == 1 {
-		return arr[:0]
-	}
-
-	if from > to {
-
-		return append(arr[:from], arr[from+to+1:]...)
-	}
-
-	return append(arr[:from], arr[to+1:]...)
-}
-```
-
-</details>
-
-
----
-
-#### <a name="delete"></a>Delete
-
-Delete removes the element at the specified index without preserving order.
-This provides better performance than DeleteOrder but changes the order of elements.
-If the index is out of bounds, returns the original slice unchanged.
-
-
-<details><summary>Code</summary>
-
-```go
-func Delete[T any](arr []T, idx int) []T {
-	le := len(arr) - 1
-	if le < 0 || idx > le || idx < 0 {
-		return arr
-	}
-	var t T
-	arr[idx] = arr[le]
-	arr[le] = t
-	arr = arr[:le]
-	return arr
-}
-```
-
-</details>
-
-
----
-
-#### <a name="deleteorder"></a>DeleteOrder
-
-DeleteOrder removes the element at the specified index while preserving order.
-This is slower than Delete but maintains the relative order of the remaining elements.
-If the index is out of bounds, returns the original slice unchanged.
-
-
-<details><summary>Code</summary>
-
-```go
-func DeleteOrder[T any](arr []T, idx int) []T {
-	le := len(arr) - 1
-	if le < 0 || idx > le || idx < 0 {
-		return arr
-	}
-	var t T
-
-	if le > 0 {
-		copy(arr[idx:], arr[idx+1:])
-	}
-
-	arr[le] = t
-	arr = arr[:le]
-	return arr
-}
-```
-
-</details>
-
-
----
-
-#### <a name="equals"></a>Equals
-
-Equals compares two slices and returns whether they contain equal elements.
-Two slices are considered equal if they have the same length and corresponding
-elements satisfy the equality function.
-
-
-<details><summary>Code</summary>
-
-```go
-func Equals[T any](one, other []T, predicate func(x, y T) bool) (res bool) {
-	if len(one) != len(other) {
-		return
-	}
-
-	res = true
-
-	for idx, otherItem := range other {
-		res = predicate(one[idx], otherItem)
-		if !res {
-			return
-		}
-	}
-	return
-}
-```
-
-</details>
-
-
----
-
-#### <a name="extract"></a>Extract
-
-Extract gets and deletes the first element that matches the predicate.
-Returns the modified slice, the extracted element, and a success flag.
-If no element matches, returns the original slice, zero value, and false.
-
-
-<details><summary>Code</summary>
-
-```go
-func Extract[T any](arr []T, predicate func(t T) bool) ([]T, T, bool) {
-	res, idx := FindIdx(arr, predicate)
-	if idx < 0 {
-		return arr, res, false
-	}
-
-	arr = Delete(arr, idx)
-	return arr, res, true
-}
-```
-
-</details>
-
-
----
-
-#### <a name="extractidx"></a>ExtractIdx
-
-ExtractIdx gets and deletes the element at the given position.
-Returns the modified slice, the extracted element, and a success flag.
-If the index is out of bounds, returns the original slice, zero value, and false.
-
-
-<details><summary>Code</summary>
-
-```go
-func ExtractIdx[T any](arr []T, idx int) (res []T, item T, ok bool) {
-	if idx >= len(arr) || idx < 0 {
-		return
-	}
-
-	ok = true
-	item = arr[idx]
-	res = Delete(arr, idx)
-
-	return
-}
-```
-
-</details>
-
-
----
-
-#### <a name="filter"></a>Filter
-
-Filter creates a new slice containing only the elements that satisfy the predicate.
-
-
-<details><summary>Code</summary>
-
-```go
-func Filter[T any](arr []T, predicate func(t T) bool) []T {
-	res := make([]T, 0, len(arr))
-
-	for _, x := range arr {
-		if predicate(x) {
-			res = append(res, x)
-		}
-	}
-
-	return res
-}
-```
-
-</details>
-
-
----
-
-#### <a name="filterinplace"></a>FilterInPlace
-
-FilterInPlace modifies the slice in place to contain only elements that
-satisfy the predicate. This is more efficient than Filter when creating
-a new slice is not necessary.
-
-
-<details><summary>Code</summary>
-
-```go
-func FilterInPlace[T any](arr []T, predicate func(t T) bool) []T {
-	n := 0
-	for i, x := range arr {
-		if predicate(x) {
-			if n != i {
-				arr[n] = x
-			}
-			n++
-		}
-	}
-
-	arr = arr[:n]
-
-	return arr
-}
-```
-
-</details>
-
-
----
-
-#### <a name="filterinplacecopy"></a>FilterInPlaceCopy
-
-FilterInPlaceCopy filters the slice in place and returns a copy of the result.
-This combines the efficiency of FilterInPlace with the safety of creating a new slice.
-
-
-<details><summary>Code</summary>
-
-```go
-func FilterInPlaceCopy[T any](arr []T, predicate func(t T) bool) []T {
-	n := 0
-	for i, x := range arr {
-		if predicate(x) {
-			if n != i {
-				arr[n] = x
-			}
-			n++
-		}
-	}
-
-	arr = arr[:n]
-
-	res := make([]T, n)
-
-	copy(res, arr[:n])
-
-	return res
-}
-```
-
-</details>
-
-
----
-
-#### <a name="filtermap"></a>FilterMap
-
-FilterMap creates a new slice by applying a transformation function that
-returns an Option. Elements with Some options are included in the result,
-while None options are excluded.
-
-
-<details><summary>Code</summary>
-
-```go
-func FilterMap[T, U any](arr []T, predicate func(t T) fp.Option[U]) []U {
-	pre := func(t T) (U, bool) {
-		return predicate(t).Unwrap()
-	}
-
-	return FilterMapTuple[T, U](arr, pre)
-}
-```
-
-</details>
-
-
----
-
-#### <a name="filtermaptuple"></a>FilterMapTuple
-
-FilterMapTuple creates a new slice by applying a transformation function that
-also filters elements. The function should return the transformed value and
-a boolean indicating whether to include the element.
-
-
-<details><summary>Code</summary>
-
-```go
-func FilterMapTuple[T, U any](arr []T, predicate func(t T) (U, bool)) []U {
-	res := make([]U, 0, len(arr))
-
-	for _, x := range arr {
-		if mapped, ok := predicate(x); ok {
-			res = append(res, mapped)
-		}
-	}
-
-	return res
-}
-```
-
-</details>
-
-
----
-
-#### <a name="find"></a>Find
-
-Find returns the first element that satisfies the predicate.
-Returns the element and true if found, otherwise the zero value and false.
-
-
-<details><summary>Code</summary>
-
-```go
-func Find[T any](arr []T, predicate func(t T) bool) (res T, ok bool) {
-	var idx int
-	res, idx = FindIdx(arr, predicate)
-	ok = idx > -1
-	return
-}
-```
-
-</details>
-
-
----
-
-#### <a name="findidx"></a>FindIdx
-
-FindIdx returns the first element that satisfies the predicate and its index.
-Returns the element and its index if found, otherwise the zero value and -1.
-
-
-<details><summary>Code</summary>
-
-```go
-func FindIdx[T any](arr []T, predicate func(t T) bool) (res T, idx int) {
-	idx = IndexOf(arr, predicate)
-	if idx < 0 {
-		return
-	}
-
-	res = arr[idx]
-	return
-}
-```
-
-</details>
-
-
----
-
-#### <a name="fold"></a>Fold
-
-Fold compacts the slice into a single value by iteratively applying
-the reduction function, starting with the provided initial value.
-The accumulator type can be different from the element type.
-
-
-<details><summary>Code</summary>
-
-```go
-func Fold[T, U any](arr []T, p func(U, T) U, initial U) U {
-	if len(arr) < 1 {
-		return initial
-	}
-
-	initial = p(initial, arr[0])
-
-	if len(arr) < 2 {
-		return initial
-	}
-
-	i := 1
-
-	for i < len(arr) {
-		initial = p(initial, arr[i])
-
-		i++
-	}
-
-	return initial
-}
-```
-
-</details>
-
-
----
-
-#### <a name="foldsame"></a>FoldSame
-
-FoldSame is a convenience wrapper around Fold for when the accumulator
-and element types are the same.
-
-
-<details><summary>Code</summary>
-
-```go
-func FoldSame[T any](arr []T, p func(T, T) T, initial T) T {
-	return Fold[T, T](arr, p, initial)
-}
-```
-
-</details>
-
-
----
-
-#### <a name="includes"></a>Includes
-
-Includes checks if the slice contains a specific element using the equality operator.
-Returns true if the element is found, false otherwise.
-
-
-<details><summary>Code</summary>
-
-```go
-func Includes[T comparable](arr []T, target T) bool {
-	return Contains(arr, func(t T) bool {
-		return t == target
+func ExampleAll() {
+	// Create a slice of positive numbers
+	numbers := []int{1, 2, 3, 4, 5}
+
+	// Check if all numbers are positive
+	allPositive := All(numbers, func(n int) bool {
+		return n > 0
 	})
+
+	// Check if all numbers are even
+	allEven := All(numbers, func(n int) bool {
+		return n%2 == 0
+	})
+
+	fmt.Printf("All positive: %t\n", allPositive)
+	fmt.Printf("All even: %t\n", allEven)
+	// Output:
+	// All positive: true
+	// All even: false
 }
 ```
 
@@ -1285,24 +942,90 @@ func Includes[T comparable](arr []T, target T) bool {
 
 ---
 
-#### <a name="indexof"></a>IndexOf
+#### slices Contains
 
-IndexOf returns the index of the first element that satisfies the predicate.
-Returns the index where the element was found, or -1 if not found.
+ExampleContains demonstrates checking if any element satisfies a condition.
 
 
 <details><summary>Code</summary>
 
 ```go
-func IndexOf[T any](arr []T, predicate func(t T) bool) (pos int) {
-	pos = -1
-	for i, x := range arr {
-		if predicate(x) {
-			pos = i
-			return
+func ExampleContains() {
+	// Create a slice of numbers
+	numbers := []int{1, 2, 3, 4, 5}
+
+	// Check if any number is greater than 3
+	hasLarge := Contains(numbers, func(n int) bool {
+		return n > 3
+	})
+
+	// Check if any number is negative
+	hasNegative := Contains(numbers, func(n int) bool {
+		return n < 0
+	})
+
+	fmt.Printf("Has number > 3: %t\n", hasLarge)
+	fmt.Printf("Has negative: %t\n", hasNegative)
+	// Output:
+	// Has number > 3: true
+	// Has negative: false
+}
+```
+
+</details>
+
+
+---
+
+#### slices Filter
+
+ExampleFilter demonstrates filtering a slice to keep only elements that satisfy a condition.
+
+
+<details><summary>Code</summary>
+
+```go
+func ExampleFilter() {
+	// Create a slice of numbers
+	numbers := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
+
+	// Filter to keep only even numbers
+	evenNumbers := Filter(numbers, func(n int) bool {
+		return n%2 == 0
+	})
+
+	fmt.Println(evenNumbers)
+	// Output: [2 4 6 8 10]
+}
+```
+
+</details>
+
+
+---
+
+#### slices FilterMap
+
+ExampleFilterMap demonstrates filtering and transforming in a single operation.
+
+
+<details><summary>Code</summary>
+
+```go
+func ExampleFilterMap() {
+	// Create a slice of numbers
+	numbers := []int{1, 2, 3, 4, 5, 6}
+
+	// Keep only even numbers and square them
+	evenSquares := FilterMap(numbers, func(n int) fp.Option[int] {
+		if n%2 == 0 {
+			return fp.Some(n * n)
 		}
-	}
-	return
+		return fp.None[int]()
+	})
+
+	fmt.Println(evenSquares)
+	// Output: [4 16 36]
 }
 ```
 
@@ -1311,27 +1034,25 @@ func IndexOf[T any](arr []T, predicate func(t T) bool) (pos int) {
 
 ---
 
-#### <a name="insert"></a>Insert
+#### slices Find
 
-Insert places an element at the specified index in the slice.
-Elements at or after the index are shifted to the right.
-Returns the resulting slice with the new element inserted.
-If the index is out of bounds, returns the original slice unchanged.
+ExampleFind demonstrates finding the first element that matches a condition.
 
 
 <details><summary>Code</summary>
 
 ```go
-func Insert[T any](arr []T, item T, idx int) []T {
-	if arr == nil {
-		return []T{item}
-	}
+func ExampleFind() {
+	// Create a slice of names
+	names := []string{"Alice", "Bob", "Charlie", "David"}
 
-	if idx < 0 || idx > len(arr) {
-		return arr
-	}
+	// Find the first name that starts with 'C'
+	result, found := Find(names, func(name string) bool {
+		return len(name) > 0 && name[0] == 'C'
+	})
 
-	return append(arr[:idx], append([]T{item}, arr[idx:]...)...)
+	fmt.Printf("Found: %t, Name: %s\n", found, result)
+	// Output: Found: true, Name: Charlie
 }
 ```
 
@@ -1340,33 +1061,29 @@ func Insert[T any](arr []T, item T, idx int) []T {
 
 ---
 
-#### <a name="insertvector"></a>InsertVector
+#### slices Fold
 
-InsertVector places a slice of elements at the specified index in the slice.
-Elements at or after the index are shifted to the right.
-Returns the resulting slice with the new elements inserted.
-If the index is out of bounds, returns the original slice unchanged.
+ExampleFold demonstrates folding a slice with an initial value.
 
 
 <details><summary>Code</summary>
 
 ```go
-func InsertVector[T any](arr, items []T, idx int) (res []T) {
-	if arr == nil {
-		res = items[:]
-		return
-	}
+func ExampleFold() {
+	// Create a slice of strings
+	words := []string{"Hello", "World", "from", "Go"}
 
-	if items == nil || len(items) == 0 {
-		res = arr
-		return
-	}
+	// Join with custom separator and prefix
+	result := Fold(words, func(acc, word string) string {
+		if acc == "" {
+			return "Greeting: " + word
+		}
+		return acc + " " + word
+	}, "")
 
-	if idx < 0 || idx > len(arr) {
-		return arr
-	}
-
-	return append(arr[:idx], append(items, arr[idx:]...)...)
+	fmt.Printf("Result: %s\n", result)
+	// Output:
+	// Result: Greeting: Hello World from Go
 }
 ```
 
@@ -1375,23 +1092,25 @@ func InsertVector[T any](arr, items []T, idx int) (res []T) {
 
 ---
 
-#### <a name="map"></a>Map
+#### slices Map
 
-Map creates a new slice by applying the transformation function to each element.
-The transformation can change the type of the elements.
+ExampleMap demonstrates transforming elements in a slice.
 
 
 <details><summary>Code</summary>
 
 ```go
-func Map[T, U any](arr []T, predicate func(t T) U) []U {
-	res := make([]U, 0, len(arr))
+func ExampleMap() {
+	// Create a slice of numbers
+	numbers := []int{1, 2, 3, 4, 5}
 
-	for _, x := range arr {
-		res = append(res, predicate(x))
-	}
+	// Transform each number by squaring it
+	squares := Map(numbers, func(n int) int {
+		return n * n
+	})
 
-	return res
+	fmt.Println(squares)
+	// Output: [1 4 9 16 25]
 }
 ```
 
@@ -1400,21 +1119,25 @@ func Map[T, U any](arr []T, predicate func(t T) U) []U {
 
 ---
 
-#### <a name="mapinplace"></a>MapInPlace
+#### slices Reduce
 
-MapInPlace transforms each element in the slice using the provided function.
-Modifies the slice in place and returns it.
+ExampleReduce demonstrates combining all elements into a single value.
 
 
 <details><summary>Code</summary>
 
 ```go
-func MapInPlace[T any](arr []T, predicate func(t T) T) []T {
-	for i, x := range arr {
-		arr[i] = predicate(x)
-	}
+func ExampleReduce() {
+	// Create a slice of numbers
+	numbers := []int{1, 2, 3, 4, 5}
 
-	return arr
+	// Sum all numbers
+	sum := Reduce[int, int](numbers, func(acc, curr int) int {
+		return acc + curr
+	})
+
+	fmt.Println(sum)
+	// Output: 15
 }
 ```
 
@@ -1423,24 +1146,26 @@ func MapInPlace[T any](arr []T, predicate func(t T) T) []T {
 
 ---
 
-#### <a name="peek"></a>Peek
+#### slices Some
 
-Peek returns the item at the specified index without modifying the slice.
-Returns the element and true if the index is valid, otherwise the zero value and false.
+ExampleSome demonstrates checking if some elements satisfy a condition.
 
 
 <details><summary>Code</summary>
 
 ```go
-func Peek[T any](arr []T, idx int) (item T, ok bool) {
-	if len(arr) < 1 || idx >= len(arr) {
-		return
-	}
+func ExampleSome() {
+	// Create a slice of words
+	words := []string{"hello", "world", "go", "programming"}
 
-	item = arr[idx]
-	ok = true
+	// Check if some words are short (< 4 characters)
+	hasShort := Some(words, func(word string) bool {
+		return len(word) < 4
+	})
 
-	return
+	fmt.Printf("Has short words: %t\n", hasShort)
+	// Output:
+	// Has short words: true
 }
 ```
 
@@ -1449,222 +1174,28 @@ func Peek[T any](arr []T, idx int) (item T, ok bool) {
 
 ---
 
-#### <a name="pop"></a>Pop
+#### slices ToMap
 
-Pop deletes and returns the last item from the slice.
-Returns the modified slice, the popped element, and a success flag.
-If the slice is empty, returns the original slice, zero value, and false.
+ExampleToMap demonstrates converting a slice to a map using a key function.
 
 
 <details><summary>Code</summary>
 
 ```go
-func Pop[T any](arr []T) (res []T, item T, ok bool) {
-	if len(arr) < 1 {
-		return
-	}
-
-	var t T
-	le := len(arr) - 1
-	res = arr[:le]
-	item = arr[le]
-	ok = true
-
-	arr[le] = t
-
-	return
-}
-```
-
-</details>
-
-
----
-
-#### <a name="popfront"></a>PopFront
-
-PopFront removes and returns the first element of the slice.
-Returns the modified slice (without the first element), the removed element, and a success flag.
-If the slice is empty, returns the original slice, zero value, and false.
-
-
-<details><summary>Code</summary>
-
-```go
-func PopFront[T any](arr []T) (res []T, item T, ok bool) {
-	if len(arr) < 1 {
-		res = arr
-		return
-	}
-
-	item, res = arr[0], arr[1:]
-	return
-}
-```
-
-</details>
-
-
----
-
-#### <a name="pushfront"></a>PushFront
-
-PushFront inserts an element at the beginning of the slice.
-Returns the resulting slice with the new element at the front.
-
-
-<details><summary>Code</summary>
-
-```go
-func PushFront[T any](arr []T, item T) []T {
-	return append([]T{item}, arr...)
-}
-```
-
-</details>
-
-
----
-
-#### <a name="reduce"></a>Reduce
-
-Reduce compacts the slice into a single value by iteratively applying
-the reduction function to each element. Starts with the zero value.
-
-
-<details><summary>Code</summary>
-
-```go
-func Reduce[T, U any](arr []T, p func(T, T) T) (res T) {
-	return Fold(arr, p, res)
-}
-```
-
-</details>
-
-
----
-
-#### <a name="reducesame"></a>ReduceSame
-
-ReduceSame is a convenience wrapper around Reduce for when the accumulator
-and element types are the same.
-
-
-<details><summary>Code</summary>
-
-```go
-func ReduceSame[T any](arr []T, p func(T, T) T) T {
-	return Reduce[T, T](arr, p)
-}
-```
-
-</details>
-
-
----
-
-#### <a name="shift"></a>Shift
-
-Shift removes and returns the first element of the slice.
-Alias for PopFront, following JavaScript array method naming conventions.
-
-
-<details><summary>Code</summary>
-
-```go
-func Shift[T any](arr []T) ([]T, T, bool) {
-	return PopFront(arr)
-}
-```
-
-</details>
-
-
----
-
-#### <a name="some"></a>Some
-
-Some checks if at least one element in the slice satisfies the predicate.
-Returns true if any element matches the predicate, false otherwise.
-Alias for Contains.
-
-
-<details><summary>Code</summary>
-
-```go
-func Some[T any](arr []T, predicate func(t T) bool) bool {
-	return Contains(arr, predicate)
-}
-```
-
-</details>
-
-
----
-
-#### <a name="tomap"></a>ToMap
-
-ToMap creates a map from a slice, using the provided function to determine the key
-for each element. The element itself becomes the value in the map.
-
-
-<details><summary>Code</summary>
-
-```go
-func ToMap[V any, K comparable](arr []V, predicate func(x V) K) map[K]V {
-	res := make(map[K]V, len(arr))
-
-	for _, x := range arr {
-		res[predicate(x)] = x
-	}
-
-	return res
-}
-```
-
-</details>
-
-
----
-
-#### <a name="tomapidx"></a>ToMapIdx
-
-ToMapIdx creates a map from a slice, preserving each element's original index.
-Uses the provided function to determine the key for each element.
-The value in the map is a WrappedIdx containing both the element and its original index.
-
-
-<details><summary>Code</summary>
-
-```go
-func ToMapIdx[V any, K comparable](arr []V, predicate func(x V) K) map[K]WrappedIdx[V] {
-	res := make(map[K]WrappedIdx[V], len(arr))
-
-	for i, x := range arr {
-		res[predicate(x)] = WrappedIdx[V]{value: x, idx: i}
-	}
-
-	return res
-}
-```
-
-</details>
-
-
----
-
-#### <a name="unshift"></a>Unshift
-
-Unshift inserts an element at the beginning of the slice.
-Alias for PushFront, following JavaScript array method naming conventions.
-
-
-<details><summary>Code</summary>
-
-```go
-func Unshift[T any](arr []T, item T) []T {
-	return PushFront(arr, item)
+func ExampleToMap() {
+	// Create a slice of words
+	words := []string{"apple", "banana", "cherry"}
+
+	// Convert to map with first letter as key
+	wordMap := ToMap(words, func(word string) rune {
+		return rune(word[0])
+	})
+
+	fmt.Printf("'a' word: %s\n", wordMap['a'])
+	fmt.Printf("'b' word: %s\n", wordMap['b'])
+	// Output:
+	// 'a' word: apple
+	// 'b' word: banana
 }
 ```
 
@@ -1681,59 +1212,53 @@ func Unshift[T any](arr []T, item T) []T {
 
 ## <a name="streams"></a>🌊 Streams
 
-
+Powerful data streaming and processing utilities with fluent API for functional programming patterns.
 
 ### Functions
 
-- [Batch](#batch)
-- [CSV](#csv)
-- [CSVTransform](#csvtransform)
-- [Collect](#collect)
-- [Compact](#compact)
-- [CompactFactory](#compactfactory)
-- [Consume](#consume)
-- [ConsumeErrSkip](#consumeerrskip)
-- [Filter](#filter)
-- [Flatten](#flatten)
-- [Iter](#iter)
-- [Iter2](#iter2)
-- [JSON](#json)
-- [JSONEachRowTransform](#jsoneachrowtransform)
-- [JSONTransform](#jsontransform)
-- [Lines](#lines)
-- [Map](#map)
-- [MemReader](#memreader)
-- [MemWriter](#memwriter)
-- [Multicast](#multicast)
-- [Pipe](#pipe)
-- [PipeCSV](#pipecsv)
-- [PipeJSON](#pipejson)
-- [PipeJSONEachRow](#pipejsoneachrow)
-- [ReadAllBytes](#readallbytes)
-- [Reader](#reader)
-- [Reduce](#reduce)
-- [SeqKeys](#seqkeys)
-- [SeqValues](#seqvalues)
-- [WriteAll](#writeall)
-- [WriteSeq](#writeseq)
-- [WriteSeqKeys](#writeseqkeys)
-- [WriteSeqValues](#writeseqvalues)
-- [Writer](#writer)
+- [Batch](#streams-batch)
+- [CSV](#streams-csv)
+- [Compact](#streams-compact)
+- [ConsumeErrSkip](#streams-consumeerrskip)
+- [Filter](#streams-filter)
+- [FilterMap](#streams-filtermap)
+- [Flatten](#streams-flatten)
+- [JSON](#streams-json)
+- [Lines](#streams-lines)
+- [Map](#streams-map)
+- [MemWriter](#streams-memwriter)
+- [Multicast](#streams-multicast)
+- [Pipe](#streams-pipe)
+- [Reader](#streams-reader)
+- [Reduce](#streams-reduce)
+- [WriteAll](#streams-writeall)
 
-#### <a name="batch"></a>Batch
+#### streams Batch
 
-Batch creates a new batch-oriented stream that reads items from
-`inner` in chunks of `batchSize` and returns them as []T.
+ExampleBatch demonstrates grouping stream elements into batches.
 
 
 <details><summary>Code</summary>
 
 ```go
-func Batch[T any](inner ReadStream[T], batchSize int) ReadStream[[]T] {
-	return &BatchStream[T]{
-		inner:     inner,
-		batchSize: batchSize,
+func ExampleBatch() {
+	// Create a stream from a slice of integers
+	data := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
+	stream := MemReader(data, nil)
+
+	// Group into batches of 3
+	batchStream := Batch(stream, 3)
+
+	// Collect the results
+	result, _ := Consume(batchStream)
+	for i, batch := range result {
+		fmt.Printf("Batch %d: %v\n", i+1, batch)
 	}
+	// Output:
+	// Batch 1: [1 2 3]
+	// Batch 2: [4 5 6]
+	// Batch 3: [7 8 9]
+	// Batch 4: [10]
 }
 ```
 
@@ -1742,36 +1267,119 @@ func Batch[T any](inner ReadStream[T], batchSize int) ReadStream[[]T] {
 
 ---
 
-#### <a name="csv"></a>CSV
+#### streams CSV
 
-CSV creates a new CSVStream that reads from a given reader or file path.
+ExampleCSV demonstrates reading CSV data from a string.
 
 
 <details><summary>Code</summary>
 
 ```go
-func CSV[T any](opts ...CSVOpt) (*CSVStream[T], error) {
-	optsDef := &csvOpts{
-		flag:   os.O_RDONLY,
-		perm:   0644,
-		sep:    CSVSeparatorCommaStr,
-		reader: os.Stdin,
-		path:   "",
-	}
+func ExampleCSV() {
+	// Create a CSV reader from a string
+	csvData := "name,age,city\nAlice,25,NYC\nBob,30,LA\nCharlie,35,Chicago"
+	reader := io.NopCloser(strings.NewReader(csvData))
 
-	for _, opt := range opts {
-		opt.apply(optsDef)
-	}
+	// Create a CSV stream directly
+	csvStream, _ := CSV[[]string](
+		WithCSVReader(reader),
+		WithCSVSeparator(","),
+	)
 
-	if optsDef.path == "" {
-		file, err := os.OpenFile(optsDef.path, optsDef.flag, optsDef.perm)
-		if err != nil {
-			return nil, err
+	// Collect the results
+	result, _ := Consume(csvStream)
+	for i, row := range result {
+		fmt.Printf("Row %d: %v\n", i+1, row)
+	}
+	// Output:
+	// Row 1: [name age city]
+	// Row 2: [Alice 25 NYC]
+	// Row 3: [Bob 30 LA]
+	// Row 4: [Charlie 35 Chicago]
+}
+```
+
+</details>
+
+
+---
+
+#### streams Compact
+
+ExampleCompact demonstrates grouping consecutive items with the same key.
+
+
+<details><summary>Code</summary>
+
+```go
+func ExampleCompact() {
+	// Create a stream from a slice of strings
+	data := []string{"apple", "apricot", "banana", "blueberry", "cherry", "coconut"}
+	stream := MemReader(data, nil)
+
+	// Group by first letter
+	compacted := Compact(stream, func(s string) rune {
+		return rune(s[0])
+	})
+
+	// Collect the results
+	result, _ := Consume(compacted)
+	for _, group := range result {
+		fmt.Printf("Group: %v\n", group)
+	}
+	// Output:
+	// Group: [apple apricot]
+	// Group: [banana blueberry]
+	// Group: [cherry coconut]
+}
+```
+
+</details>
+
+
+---
+
+#### streams ConsumeErrSkip
+
+ExampleConsumeErrSkip demonstrates consuming a stream while skipping errors.
+
+
+<details><summary>Code</summary>
+
+```go
+func ExampleConsumeErrSkip() {
+	// Create a filter stream that may produce errors
+	reader := strings.NewReader("1\n2\ninvalid\n4\n5")
+	numbersStream := Lines(reader)
+
+	// Create a filter that converts strings to numbers (may fail)
+	filterStream := FilterMap(numbersStream, func(s string) (int, bool) {
+		// Simulate conversion that might fail
+		if s == "invalid" {
+			return 0, false // This will be skipped
 		}
-		return newStreamCSV[T](file, optsDef.sep), nil
-	}
+		// Simple conversion for demonstration
+		switch s {
+		case "1":
+			return 1, true
+		case "2":
+			return 2, true
+		case "4":
+			return 4, true
+		case "5":
+			return 5, true
+		default:
+			return 0, false
+		}
+	})
 
-	return newStreamCSV[T](optsDef.reader, optsDef.sep), nil
+	// Consume all valid numbers, skipping errors
+	numbers := ConsumeErrSkip(filterStream)
+
+	fmt.Printf("Valid numbers: %v\n", numbers)
+
+	// Output:
+	// Valid numbers: [1 2 4 5]
 }
 ```
 
@@ -1780,19 +1388,28 @@ func CSV[T any](opts ...CSVOpt) (*CSVStream[T], error) {
 
 ---
 
-#### <a name="csvtransform"></a>CSVTransform
+#### streams Filter
 
-CSVTransform creates a new PipeCSVTransform for a given stream.
+ExampleFilter demonstrates filtering a stream of integers to keep only even numbers.
 
 
 <details><summary>Code</summary>
 
 ```go
-func CSVTransform[T csvMarshaler](stream ReadStream[T], separator rune) Transform[T] {
-	return &TransformCSV[T]{
-		stream:    stream,
-		separator: separator,
-	}
+func ExampleFilter() {
+	// Create a stream from a slice of integers
+	data := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
+	stream := MemReader(data, nil)
+
+	// Filter to keep only even numbers
+	evenStream := Filter(stream, func(n int) bool {
+		return n%2 == 0
+	})
+
+	// Collect the results
+	result, _ := Consume(evenStream)
+	fmt.Println(result)
+	// Output: [2 4 6 8 10]
 }
 ```
 
@@ -1801,16 +1418,31 @@ func CSVTransform[T csvMarshaler](stream ReadStream[T], separator rune) Transfor
 
 ---
 
-#### <a name="collect"></a>Collect
+#### streams FilterMap
 
-Collect collects all elements from an iter.Seq into a slice.
+ExampleFilterMap demonstrates filtering and transforming in a single operation.
 
 
 <details><summary>Code</summary>
 
 ```go
-func Collect[T any](stream iter.Seq[T]) []T {
-	return slices.Collect(stream)
+func ExampleFilterMap() {
+	// Create a stream from a slice of integers
+	data := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
+	stream := MemReader(data, nil)
+
+	// Filter even numbers and convert them to strings
+	evenStrings := FilterMap(stream, func(n int) (string, bool) {
+		if n%2 == 0 {
+			return strconv.Itoa(n), true
+		}
+		return "", false
+	})
+
+	// Collect the results
+	result, _ := Consume(evenStrings)
+	fmt.Println(result)
+	// Output: [2 4 6 8 10]
 }
 ```
 
@@ -1819,20 +1451,26 @@ func Collect[T any](stream iter.Seq[T]) []T {
 
 ---
 
-#### <a name="compact"></a>Compact
+#### streams Flatten
 
-Compact creates a new stream that groups consecutive items with the same key.
-The keyFunc is used to extract the grouping key from each item (like Python's itemgetter).
+ExampleFlatten demonstrates flattening a stream of slices.
 
 
 <details><summary>Code</summary>
 
 ```go
-func Compact[T any, K comparable](inner ReadStream[T], keyFunc func(T) K) ReadStream[[]T] {
-	return &CompactStream[T, K]{
-		inner:   inner,
-		keyFunc: keyFunc,
-	}
+func ExampleFlatten() {
+	// Create a stream from a slice of slices
+	data := [][]int{{1, 2}, {3, 4, 5}, {6}, {7, 8, 9}}
+	stream := MemReader(data, nil)
+
+	// Flatten the slices
+	flattened := Flatten(stream)
+
+	// Collect the results
+	result, _ := Consume(flattened)
+	fmt.Println(result)
+	// Output: [1 2 3 4 5 6 7 8 9]
 }
 ```
 
@@ -1841,21 +1479,39 @@ func Compact[T any, K comparable](inner ReadStream[T], keyFunc func(T) K) ReadSt
 
 ---
 
-#### <a name="compactfactory"></a>CompactFactory
+#### streams JSON
 
-CompactFactory creates a factory for CompactStream instances.
+ExampleJSON demonstrates reading JSON data line by line.
 
 
 <details><summary>Code</summary>
 
 ```go
-func CompactFactory[T any, K comparable](
-	innerFactory ReadStreamFactory[T],
-	keyFunc func(T) K,
-) ReadStreamFactory[[]T] {
-	return func(rc io.ReadCloser) ReadStream[[]T] {
-		return Compact(innerFactory(rc), keyFunc)
-	}
+func ExampleJSON() {
+		// Create JSON-lines data (each line is a separate JSON object)
+		jsonData := `{"name":"Alice","age":25}
+	{"name":"Bob","age":30}
+	{"name":"Charlie","age":35}`
+
+		reader := strings.NewReader(jsonData)
+
+		// Create a JSON stream for a simple struct
+		type Person struct {
+			Name string `json:"name"`
+			Age  int    `json:"age"`
+		}
+
+		jsonStream := JSON[Person](io.NopCloser(reader))
+
+		// Collect the results
+		result, _ := Consume(jsonStream)
+		for _, person := range result {
+			fmt.Printf("Person: %s, Age: %d\n", person.Name, person.Age)
+		}
+		// Output:
+		// Person: Alice, Age: 25
+		// Person: Bob, Age: 30
+		// Person: Charlie, Age: 35
 }
 ```
 
@@ -1864,144 +1520,132 @@ func CompactFactory[T any, K comparable](
 
 ---
 
-#### <a name="consume"></a>Consume
+#### streams Lines
 
-Consume reads all items from a ReadStream and returns them as a slice.
-If an error occurs during reading, it returns nil and the error.
-If the stream ends with io.EOF, it returns the items read so far without an error.
-This function is useful for collecting all items from a stream into a slice.
+ExampleLines demonstrates reading lines from a string.
 
 
 <details><summary>Code</summary>
 
 ```go
-func Consume[T any](stream ReadStream[T]) ([]T, error) {
-	var res []T
+func ExampleLines() {
+	// Create a reader from a multiline string
+	text := "line1\nline2\nline3\n"
+	reader := strings.NewReader(text)
 
-	for stream.Next() {
-		res = append(res, stream.Data())
+	// Create a lines stream
+	lineStream := Lines(reader)
+
+	// Collect the results
+	result, _ := Consume(lineStream)
+	fmt.Println(result)
+	// Output: [line1 line2 line3]
+}
+```
+
+</details>
+
+
+---
+
+#### streams Map
+
+ExampleMap demonstrates transforming elements in a stream.
+
+
+<details><summary>Code</summary>
+
+```go
+func ExampleMap() {
+	// Create a stream from a slice of integers
+	data := []int{1, 2, 3, 4, 5}
+	stream := MemReader(data, nil)
+
+	// Transform integers to their string representation
+	stringStream := Map(stream, func(n int) string {
+		return fmt.Sprintf("number_%d", n)
+	})
+
+	// Collect the results
+	result, _ := Consume(stringStream)
+	fmt.Println(result)
+	// Output: [number_1 number_2 number_3 number_4 number_5]
+}
+```
+
+</details>
+
+
+---
+
+#### streams MemWriter
+
+ExampleMemWriter demonstrates writing items to memory.
+
+
+<details><summary>Code</summary>
+
+```go
+func ExampleMemWriter() {
+	// Create a memory writer for strings
+	writer := MemWriter[string]()
+
+	// Write some items
+	items := []string{"hello", "world", "from", "memory"}
+	for _, item := range items {
+		writer.Write(item)
 	}
 
-	err := stream.Err()
+	// Get all items
+	result := writer.Items()
 
+	fmt.Printf("Items written: %d\n", len(result))
+	fmt.Printf("Items: %v\n", result)
+	// Output:
+	// Items written: 4
+	// Items: [hello world from memory]
+}
+```
+
+</details>
+
+
+---
+
+#### streams Multicast
+
+ExampleMulticast demonstrates broadcasting a stream to multiple destinations.
+
+
+<details><summary>Code</summary>
+
+```go
+func ExampleMulticast() {
+	// Create a stream of numbers
+	reader := strings.NewReader("1\n2\n3\n4\n5")
+	source := Lines(reader)
+
+	// Create two memory writers to collect data separately
+	dest1 := MemWriter[string]()
+	dest2 := MemWriter[string]()
+
+	// Multicast the stream to both destinations
+	counts, err := Multicast(source, dest1, dest2)
 	if err != nil {
-		if !errors.Is(err, io.EOF) {
-			return nil, err
-		}
-	}
-
-	return res, nil
-}
-```
-
-</details>
-
-
----
-
-#### <a name="consumeerrskip"></a>ConsumeErrSkip
-
-ConsumeErrSkip reads all items from a ReadStream, skipping any that cause an error.
-It returns a slice of successfully read items.
-This is useful when you want to collect items from a stream but ignore those that fail due
-to errors, such as parsing issues or other read errors.
-It will not return an error if the stream ends with io.EOF, but will skip any items that
-caused errors during reading.
-This function is useful for collecting items from a stream while ignoring errors.
-
-
-<details><summary>Code</summary>
-
-```go
-func ConsumeErrSkip[T any](stream ReadStream[T]) []T {
-	var res []T
-
-	for stream.Next() {
-		if err := stream.Err(); err == nil {
-			res = append(res, stream.Data())
-		}
-	}
-
-	return res
-}
-```
-
-</details>
-
-
----
-
-#### <a name="filter"></a>Filter
-
-Filter creates a new ReadStream that filters elements from the inner stream
-using the provided predicate function. Only elements that satisfy the predicate
-(return true) will be included in the resulting stream.
-
-This is useful for creating data processing pipelines where you need to exclude
-certain elements based on custom criteria.
-
-
-<details><summary>Code</summary>
-
-```go
-func Filter[T any](inner ReadStream[T], predicate func(T) bool) ReadStream[T] {
-	return &FilterStream[T]{
-		inner:     inner,
-		predicate: predicate,
-	}
-}
-```
-
-</details>
-
-
----
-
-#### <a name="flatten"></a>Flatten
-
-Flatten creates a new ReadStream that flattens slices from the inner stream.
-It takes a ReadStream[[]T] and converts it to ReadStream[T] by emitting each
-element from the inner slices individually.
-
-This is useful when you have a stream of slices and want to process each
-individual element, such as flattening batched data or expanding grouped results.
-
-
-<details><summary>Code</summary>
-
-```go
-func Flatten[T any](inner ReadStream[[]T]) ReadStream[T] {
-	return &FlattenerStream[T]{
-		inner: inner,
-	}
-}
-```
-
-</details>
-
-
----
-
-#### <a name="iter"></a>Iter
-
-Iter converts a ReadStream into an iter.Seq.
-
-
-<details><summary>Code</summary>
-
-```go
-func Iter[T any](stream ReadStream[T]) iter.Seq[T] {
-	return func(yield func(T) bool) {
-		defer stream.Close()
-
-		for stream.Next() {
-			if !yield(stream.Data()) {
-				break
-			}
-		}
-
+		fmt.Printf("Error: %v\n", err)
 		return
 	}
+
+	fmt.Printf("Written to dest1: %d items\n", counts[0])
+	fmt.Printf("Written to dest2: %d items\n", counts[1])
+	fmt.Printf("Dest1 data: %v\n", dest1.Items())
+	fmt.Printf("Dest2 data: %v\n", dest2.Items())
+
+	// Output:
+	// Written to dest1: 5 items
+	// Written to dest2: 5 items
+	// Dest1 data: [1 2 3 4 5]
+	// Dest2 data: [1 2 3 4 5]
 }
 ```
 
@@ -2010,32 +1654,30 @@ func Iter[T any](stream ReadStream[T]) iter.Seq[T] {
 
 ---
 
-#### <a name="iter2"></a>Iter2
+#### streams Pipe
 
-Iter2 converts a ReadStream into an iter.Seq2, yielding both data and error.
+ExamplePipe demonstrates piping data from one stream to another.
 
 
 <details><summary>Code</summary>
 
 ```go
-func Iter2[T any](stream ReadStream[T]) iter.Seq2[T, error] {
-	return func(yield func(T, error) bool) {
-		defer stream.Close()
+func ExamplePipe() {
+	// Create a source stream
+	data := []string{"hello", "world", "from", "streams"}
+	source := MemReader(data, nil)
 
-		for stream.Next() {
-			if !yield(stream.Data(), nil) {
-				break
-			}
-		}
-		if err := stream.Err(); err != nil {
-			var x T
-			yield(x, err)
-		}
-		if err := stream.Close(); err != nil {
-			var x T
-			yield(x, err)
-		}
-	}
+	// Create a destination
+	dest := MemWriter[string]()
+
+	// Pipe data from source to destination
+	bytesWritten, _ := Pipe(source, dest)
+
+	fmt.Printf("Items written: %d\n", bytesWritten)
+	fmt.Printf("Items: %v\n", dest.Items())
+	// Output:
+	// Items written: 4
+	// Items: [hello world from streams]
 }
 ```
 
@@ -2044,547 +1686,103 @@ func Iter2[T any](stream ReadStream[T]) iter.Seq2[T, error] {
 
 ---
 
-#### <a name="json"></a>JSON
+#### streams Reader
 
-JSON creates a new JSONEachRowStream that reads from the provided io.ReadCloser.
-The stream decodes JSON objects from the input, where each object represents a row.
-This is useful for processing JSON data in a row-oriented manner, such as reading
+ExampleReader demonstrates reading byte chunks from an io.Reader.
 
 
 <details><summary>Code</summary>
 
 ```go
-func JSON[T any](r io.ReadCloser) *JSONEachRowStream[T] {
-	return &JSONEachRowStream[T]{
-		r:       r,
-		decoder: json.NewDecoder(r),
-	}
-}
-```
+func ExampleReader() {
+	// Create data to read
+	data := "line1\nline2\nline3\n"
+	reader := strings.NewReader(data)
 
-</details>
+	// Create a byte stream
+	stream := Reader(reader)
 
-
----
-
-#### <a name="jsoneachrowtransform"></a>JSONEachRowTransform
-
-JSONEachRowTransform creates a Transform that converts a ReadStream to JSON-lines format.
-Each element in the stream becomes a separate JSON object on its own line,
-which is useful for streaming JSON processing and log formats.
-
-This format is also known as NDJSON (Newline Delimited JSON) and is commonly
-used for streaming APIs and log processing systems.
-
-
-<details><summary>Code</summary>
-
-```go
-func JSONEachRowTransform[T any](stream ReadStream[T]) Transform[T] {
-	return &TransformJSONEachRow[T]{
-		stream: stream,
-	}
-}
-```
-
-</details>
-
-
----
-
-#### <a name="jsontransform"></a>JSONTransform
-
-JSONTransform creates a Transform that converts a ReadStream to JSON format.
-The resulting Transform can be used with WriteTo to output the stream data
-as a JSON array to any io.Writer.
-
-This is useful for converting structured data to JSON for APIs, file output,
-or network transmission.
-
-
-<details><summary>Code</summary>
-
-```go
-func JSONTransform[T any](r ReadStream[T]) Transform[T] {
-	return &TransformJSON[T]{
-		stream: r,
-	}
-}
-```
-
-</details>
-
-
----
-
-#### <a name="lines"></a>Lines
-
-Lines creates a new ReadStream that reads lines as strings from an io.Reader
-
-
-<details><summary>Code</summary>
-
-```go
-func Lines(reader io.Reader) ReadStream[string] {
-	return &LineReaderStream{
-		original: reader,
-		reader:   bufio.NewReader(reader),
-	}
-}
-```
-
-</details>
-
-
----
-
-#### <a name="map"></a>Map
-
-Map creates a new ReadStream that transforms elements from the inner stream
-using the provided mapper function. Each element of type T is converted to type V
-using the mapper function.
-
-This is useful for creating data processing pipelines where you need to transform
-data from one type to another, such as converting strings to uppercase or
-extracting specific fields from structs.
-
-
-<details><summary>Code</summary>
-
-```go
-func Map[T, V any](inner ReadStream[T], mapper func(T) V) ReadStream[V] {
-	return &MapperStream[T, V]{
-		inner:  inner,
-		mapper: mapper,
-	}
-}
-```
-
-</details>
-
-
----
-
-#### <a name="memreader"></a>MemReader
-
-Mem creates a new ReadStream that reads from a slice in memory.
-This is useful for testing, converting slices to streams, or creating
-simple data sources for streaming pipelines.
-
-The error parameter allows you to simulate error conditions during streaming.
-If err is not nil, the stream will return this error when Err() is called.
-
-
-<details><summary>Code</summary>
-
-```go
-func MemReader[T any](items []T, err error) *MemoryStream[T] {
-	return &MemoryStream[T]{
-		items:  items,
-		cursor: -1,
-		error:  err,
-	}
-}
-```
-
-</details>
-
-
----
-
-#### <a name="memwriter"></a>MemWriter
-
-MemWriter creates a new memory-based WriteStream
-
-
-<details><summary>Code</summary>
-
-```go
-func MemWriter[T any]() *MemoryWriteStream[T] {
-	return &MemoryWriteStream[T]{
-		items: make([]T, 0),
-	}
-}
-```
-
-</details>
-
-
----
-
-#### <a name="multicast"></a>Multicast
-
-Multicast copies all items from a ReadStream to multiple WriteStreams
-Returns a slice with bytes written to each destination and any error
-
-
-<details><summary>Code</summary>
-
-```go
-func Multicast[T any](src ReadStream[T], destinations ...WriteStream[T]) ([]int64, error) {
-	if len(destinations) == 0 {
-		return []int64{}, nil
+	// Read all chunks
+	var chunks []string
+	for stream.Next() {
+		chunks = append(chunks, string(stream.Data()))
 	}
 
-	bytesWritten := make([]int64, len(destinations))
+	fmt.Printf("Chunks: %d\n", len(chunks))
+	fmt.Printf("First chunk: %q\n", chunks[0])
+	// Output:
+	// Chunks: 3
+	// First chunk: "line1\n"
+}
+```
 
-	for src.Next() {
-		if err := src.Err(); err != nil {
-			if errors.Is(err, io.EOF) {
-				break
-			}
-			return bytesWritten, fmt.Errorf("read error: %w", err)
-		}
+</details>
 
-		data := src.Data()
-		for i, dst := range destinations {
-			n, err := dst.Write(data)
-			if err != nil {
-				return bytesWritten, fmt.Errorf("write error to destination %d: %w", i, err)
-			}
-			bytesWritten[i] += n
-		}
+
+---
+
+#### streams Reduce
+
+ExampleReduce demonstrates reducing a stream to a map with aggregated values.
+
+
+<details><summary>Code</summary>
+
+```go
+func ExampleReduce() {
+	// Create a stream of words
+	reader := strings.NewReader("apple\nbanana\napple\ncherry\nbanana\napple")
+	stream := Lines(reader)
+
+	// Count occurrences of each word
+	counts, _ := Reduce(stream, func(acc map[string]int, word string) map[string]int {
+		acc[word]++
+		return acc
+	})
+
+	fmt.Printf("apple: %d\n", counts["apple"])
+	fmt.Printf("banana: %d\n", counts["banana"])
+	fmt.Printf("cherry: %d\n", counts["cherry"])
+
+	// Output:
+	// apple: 3
+	// banana: 2
+	// cherry: 1
+}
+```
+
+</details>
+
+
+---
+
+#### streams WriteAll
+
+ExampleWriteAll demonstrates writing a slice to a stream.
+
+
+<details><summary>Code</summary>
+
+```go
+func ExampleWriteAll() {
+	// Create data to write
+	data := []string{"hello", "world", "streams"}
+
+	// Create a memory writer
+	writer := MemWriter[string]()
+
+	// Write all data
+	bytesWritten, err := WriteAll(writer, data)
+	if err != nil {
+		fmt.Printf("Error: %v\n", err)
+		return
 	}
 
-	for i, dst := range destinations {
-		if err := dst.Flush(); err != nil {
-			return bytesWritten, fmt.Errorf("flush error for destination %d: %w", i, err)
-		}
-	}
-
-	return bytesWritten, nil
-}
-```
-
-</details>
-
-
----
-
-#### <a name="pipe"></a>Pipe
-
-Pipe copies all items from a ReadStream to a WriteStream
-Returns the total number of bytes written and any error
-
-
-<details><summary>Code</summary>
-
-```go
-func Pipe[T any](src ReadStream[T], dst WriteStream[T]) (int64, error) {
-	var totalBytes int64
-
-	for src.Next() {
-		if err := src.Err(); err != nil {
-			if errors.Is(err, io.EOF) {
-				break
-			}
-			return totalBytes, fmt.Errorf("read error: %w", err)
-		}
-
-		n, err := dst.Write(src.Data())
-		if err != nil {
-			return totalBytes, fmt.Errorf("write error: %w", err)
-		}
-		totalBytes += n
-	}
-
-	if err := dst.Flush(); err != nil {
-		return totalBytes, fmt.Errorf("flush error: %w", err)
-	}
-
-	return totalBytes, nil
-}
-```
-
-</details>
-
-
----
-
-#### <a name="pipecsv"></a>PipeCSV
-
-PipeJSONEachRow writes the JSON representation of each row in the stream to the provided writer.
-
-
-<details><summary>Code</summary>
-
-```go
-func PipeCSV[T csvMarshaler](stream ReadStream[T], w io.Writer, writeSep rune) (int64, error) {
-	return CSVTransform(stream, writeSep).WriteTo(w)
-}
-```
-
-</details>
-
-
----
-
-#### <a name="pipejson"></a>PipeJSON
-
-PipeJSON writes the JSON representation of each item in the stream to the provided writer.
-
-
-<details><summary>Code</summary>
-
-```go
-func PipeJSON[T any](stream ReadStream[T], w io.Writer) (int64, error) {
-	return JSONTransform(stream).WriteTo(w)
-}
-```
-
-</details>
-
-
----
-
-#### <a name="pipejsoneachrow"></a>PipeJSONEachRow
-
-PipeJSONEachRow writes the JSON representation of each row in the stream to the provided writer.
-
-
-<details><summary>Code</summary>
-
-```go
-func PipeJSONEachRow[T any](stream ReadStream[T], w io.Writer) (int64, error) {
-	return JSONEachRowTransform(stream).WriteTo(w)
-}
-```
-
-</details>
-
-
----
-
-#### <a name="readallbytes"></a>ReadAllBytes
-
-ReadAllBytes reads all data from a Transform and returns it as a byte slice.
-It uses a bytes.Buffer to accumulate the data and returns the final byte slice.
-If an error occurs during writing, it returns nil and the error.
-
-
-<details><summary>Code</summary>
-
-```go
-func ReadAllBytes[T any](transform Transform[T]) ([]byte, error) {
-	buf := new(bytes.Buffer)
-
-	if _, err := transform.WriteTo(buf); err != nil {
-		return nil, err
-	}
-
-	return buf.Bytes(), nil
-}
-```
-
-</details>
-
-
----
-
-#### <a name="reader"></a>Reader
-
-Reader creates a new ReadStream that reads from an io.Reader
-
-
-<details><summary>Code</summary>
-
-```go
-func Reader(reader io.Reader) ReadStream[[]byte] {
-	return &ReaderStream{
-		original: reader,
-		reader:   bufio.NewReader(reader),
-	}
-}
-```
-
-</details>
-
-
----
-
-#### <a name="reduce"></a>Reduce
-
-Reduce applies a reduction function to a ReadStream, accumulating results in a map.
-The function takes the current map and an item from the stream, returning a new map.
-It returns the final accumulated map or an error if the stream encounters one.
-
-
-<details><summary>Code</summary>
-
-```go
-func Reduce[T any, K comparable, V any](
-	s ReadStream[T],
-	fn func(map[K]V, T) map[K]V,
-) (map[K]V, error) {
-	res := make(map[K]V)
-	for s.Next() {
-		if err := s.Err(); err != nil {
-			return nil, err
-		}
-
-		res = fn(res, s.Data())
-	}
-
-	return res, s.Err()
-}
-```
-
-</details>
-
-
----
-
-#### <a name="seqkeys"></a>SeqKeys
-
-SeqKeys collects all keys from an iter.Seq2 into another Seq.
-
-
-<details><summary>Code</summary>
-
-```go
-func SeqKeys[K, V any](iter iter.Seq2[K, V]) iter.Seq[K] {
-	return func(yield func(K) bool) {
-		for k := range iter {
-			if !yield(k) {
-				break
-			}
-		}
-	}
-}
-```
-
-</details>
-
-
----
-
-#### <a name="seqvalues"></a>SeqValues
-
-SeqValues collects all values from an iter.Seq2 into another Seq.
-
-
-<details><summary>Code</summary>
-
-```go
-func SeqValues[K, V any](iter iter.Seq2[K, V]) iter.Seq[V] {
-	return func(yield func(V) bool) {
-		for _, v := range iter {
-			if !yield(v) {
-				break
-			}
-		}
-	}
-}
-```
-
-</details>
-
-
----
-
-#### <a name="writeall"></a>WriteAll
-
-WriteAll writes all items from a slice to a WriteStream
-Returns the total number of bytes written and any error
-
-
-<details><summary>Code</summary>
-
-```go
-func WriteAll[T any](stream WriteStream[T], items []T) (int64, error) {
-	return WriteSeq(stream, slices.Values(items))
-}
-```
-
-</details>
-
-
----
-
-#### <a name="writeseq"></a>WriteSeq
-
-WriteSeq writes all items from an iter.Seq to a WriteStream
-Returns the total number of bytes written and any error
-
-
-<details><summary>Code</summary>
-
-```go
-func WriteSeq[T any](stream WriteStream[T], items iter.Seq[T]) (int64, error) {
-	bytesWritten := int64(0)
-
-	for v := range items {
-		n, err := stream.Write(v)
-		if err != nil {
-			return 0, fmt.Errorf("write error: %w", err)
-		}
-		if n == 0 {
-			continue
-		}
-		bytesWritten += n
-	}
-	if err := stream.Flush(); err != nil {
-		return 0, fmt.Errorf("flush error: %w", err)
-	}
-	return bytesWritten, nil
-}
-```
-
-</details>
-
-
----
-
-#### <a name="writeseqkeys"></a>WriteSeqKeys
-
-WriteSeqKeys writes all keys from an iter.Seq2 to a WriteStream
-Returns the total number of bytes written and any error
-
-
-<details><summary>Code</summary>
-
-```go
-func WriteSeqKeys[K, V any](stream WriteStream[K], items iter.Seq2[K, V]) (int64, error) {
-	return WriteSeq(stream, SeqKeys(items))
-}
-```
-
-</details>
-
-
----
-
-#### <a name="writeseqvalues"></a>WriteSeqValues
-
-WriteSeqValues writes all values from an iter.Seq2 to a WriteStream
-Returns the total number of bytes written and any error
-
-
-<details><summary>Code</summary>
-
-```go
-func WriteSeqValues[K, V any](stream WriteStream[V], items iter.Seq2[K, V]) (int64, error) {
-	return WriteSeq(stream, SeqValues(items))
-}
-```
-
-</details>
-
-
----
-
-#### <a name="writer"></a>Writer
-
-Writer creates a new WriteStream that writes to an io.Writer
-
-
-<details><summary>Code</summary>
-
-```go
-func Writer(writer io.Writer) *WriterStream {
-	return &WriterStream{
-		writer: writer,
-	}
+	fmt.Printf("Bytes written: %d\n", bytesWritten)
+	fmt.Printf("Items: %v\n", writer.Items())
+	// Output:
+	// Bytes written: 3
+	// Items: [hello world streams]
 }
 ```
 

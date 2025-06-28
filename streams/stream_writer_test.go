@@ -3,6 +3,7 @@ package streams
 import (
 	"bytes"
 	"errors"
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -140,4 +141,25 @@ func TestPipeStream(t *testing.T) {
 	for i, expected := range sourceItems {
 		assert.Equal(t, expected, result[i], "Item %d should match", i)
 	}
+}
+
+// ExampleMemWriter demonstrates writing items to memory.
+func ExampleMemWriter() {
+	// Create a memory writer for strings
+	writer := MemWriter[string]()
+
+	// Write some items
+	items := []string{"hello", "world", "from", "memory"}
+	for _, item := range items {
+		writer.Write(item)
+	}
+
+	// Get all items
+	result := writer.Items()
+
+	fmt.Printf("Items written: %d\n", len(result))
+	fmt.Printf("Items: %v\n", result)
+	// Output:
+	// Items written: 4
+	// Items: [hello world from memory]
 }

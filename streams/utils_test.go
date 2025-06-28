@@ -2,6 +2,7 @@ package streams
 
 import (
 	"errors"
+	"fmt"
 	"io"
 	"maps"
 	"slices"
@@ -248,34 +249,6 @@ func TestRealWorldExample(t *testing.T) {
 	}
 }
 
-func TestReadAllBytes(t *testing.T) {
-	t.Run("JSONTransform", func(t *testing.T) {
-		data := []utilsTestMarshaler{
-			{ID: 1, Name: "Alice"},
-			{ID: 2, Name: "Bob"},
-		}
-		stream := MemReader(data, nil)
-		transform := JSONTransform(stream)
-
-		result, err := ReadAllBytes[utilsTestMarshaler](transform)
-		assert.NoError(t, err, "Should read all bytes without error")
-		assert.NotEmpty(t, result, "Should return non-empty bytes")
-
-		// Verify it's valid JSON
-		expected := `[{"id":1,"name":"Alice"},{"id":2,"name":"Bob"}]`
-		assert.Equal(t, expected, string(result), "Should produce expected JSON")
-	})
-
-	t.Run("Transform with error", func(t *testing.T) {
-		stream := MemReader([]utilsTestMarshaler{}, errors.New("stream error"))
-		transform := JSONTransform(stream)
-
-		result, err := ReadAllBytes[utilsTestMarshaler](transform)
-		assert.Error(t, err, "Should return error from transform")
-		assert.Nil(t, result, "Should return nil bytes on error")
-	})
-}
-
 func TestConsumeErrSkip(t *testing.T) {
 	t.Run("Stream with mixed data and errors", func(t *testing.T) {
 		// Create a stream that will have some errors during iteration
@@ -481,4 +454,181 @@ func TestMulticastErrorHandling(t *testing.T) {
 type utilsTestMarshaler struct {
 	ID   int    `json:"id"`
 	Name string `json:"name"`
+}
+
+// ExamplePipe demonstrates piping data from one stream to another.
+func ExamplePipe() {
+	// Create a source stream
+	data := []string{"hello", "world", "from", "streams"}
+	source := MemReader(data, nil)
+
+	// Create a destination
+	dest := MemWriter[string]()
+
+	// Pipe data from source to destination
+	bytesWritten, _ := Pipe(source, dest)
+
+	fmt.Printf("Items written: %d\n", bytesWritten)
+	fmt.Printf("Items: %v\n", dest.Items())
+	// Output:
+	// Items written: 4
+	// Items: [hello world from streams]
+}
+
+// ExampleMulticast demonstrates broadcasting a stream to multiple destinations.
+func ExampleMulticast() {
+	// Create a stream of numbers
+	reader := strings.NewReader("1\n2\n3\n4\n5")
+	source := Lines(reader)
+
+	// Create two memory writers to collect data separately
+	dest1 := MemWriter[string]()
+	dest2 := MemWriter[string]()
+
+	// Multicast the stream to both destinations
+	counts, err := Multicast(source, dest1, dest2)
+	if err != nil {
+		fmt.Printf("Error: %v\n", err)
+		return
+	}
+
+	fmt.Printf("Written to dest1: %d items\n", counts[0])
+	fmt.Printf("Written to dest2: %d items\n", counts[1])
+	fmt.Printf("Dest1 data: %v\n", dest1.Items())
+	fmt.Printf("Dest2 data: %v\n", dest2.Items())
+
+	// Output:
+	// Written to dest1: 5 items
+	// Written to dest2: 5 items
+	// Dest1 data: [1 2 3 4 5]
+	// Dest2 data: [1 2 3 4 5]
+}
+
+// ExampleConsumeErrSkip demonstrates consuming a stream while skipping errors.
+func ExampleConsumeErrSkip() {
+	// Create a filter stream that may produce errors
+	reader := strings.NewReader("1\n2\ninvalid\n4\n5")
+	numbersStream := Lines(reader)
+
+	// Create a filter that converts strings to numbers (may fail)
+	filterStream := FilterMap(numbersStream, func(s string) (int, bool) {
+		// Simulate conversion that might fail
+		if s == "invalid" {
+			return 0, false // This will be skipped
+		}
+		// Simple conversion for demonstration
+		switch s {
+		case "1":
+			return 1, true
+		case "2":
+			return 2, true
+		case "4":
+			return 4, true
+		case "5":
+			return 5, true
+		default:
+			return 0, false
+		}
+	})
+
+	// Consume all valid numbers, skipping errors
+	numbers := ConsumeErrSkip(filterStream)
+
+	fmt.Printf("Valid numbers: %v\n", numbers)
+
+	// Output:
+	// Valid numbers: [1 2 4 5]
+}
+
+// ExampleWriteAll demonstrates writing a slice to a stream.
+func ExampleWriteAll() {
+	// Create data to write
+	data := []string{"hello", "world", "streams"}
+
+	// Create a memory writer
+	writer := MemWriter[string]()
+
+	// Write all data
+	bytesWritten, err := WriteAll(writer, data)
+	if err != nil {
+		fmt.Printf("Error: %v\n", err)
+		return
+	}
+
+	fmt.Printf("Bytes written: %d\n", bytesWritten)
+	fmt.Printf("Items: %v\n", writer.Items())
+	// Output:
+	// Bytes written: 3
+	// Items: [hello world streams]
+}
+
+// Simple transform implementation for example
+type simpleTransform struct {
+	stream ReadStream[[]byte]
+}
+
+func (t *simpleTransform) WriteTo(w io.Writer) (int64, error) {
+	var total int64
+	for t.stream.Next() {
+		data := t.stream.Data()
+		n, err := w.Write(data)
+		if err != nil {
+			return total, err
+		}
+		total += int64(n)
+	}
+	return total, t.stream.Err()
+}
+
+func ExampleConsume() {
+	// Create a stream with some data
+	data := []int{1, 2, 3, 4, 5}
+	stream := MemReader(data, nil)
+
+	// Consume all items from the stream
+	items, err := Consume(stream)
+	if err != nil {
+		fmt.Printf("Error: %v\n", err)
+		return
+	}
+
+	fmt.Println("Consumed items:", items)
+	// Output: Consumed items: [1 2 3 4 5]
+}
+
+func ExampleReadAll() {
+	// Create a stream with some words
+	words := []string{"hello", "world", "go", "streams"}
+	stream := MemReader(words, nil)
+
+	// Read all items (alias for Consume)
+	items, err := ReadAll(stream)
+	if err != nil {
+		fmt.Printf("Error: %v\n", err)
+		return
+	}
+
+	fmt.Println("Read items:", items)
+	// Output: Read items: [hello world go streams]
+}
+
+func ExampleWriteSeq() {
+	// Create a destination
+	dst := MemWriter[string]()
+
+	// Create an iterator with some data
+	words := []string{"hello", "world", "from", "iterator"}
+
+	// Write all items from the iterator
+	bytesWritten, err := WriteSeq(dst, slices.Values(words))
+	if err != nil {
+		fmt.Printf("Error: %v\n", err)
+		return
+	}
+
+	fmt.Printf("Wrote %d items\n", bytesWritten)
+	fmt.Println("Items written:", dst.Items())
+	// Output:
+	// Wrote 4 items
+	// Items written: [hello world from iterator]
 }

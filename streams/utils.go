@@ -1,7 +1,6 @@
 package streams
 
 import (
-	"bytes"
 	"fmt"
 	"io"
 	"iter"
@@ -9,19 +8,6 @@ import (
 
 	"errors"
 )
-
-// ReadAllBytes reads all data from a Transform and returns it as a byte slice.
-// It uses a bytes.Buffer to accumulate the data and returns the final byte slice.
-// If an error occurs during writing, it returns nil and the error.
-func ReadAllBytes[T any](transform Transform[T]) ([]byte, error) {
-	buf := new(bytes.Buffer)
-
-	if _, err := transform.WriteTo(buf); err != nil {
-		return nil, err
-	}
-
-	return buf.Bytes(), nil
-}
 
 // Consume reads all items from a ReadStream and returns them as a slice.
 // If an error occurs during reading, it returns nil and the error.
@@ -62,6 +48,14 @@ func ConsumeErrSkip[T any](stream ReadStream[T]) []T {
 	}
 
 	return res
+}
+
+// ReadAll reads all items from a ReadStream and returns them as a slice.
+// If an error occurs during reading, it returns nil and the error.
+// If the stream ends with io.EOF, it returns the items read so far without an error.
+// This function is useful for collecting all items from a stream into a slice.
+func ReadAll[T any](stream ReadStream[T]) ([]T, error) {
+	return Consume(stream)
 }
 
 // WriteAll writes all items from a slice to a WriteStream
