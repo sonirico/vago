@@ -3,9 +3,9 @@ package _map
 import (
 	"sync"
 
-	"github.com/sonirico/gozo/fp"
-	"github.com/sonirico/gozo/slices"
-	"github.com/sonirico/gozo/tuples"
+	"github.com/sonirico/vago/fp"
+	"github.com/sonirico/vago/slices"
+	"github.com/sonirico/vago/tuples"
 )
 
 type (

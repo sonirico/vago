@@ -6,8 +6,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/sonirico/gozo/fp"
-	"github.com/sonirico/gozo/tuples"
+	"github.com/sonirico/vago/fp"
+	"github.com/sonirico/vago/tuples"
 )
 
 func TestMapTo(t *testing.T) {

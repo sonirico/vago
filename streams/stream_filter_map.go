@@ -3,7 +3,7 @@ package streams
 import (
 	"iter"
 
-	"github.com/sonirico/gozo/fp"
+	"github.com/sonirico/vago/fp"
 )
 
 type (

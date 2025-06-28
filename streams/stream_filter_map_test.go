@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/sonirico/gozo/fp"
+	"github.com/sonirico/vago/fp"
 	"github.com/stretchr/testify/assert"
 )
 

@@ -4,9 +4,9 @@
 package maps
 
 import (
-	"github.com/sonirico/gozo/fp"
-	"github.com/sonirico/gozo/slices"
-	"github.com/sonirico/gozo/tuples"
+	"github.com/sonirico/vago/fp"
+	"github.com/sonirico/vago/slices"
+	"github.com/sonirico/vago/tuples"
 )
 
 // Equals compares two maps and returns whether they are equal in values.

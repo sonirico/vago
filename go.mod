@@ -1,4 +1,4 @@
-module github.com/sonirico/gozo
+module github.com/sonirico/vago
 
 go 1.23
 

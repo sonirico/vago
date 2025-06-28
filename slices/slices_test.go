@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/sonirico/gozo/fp"
+	"github.com/sonirico/vago/fp"
 )
 
 func TestSlice_Len(t *testing.T) {

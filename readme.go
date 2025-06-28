@@ -1,4 +1,4 @@
-// Package main generates the README.md file for the gozo project
+// Package main generates the README.md file for the vago project
 // by extracting examples from test files and creating documentation.
 package main
 
@@ -18,14 +18,14 @@ import (
 // Constants and template definitions
 
 const title = `
-# gozo
+# vago
 
-[![Go Report Card](https://goreportcard.com/badge/github.com/sonirico/gozo)](https://goreportcard.com/report/github.com/sonirico/gozo)
-[![Go Reference](https://pkg.go.dev/badge/github.com/sonirico/gozo.svg)](https://pkg.go.dev/github.com/sonirico/gozo)
+[![Go Report Card](https://goreportcard.com/badge/github.com/sonirico/vago)](https://goreportcard.com/report/github.com/sonirico/vago)
+[![Go Reference](https://pkg.go.dev/badge/github.com/sonirico/vago.svg)](https://pkg.go.dev/github.com/sonirico/vago)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Release](https://img.shields.io/github/v/release/sonirico/gozo.svg)](https://github.com/sonirico/gozo/releases)
+[![Release](https://img.shields.io/github/v/release/sonirico/vago.svg)](https://github.com/sonirico/vago/releases)
 
-[![gozo Art](gozo.png)](https://github.com/sonirico/gozo/gozo.png)
+[![vago Art](vago.png)](https://github.com/sonirico/vago/vago.png)
 
 The ultimate toolkit for Go developers. A comprehensive collection of functions, data structures, and utilities designed to enhance productivity and code quality.
 
@@ -292,7 +292,7 @@ func extractSourceWithComments(buf *bytes.Buffer, fset *token.FileSet, fn *ast.F
 	return nil
 }
 
-// readme generates the complete README.md file for the gozo project.
+// readme generates the complete README.md file for the vago project.
 func readme() {
 	modules := []string{
 		"slices", "maps", "fp", "streams",

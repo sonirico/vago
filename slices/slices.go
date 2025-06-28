@@ -7,7 +7,7 @@ import (
 	"bytes"
 	"fmt"
 
-	"github.com/sonirico/gozo/fp"
+	"github.com/sonirico/vago/fp"
 )
 
 type (
