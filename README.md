@@ -66,6 +66,8 @@ The ultimate toolkit for Go developers. A comprehensive collection of functions,
   - [Pipe](#streams-pipe)
   - [Reader](#streams-reader)
   - [Reduce](#streams-reduce)
+  - [ReduceMap](#streams-reducemap)
+  - [ReduceSlice](#streams-reduceslice)
   - [WriteAll](#streams-writeall)
 
 ## <a name="fp"></a>🪄 Fp
@@ -1231,6 +1233,8 @@ Powerful data streaming and processing utilities with fluent API for functional 
 - [Pipe](#streams-pipe)
 - [Reader](#streams-reader)
 - [Reduce](#streams-reduce)
+- [ReduceMap](#streams-reducemap)
+- [ReduceSlice](#streams-reduceslice)
 - [WriteAll](#streams-writeall)
 
 #### streams Batch
@@ -1723,19 +1727,52 @@ func ExampleReader() {
 
 #### streams Reduce
 
-ExampleReduce demonstrates reducing a stream to a map with aggregated values.
+ExampleReduce demonstrates using Reduce to sum numbers from a stream.
 
 
 <details><summary>Code</summary>
 
 ```go
 func ExampleReduce() {
+	// Create a stream of numbers from strings
+	reader := strings.NewReader("10\n20\n30\n40\n50")
+	lines := Lines(reader)
+
+	// Convert strings to numbers and sum them
+	sum, _ := Reduce(Map(lines, func(s string) int {
+		n, _ := strconv.Atoi(s)
+		return n
+	}), func(acc, n int) int {
+		return acc + n
+	}, 0)
+
+	fmt.Printf("Sum: %d\n", sum)
+
+	// Output:
+	// Sum: 150
+}
+```
+
+</details>
+
+
+---
+
+#### streams ReduceMap
+
+ExampleReduceMap demonstrates reducing a stream to a map with aggregated values.
+
+
+<details><summary>Code</summary>
+
+```go
+func ExampleReduceMap() {
 	// Create a stream of words
 	reader := strings.NewReader("apple\nbanana\napple\ncherry\nbanana\napple")
 	stream := Lines(reader)
 
 	// Count occurrences of each word
-	counts, _ := Reduce(stream, func(acc map[string]int, word string) map[string]int {
+	counts, _ := ReduceMap(stream, func(acc map[string]int, word string) map[string]int {
 		acc[word]++
 		return acc
 	})
@@ -1748,6 +1785,39 @@ func ExampleReduce() {
 	// apple: 3
 	// banana: 2
 	// cherry: 1
+}
+```
+
+</details>
+
+
+---
+
+#### streams ReduceSlice
+
+ExampleReduceSlice demonstrates collecting filtered items from a stream.
+
+
+<details><summary>Code</summary>
+
+```go
+func ExampleReduceSlice() {
+	// Create a stream of words
+	reader := strings.NewReader("cat\ndog\nelephant\nant\nbutterfly\nbird")
+	stream := Lines(reader)
+
+	// Collect only words longer than 3 characters
+	longWords, _ := ReduceSlice(stream, func(acc []string, word string) []string {
+		if len(word) > 3 {
+			return append(acc, word)
+		}
+		return acc
+	})
+
+	fmt.Printf("Long words: %v\n", longWords)
+
+	// Output:
+	// Long words: [elephant butterfly bird]
 }
 ```
 
