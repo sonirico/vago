@@ -18,16 +18,20 @@ import (
 // Constants and template definitions
 
 const title = `
-# vago
+<div align="center">
+  <img src="vago.png" alt="Visigoth" width="200"/>
+  
+  # vago
+  
+  The ultimate toolkit for vaGo developers. A comprehensive collection of functions, data structures, and utilities designed to enhance productivity and code quality with no learning curve and less effort.
 
-[![Go Report Card](https://goreportcard.com/badge/github.com/sonirico/vago)](https://goreportcard.com/report/github.com/sonirico/vago)
-[![Go Reference](https://pkg.go.dev/badge/github.com/sonirico/vago.svg)](https://pkg.go.dev/github.com/sonirico/vago)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Release](https://img.shields.io/github/v/release/sonirico/vago.svg)](https://github.com/sonirico/vago/releases)
+  [![Go Report Card](https://goreportcard.com/badge/github.com/sonirico/vago)](https://goreportcard.com/report/github.com/sonirico/vago)
+  [![Go Reference](https://pkg.go.dev/badge/github.com/sonirico/vago.svg)](https://pkg.go.dev/github.com/sonirico/vago)
+  [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+  [![Release](https://img.shields.io/github/v/release/sonirico/vago.svg)](https://github.com/sonirico/vago/releases)
+</div>
 
-[![vago Art](vago.png)](https://github.com/sonirico/vago/vago.png)
-
-The ultimate toolkit for Go developers. A comprehensive collection of functions, data structures, and utilities designed to enhance productivity and code quality.
+📖 **[View full documentation and examples on pkg.go.dev →](https://pkg.go.dev/github.com/sonirico/vago)**
 
 ## Modules
 
@@ -90,7 +94,7 @@ func (m mod) String() string {
 
 		buf.WriteString("\n\n<details><summary>Code</summary>\n\n")
 		buf.WriteString("```go\n" + strings.TrimSpace(fn.body.String()) + "\n```\n\n</details>\n")
-		buf.WriteString("\n\n---\n\n")
+		buf.WriteString("\n\n[⬆️ Back to Top](#table-of-contents)\n\n---\n\n")
 	}
 
 	buf.WriteString("\n[⬆️ Back to Top](#table-of-contents)\n")
@@ -337,11 +341,7 @@ func readme() {
 			emoji = "⚙️"
 		}
 		moduleAnchor := strings.ToLower(m.title)
-		_, _ = buf.WriteString(fmt.Sprintf("- [%s %s](#%s)\n", emoji, strings.ToUpper(m.title[:1])+m.title[1:], moduleAnchor))
-		for _, fn := range m.funs {
-			functionAnchor := strings.ToLower(strings.ReplaceAll(m.title+" "+fn.name, " ", "-"))
-			_, _ = buf.WriteString(fmt.Sprintf("  - [%s](#%s)\n", fn.name, functionAnchor))
-		}
+		_, _ = buf.WriteString(fmt.Sprintf("- [%s %s](#%s) - %d functions\n", emoji, strings.ToUpper(m.title[:1])+m.title[1:], moduleAnchor, len(m.funs)))
 	}
 	_, _ = buf.WriteString("\n")
 

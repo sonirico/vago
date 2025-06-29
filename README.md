@@ -12,79 +12,16 @@
   [![Release](https://img.shields.io/github/v/release/sonirico/vago.svg)](https://github.com/sonirico/vago/releases)
 </div>
 
+📖 **[View full documentation and examples on pkg.go.dev →](https://pkg.go.dev/github.com/sonirico/vago)**
+
 ## Modules
 
 ## <a name="table-of-contents"></a>Table of Contents
 
-- [vago](#vago)
-	- [Modules](#modules)
-	- [Table of Contents](#table-of-contents)
-	- [🪄 Fp](#-fp)
-		- [Functions](#functions)
-			- [fp Err](#fp-err)
-			- [fp None](#fp-none)
-			- [fp Ok](#fp-ok)
-			- [fp OkZero](#fp-okzero)
-			- [fp Option](#fp-option)
-			- [fp OptionFromPtr](#fp-optionfromptr)
-			- [fp OptionFromTuple](#fp-optionfromtuple)
-			- [fp Option\_Map](#fp-option_map)
-			- [fp Option\_Match](#fp-option_match)
-			- [fp Option\_Or](#fp-option_or)
-			- [fp Result](#fp-result)
-			- [fp Result\_Map](#fp-result_map)
-			- [fp Result\_Match](#fp-result_match)
-			- [fp Result\_Or](#fp-result_or)
-			- [fp Some](#fp-some)
-	- [🗝️ Maps](#️-maps)
-		- [Functions](#functions-1)
-			- [maps Equals](#maps-equals)
-			- [maps Filter](#maps-filter)
-			- [maps FilterMap](#maps-filtermap)
-			- [maps FilterMapTuple](#maps-filtermaptuple)
-			- [maps Fold](#maps-fold)
-			- [maps Map](#maps-map)
-			- [maps Reduce](#maps-reduce)
-			- [maps Slice](#maps-slice)
-	- [⛓️ Slices](#️-slices)
-		- [Functions](#functions-2)
-			- [slices All](#slices-all)
-			- [slices Contains](#slices-contains)
-			- [slices Filter](#slices-filter)
-			- [slices FilterMap](#slices-filtermap)
-			- [slices Find](#slices-find)
-			- [slices Fold](#slices-fold)
-			- [slices Map](#slices-map)
-			- [slices Reduce](#slices-reduce)
-			- [slices Some](#slices-some)
-			- [slices ToMap](#slices-tomap)
-	- [🌊 Streams](#-streams)
-		- [Functions](#functions-3)
-			- [streams Batch](#streams-batch)
-			- [streams CSV](#streams-csv)
-			- [streams CSVTransform](#streams-csvtransform)
-			- [streams CSVTransform\_tabSeparated](#streams-csvtransform_tabseparated)
-			- [streams Compact](#streams-compact)
-			- [streams ConsumeErrSkip](#streams-consumeerrskip)
-			- [streams Filter](#streams-filter)
-			- [streams FilterMap](#streams-filtermap)
-			- [streams Flatten](#streams-flatten)
-			- [streams JSON](#streams-json)
-			- [streams JSONEachRowTransform](#streams-jsoneachrowtransform)
-			- [streams JSONTransform](#streams-jsontransform)
-			- [streams Lines](#streams-lines)
-			- [streams Map](#streams-map)
-			- [streams MemWriter](#streams-memwriter)
-			- [streams Multicast](#streams-multicast)
-			- [streams Pipe](#streams-pipe)
-			- [streams PipeCSV](#streams-pipecsv)
-			- [streams PipeJSON](#streams-pipejson)
-			- [streams PipeJSONEachRow](#streams-pipejsoneachrow)
-			- [streams Reader](#streams-reader)
-			- [streams Reduce](#streams-reduce)
-			- [streams ReduceMap](#streams-reducemap)
-			- [streams ReduceSlice](#streams-reduceslice)
-			- [streams WriteAll](#streams-writeall)
+- [🪄 Fp](#fp) - 15 functions
+- [🗝️ Maps](#maps) - 8 functions
+- [⛓️ Slices](#slices) - 10 functions
+- [🌊 Streams](#streams) - 25 functions
 
 ## <a name="fp"></a>🪄 Fp
 
@@ -132,6 +69,8 @@ func ExampleErr() {
 </details>
 
 
+[⬆️ Back to Top](#table-of-contents)
+
 ---
 
 #### fp None
@@ -157,6 +96,8 @@ func ExampleNone() {
 
 </details>
 
+
+[⬆️ Back to Top](#table-of-contents)
 
 ---
 
@@ -184,6 +125,8 @@ func ExampleOk() {
 </details>
 
 
+[⬆️ Back to Top](#table-of-contents)
+
 ---
 
 #### fp OkZero
@@ -209,6 +152,8 @@ func ExampleOkZero() {
 
 </details>
 
+
+[⬆️ Back to Top](#table-of-contents)
 
 ---
 
@@ -244,6 +189,8 @@ func ExampleOption() {
 </details>
 
 
+[⬆️ Back to Top](#table-of-contents)
+
 ---
 
 #### fp OptionFromPtr
@@ -274,6 +221,8 @@ func ExampleOptionFromPtr() {
 
 </details>
 
+
+[⬆️ Back to Top](#table-of-contents)
 
 ---
 
@@ -309,6 +258,8 @@ func ExampleOptionFromTuple() {
 </details>
 
 
+[⬆️ Back to Top](#table-of-contents)
+
 ---
 
 #### fp Option_Map
@@ -341,6 +292,8 @@ func ExampleOption_Map() {
 
 </details>
 
+
+[⬆️ Back to Top](#table-of-contents)
 
 ---
 
@@ -395,6 +348,8 @@ func ExampleOption_Match() {
 </details>
 
 
+[⬆️ Back to Top](#table-of-contents)
+
 ---
 
 #### fp Option_Or
@@ -423,6 +378,8 @@ func ExampleOption_Or() {
 
 </details>
 
+
+[⬆️ Back to Top](#table-of-contents)
 
 ---
 
@@ -463,6 +420,8 @@ func ExampleResult() {
 </details>
 
 
+[⬆️ Back to Top](#table-of-contents)
+
 ---
 
 #### fp Result_Map
@@ -495,6 +454,8 @@ func ExampleResult_Map() {
 
 </details>
 
+
+[⬆️ Back to Top](#table-of-contents)
 
 ---
 
@@ -549,6 +510,8 @@ func ExampleResult_Match() {
 </details>
 
 
+[⬆️ Back to Top](#table-of-contents)
+
 ---
 
 #### fp Result_Or
@@ -577,6 +540,8 @@ func ExampleResult_Or() {
 </details>
 
 
+[⬆️ Back to Top](#table-of-contents)
+
 ---
 
 #### fp Some
@@ -602,6 +567,8 @@ func ExampleSome() {
 
 </details>
 
+
+[⬆️ Back to Top](#table-of-contents)
 
 ---
 
@@ -658,6 +625,8 @@ func ExampleEquals() {
 </details>
 
 
+[⬆️ Back to Top](#table-of-contents)
+
 ---
 
 #### maps Filter
@@ -689,6 +658,8 @@ func ExampleFilter() {
 
 </details>
 
+
+[⬆️ Back to Top](#table-of-contents)
 
 ---
 
@@ -725,6 +696,8 @@ func ExampleFilterMap() {
 
 </details>
 
+
+[⬆️ Back to Top](#table-of-contents)
 
 ---
 
@@ -770,6 +743,8 @@ func ExampleFilterMapTuple() {
 </details>
 
 
+[⬆️ Back to Top](#table-of-contents)
+
 ---
 
 #### maps Fold
@@ -802,6 +777,8 @@ func ExampleFold() {
 </details>
 
 
+[⬆️ Back to Top](#table-of-contents)
+
 ---
 
 #### maps Map
@@ -833,6 +810,8 @@ func ExampleMap() {
 </details>
 
 
+[⬆️ Back to Top](#table-of-contents)
+
 ---
 
 #### maps Reduce
@@ -863,6 +842,8 @@ func ExampleReduce() {
 
 </details>
 
+
+[⬆️ Back to Top](#table-of-contents)
 
 ---
 
@@ -896,6 +877,8 @@ func ExampleSlice() {
 
 </details>
 
+
+[⬆️ Back to Top](#table-of-contents)
 
 ---
 
@@ -958,6 +941,8 @@ func ExampleAll() {
 </details>
 
 
+[⬆️ Back to Top](#table-of-contents)
+
 ---
 
 #### slices Contains
@@ -993,6 +978,8 @@ func ExampleContains() {
 </details>
 
 
+[⬆️ Back to Top](#table-of-contents)
+
 ---
 
 #### slices Filter
@@ -1019,6 +1006,8 @@ func ExampleFilter() {
 
 </details>
 
+
+[⬆️ Back to Top](#table-of-contents)
 
 ---
 
@@ -1050,6 +1039,8 @@ func ExampleFilterMap() {
 </details>
 
 
+[⬆️ Back to Top](#table-of-contents)
+
 ---
 
 #### slices Find
@@ -1076,6 +1067,8 @@ func ExampleFind() {
 
 </details>
 
+
+[⬆️ Back to Top](#table-of-contents)
 
 ---
 
@@ -1108,6 +1101,8 @@ func ExampleFold() {
 </details>
 
 
+[⬆️ Back to Top](#table-of-contents)
+
 ---
 
 #### slices Map
@@ -1134,6 +1129,8 @@ func ExampleMap() {
 
 </details>
 
+
+[⬆️ Back to Top](#table-of-contents)
 
 ---
 
@@ -1162,6 +1159,8 @@ func ExampleReduce() {
 </details>
 
 
+[⬆️ Back to Top](#table-of-contents)
+
 ---
 
 #### slices Some
@@ -1189,6 +1188,8 @@ func ExampleSome() {
 
 </details>
 
+
+[⬆️ Back to Top](#table-of-contents)
 
 ---
 
@@ -1220,6 +1221,8 @@ func ExampleToMap() {
 </details>
 
 
+[⬆️ Back to Top](#table-of-contents)
+
 ---
 
 
@@ -1234,75 +1237,31 @@ Powerful data streaming and processing utilities with fluent API for functional 
 
 ### Functions
 
-- [vago](#vago)
-	- [Modules](#modules)
-	- [Table of Contents](#table-of-contents)
-	- [🪄 Fp](#-fp)
-		- [Functions](#functions)
-			- [fp Err](#fp-err)
-			- [fp None](#fp-none)
-			- [fp Ok](#fp-ok)
-			- [fp OkZero](#fp-okzero)
-			- [fp Option](#fp-option)
-			- [fp OptionFromPtr](#fp-optionfromptr)
-			- [fp OptionFromTuple](#fp-optionfromtuple)
-			- [fp Option\_Map](#fp-option_map)
-			- [fp Option\_Match](#fp-option_match)
-			- [fp Option\_Or](#fp-option_or)
-			- [fp Result](#fp-result)
-			- [fp Result\_Map](#fp-result_map)
-			- [fp Result\_Match](#fp-result_match)
-			- [fp Result\_Or](#fp-result_or)
-			- [fp Some](#fp-some)
-	- [🗝️ Maps](#️-maps)
-		- [Functions](#functions-1)
-			- [maps Equals](#maps-equals)
-			- [maps Filter](#maps-filter)
-			- [maps FilterMap](#maps-filtermap)
-			- [maps FilterMapTuple](#maps-filtermaptuple)
-			- [maps Fold](#maps-fold)
-			- [maps Map](#maps-map)
-			- [maps Reduce](#maps-reduce)
-			- [maps Slice](#maps-slice)
-	- [⛓️ Slices](#️-slices)
-		- [Functions](#functions-2)
-			- [slices All](#slices-all)
-			- [slices Contains](#slices-contains)
-			- [slices Filter](#slices-filter)
-			- [slices FilterMap](#slices-filtermap)
-			- [slices Find](#slices-find)
-			- [slices Fold](#slices-fold)
-			- [slices Map](#slices-map)
-			- [slices Reduce](#slices-reduce)
-			- [slices Some](#slices-some)
-			- [slices ToMap](#slices-tomap)
-	- [🌊 Streams](#-streams)
-		- [Functions](#functions-3)
-			- [streams Batch](#streams-batch)
-			- [streams CSV](#streams-csv)
-			- [streams CSVTransform](#streams-csvtransform)
-			- [streams CSVTransform\_tabSeparated](#streams-csvtransform_tabseparated)
-			- [streams Compact](#streams-compact)
-			- [streams ConsumeErrSkip](#streams-consumeerrskip)
-			- [streams Filter](#streams-filter)
-			- [streams FilterMap](#streams-filtermap)
-			- [streams Flatten](#streams-flatten)
-			- [streams JSON](#streams-json)
-			- [streams JSONEachRowTransform](#streams-jsoneachrowtransform)
-			- [streams JSONTransform](#streams-jsontransform)
-			- [streams Lines](#streams-lines)
-			- [streams Map](#streams-map)
-			- [streams MemWriter](#streams-memwriter)
-			- [streams Multicast](#streams-multicast)
-			- [streams Pipe](#streams-pipe)
-			- [streams PipeCSV](#streams-pipecsv)
-			- [streams PipeJSON](#streams-pipejson)
-			- [streams PipeJSONEachRow](#streams-pipejsoneachrow)
-			- [streams Reader](#streams-reader)
-			- [streams Reduce](#streams-reduce)
-			- [streams ReduceMap](#streams-reducemap)
-			- [streams ReduceSlice](#streams-reduceslice)
-			- [streams WriteAll](#streams-writeall)
+- [Batch](#streams-batch)
+- [CSV](#streams-csv)
+- [CSVTransform](#streams-csvtransform)
+- [CSVTransform_tabSeparated](#streams-csvtransform_tabseparated)
+- [Compact](#streams-compact)
+- [ConsumeErrSkip](#streams-consumeerrskip)
+- [Filter](#streams-filter)
+- [FilterMap](#streams-filtermap)
+- [Flatten](#streams-flatten)
+- [JSON](#streams-json)
+- [JSONEachRowTransform](#streams-jsoneachrowtransform)
+- [JSONTransform](#streams-jsontransform)
+- [Lines](#streams-lines)
+- [Map](#streams-map)
+- [MemWriter](#streams-memwriter)
+- [Multicast](#streams-multicast)
+- [Pipe](#streams-pipe)
+- [PipeCSV](#streams-pipecsv)
+- [PipeJSON](#streams-pipejson)
+- [PipeJSONEachRow](#streams-pipejsoneachrow)
+- [Reader](#streams-reader)
+- [Reduce](#streams-reduce)
+- [ReduceMap](#streams-reducemap)
+- [ReduceSlice](#streams-reduceslice)
+- [WriteAll](#streams-writeall)
 
 #### streams Batch
 
@@ -1335,6 +1294,8 @@ func ExampleBatch() {
 
 </details>
 
+
+[⬆️ Back to Top](#table-of-contents)
 
 ---
 
@@ -1373,6 +1334,8 @@ func ExampleCSV() {
 </details>
 
 
+[⬆️ Back to Top](#table-of-contents)
+
 ---
 
 #### streams CSVTransform
@@ -1406,6 +1369,8 @@ func ExampleCSVTransform() {
 
 </details>
 
+
+[⬆️ Back to Top](#table-of-contents)
 
 ---
 
@@ -1442,6 +1407,8 @@ func ExampleCSVTransform_tabSeparated() {
 </details>
 
 
+[⬆️ Back to Top](#table-of-contents)
+
 ---
 
 #### streams Compact
@@ -1476,6 +1443,8 @@ func ExampleCompact() {
 
 </details>
 
+
+[⬆️ Back to Top](#table-of-contents)
 
 ---
 
@@ -1526,6 +1495,8 @@ func ExampleConsumeErrSkip() {
 </details>
 
 
+[⬆️ Back to Top](#table-of-contents)
+
 ---
 
 #### streams Filter
@@ -1555,6 +1526,8 @@ func ExampleFilter() {
 
 </details>
 
+
+[⬆️ Back to Top](#table-of-contents)
 
 ---
 
@@ -1589,6 +1562,8 @@ func ExampleFilterMap() {
 </details>
 
 
+[⬆️ Back to Top](#table-of-contents)
+
 ---
 
 #### streams Flatten
@@ -1616,6 +1591,8 @@ func ExampleFlatten() {
 
 </details>
 
+
+[⬆️ Back to Top](#table-of-contents)
 
 ---
 
@@ -1658,6 +1635,8 @@ func ExampleJSON() {
 </details>
 
 
+[⬆️ Back to Top](#table-of-contents)
+
 ---
 
 #### streams JSONEachRowTransform
@@ -1698,6 +1677,8 @@ func ExampleJSONEachRowTransform() {
 </details>
 
 
+[⬆️ Back to Top](#table-of-contents)
+
 ---
 
 #### streams JSONTransform
@@ -1735,6 +1716,8 @@ func ExampleJSONTransform() {
 </details>
 
 
+[⬆️ Back to Top](#table-of-contents)
+
 ---
 
 #### streams Lines
@@ -1762,6 +1745,8 @@ func ExampleLines() {
 
 </details>
 
+
+[⬆️ Back to Top](#table-of-contents)
 
 ---
 
@@ -1792,6 +1777,8 @@ func ExampleMap() {
 
 </details>
 
+
+[⬆️ Back to Top](#table-of-contents)
 
 ---
 
@@ -1826,6 +1813,8 @@ func ExampleMemWriter() {
 
 </details>
 
+
+[⬆️ Back to Top](#table-of-contents)
 
 ---
 
@@ -1869,6 +1858,8 @@ func ExampleMulticast() {
 </details>
 
 
+[⬆️ Back to Top](#table-of-contents)
+
 ---
 
 #### streams Pipe
@@ -1900,6 +1891,8 @@ func ExamplePipe() {
 
 </details>
 
+
+[⬆️ Back to Top](#table-of-contents)
 
 ---
 
@@ -1937,6 +1930,8 @@ func ExamplePipeCSV() {
 
 </details>
 
+
+[⬆️ Back to Top](#table-of-contents)
 
 ---
 
@@ -1979,6 +1974,8 @@ func ExamplePipeJSON() {
 
 </details>
 
+
+[⬆️ Back to Top](#table-of-contents)
 
 ---
 
@@ -2025,6 +2022,8 @@ func ExamplePipeJSONEachRow() {
 </details>
 
 
+[⬆️ Back to Top](#table-of-contents)
+
 ---
 
 #### streams Reader
@@ -2060,6 +2059,8 @@ func ExampleReader() {
 </details>
 
 
+[⬆️ Back to Top](#table-of-contents)
+
 ---
 
 #### streams Reduce
@@ -2092,6 +2093,8 @@ func ExampleReduce() {
 
 </details>
 
+
+[⬆️ Back to Top](#table-of-contents)
 
 ---
 
@@ -2128,6 +2131,8 @@ func ExampleReduceMap() {
 </details>
 
 
+[⬆️ Back to Top](#table-of-contents)
+
 ---
 
 #### streams ReduceSlice
@@ -2160,6 +2165,8 @@ func ExampleReduceSlice() {
 
 </details>
 
+
+[⬆️ Back to Top](#table-of-contents)
 
 ---
 
@@ -2195,6 +2202,8 @@ func ExampleWriteAll() {
 
 </details>
 
+
+[⬆️ Back to Top](#table-of-contents)
 
 ---
 
