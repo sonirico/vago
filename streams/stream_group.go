@@ -6,9 +6,9 @@ import (
 )
 
 type (
-	// CompactStream groups consecutive items with the same key into slices.
+	// GroupStream groups consecutive items with the same key into slices.
 	// It uses a key extraction function to determine when items should be grouped together.
-	CompactStream[T any, K comparable] struct {
+	GroupStream[T any, K comparable] struct {
 		inner      ReadStream[T]
 		keyFunc    func(T) K
 		buffer     []T
@@ -19,16 +19,16 @@ type (
 	}
 )
 
-// Compact creates a new stream that groups consecutive items with the same key.
+// Group creates a new stream that groups consecutive items with the same key.
 // The keyFunc is used to extract the grouping key from each item (like Python's itemgetter).
-func Compact[T any, K comparable](inner ReadStream[T], keyFunc func(T) K) ReadStream[[]T] {
-	return &CompactStream[T, K]{
+func Group[T any, K comparable](inner ReadStream[T], keyFunc func(T) K) ReadStream[[]T] {
+	return &GroupStream[T, K]{
 		inner:   inner,
 		keyFunc: keyFunc,
 	}
 }
 
-func (s *CompactStream[T, K]) Next() bool {
+func (s *GroupStream[T, K]) Next() bool {
 	if s.done {
 		return false
 	}
@@ -86,30 +86,30 @@ func (s *CompactStream[T, K]) Next() bool {
 	return len(s.buffer) > 0
 }
 
-func (s *CompactStream[T, K]) Data() []T {
+func (s *GroupStream[T, K]) Data() []T {
 	return s.buffer
 }
 
-func (s *CompactStream[T, K]) Err() error {
+func (s *GroupStream[T, K]) Err() error {
 	return s.err
 }
 
-func (s *CompactStream[T, K]) Close() error {
+func (s *GroupStream[T, K]) Close() error {
 	return s.inner.Close()
 }
 
-func (s *CompactStream[T, K]) Iter() iter.Seq[[]T] {
+func (s *GroupStream[T, K]) Iter() iter.Seq[[]T] {
 	return Iter(s)
 }
 
-// CompactFactory creates a factory for CompactStream instances.
-func CompactFactory[T any, K comparable](
+// GroupFactory creates a factory for GroupStream instances.
+func GroupFactory[T any, K comparable](
 	innerFactory ReadStreamFactory[T],
 	keyFunc func(T) K,
 ) ReadStreamFactory[[]T] {
 	return func(rc io.ReadCloser) ReadStream[[]T] {
-		return Compact(innerFactory(rc), keyFunc)
+		return Group(innerFactory(rc), keyFunc)
 	}
 }
 
-var _ ReadStream[[]any] = new(CompactStream[any, string])
+var _ ReadStream[[]any] = new(GroupStream[any, string])

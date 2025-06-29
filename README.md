@@ -1241,11 +1241,11 @@ Powerful data streaming and processing utilities with fluent API for functional 
 - [CSV](#streams-csv)
 - [CSVTransform](#streams-csvtransform)
 - [CSVTransform_tabSeparated](#streams-csvtransform_tabseparated)
-- [Compact](#streams-compact)
 - [ConsumeErrSkip](#streams-consumeerrskip)
 - [Filter](#streams-filter)
 - [FilterMap](#streams-filtermap)
 - [Flatten](#streams-flatten)
+- [Group](#streams-group)
 - [JSON](#streams-json)
 - [JSONEachRowTransform](#streams-jsoneachrowtransform)
 - [JSONTransform](#streams-jsontransform)
@@ -1411,43 +1411,6 @@ func ExampleCSVTransform_tabSeparated() {
 
 ---
 
-#### streams Compact
-
-ExampleCompact demonstrates grouping consecutive items with the same key.
-
-
-<details><summary>Code</summary>
-
-```go
-func ExampleCompact() {
-	// Create a stream from a slice of strings
-	data := []string{"apple", "apricot", "banana", "blueberry", "cherry", "coconut"}
-	stream := MemReader(data, nil)
-
-	// Group by first letter
-	compacted := Compact(stream, func(s string) rune {
-		return rune(s[0])
-	})
-
-	// Collect the results
-	result, _ := Consume(compacted)
-	for _, group := range result {
-		fmt.Printf("Group: %v\n", group)
-	}
-	// Output:
-	// Group: [apple apricot]
-	// Group: [banana blueberry]
-	// Group: [cherry coconut]
-}
-```
-
-</details>
-
-
-[⬆️ Back to Top](#table-of-contents)
-
----
-
 #### streams ConsumeErrSkip
 
 ExampleConsumeErrSkip demonstrates consuming a stream while skipping errors.
@@ -1586,6 +1549,43 @@ func ExampleFlatten() {
 	result, _ := Consume(flattened)
 	fmt.Println(result)
 	// Output: [1 2 3 4 5 6 7 8 9]
+}
+```
+
+</details>
+
+
+[⬆️ Back to Top](#table-of-contents)
+
+---
+
+#### streams Group
+
+ExampleGroup demonstrates grouping consecutive items with the same key.
+
+
+<details><summary>Code</summary>
+
+```go
+func ExampleGroup() {
+	// Create a stream from a slice of strings
+	data := []string{"apple", "apricot", "banana", "blueberry", "cherry", "coconut"}
+	stream := MemReader(data, nil)
+
+	// Group by first letter
+	Grouped := Group(stream, func(s string) rune {
+		return rune(s[0])
+	})
+
+	// Collect the results
+	result, _ := Consume(Grouped)
+	for _, group := range result {
+		fmt.Printf("Group: %v\n", group)
+	}
+	// Output:
+	// Group: [apple apricot]
+	// Group: [banana blueberry]
+	// Group: [cherry coconut]
 }
 ```
 
