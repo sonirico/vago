@@ -8,74 +8,74 @@
 
 [![vago Art](vago.png)](https://github.com/sonirico/vago/vago.png)
 
-The ultimate toolkit for lazy developers. A comprehensive collection of functions, data structures, and utilities designed to enhance productivity and code quality.
+The ultimate toolkit for Go developers. A comprehensive collection of functions, data structures, and utilities designed to enhance productivity and code quality.
 
 ## Modules
 
 ## <a name="table-of-contents"></a>Table of Contents
 
-- [vago](#vago)
-	- [Modules](#modules)
-	- [Table of Contents](#table-of-contents)
-	- [🪄 Fp](#-fp)
-		- [Functions](#functions)
-			- [fp Err](#fp-err)
-			- [fp None](#fp-none)
-			- [fp Ok](#fp-ok)
-			- [fp OkZero](#fp-okzero)
-			- [fp Option](#fp-option)
-			- [fp OptionFromPtr](#fp-optionfromptr)
-			- [fp OptionFromTuple](#fp-optionfromtuple)
-			- [fp Option\_Map](#fp-option_map)
-			- [fp Option\_Match](#fp-option_match)
-			- [fp Option\_Or](#fp-option_or)
-			- [fp Result](#fp-result)
-			- [fp Result\_Map](#fp-result_map)
-			- [fp Result\_Match](#fp-result_match)
-			- [fp Result\_Or](#fp-result_or)
-			- [fp Some](#fp-some)
-	- [🗝️ Maps](#️-maps)
-		- [Functions](#functions-1)
-			- [maps Equals](#maps-equals)
-			- [maps Filter](#maps-filter)
-			- [maps FilterMap](#maps-filtermap)
-			- [maps FilterMapTuple](#maps-filtermaptuple)
-			- [maps Fold](#maps-fold)
-			- [maps Map](#maps-map)
-			- [maps Reduce](#maps-reduce)
-			- [maps Slice](#maps-slice)
-	- [⛓️ Slices](#️-slices)
-		- [Functions](#functions-2)
-			- [slices All](#slices-all)
-			- [slices Contains](#slices-contains)
-			- [slices Filter](#slices-filter)
-			- [slices FilterMap](#slices-filtermap)
-			- [slices Find](#slices-find)
-			- [slices Fold](#slices-fold)
-			- [slices Map](#slices-map)
-			- [slices Reduce](#slices-reduce)
-			- [slices Some](#slices-some)
-			- [slices ToMap](#slices-tomap)
-	- [🌊 Streams](#-streams)
-		- [Functions](#functions-3)
-			- [streams Batch](#streams-batch)
-			- [streams CSV](#streams-csv)
-			- [streams Compact](#streams-compact)
-			- [streams ConsumeErrSkip](#streams-consumeerrskip)
-			- [streams Filter](#streams-filter)
-			- [streams FilterMap](#streams-filtermap)
-			- [streams Flatten](#streams-flatten)
-			- [streams JSON](#streams-json)
-			- [streams Lines](#streams-lines)
-			- [streams Map](#streams-map)
-			- [streams MemWriter](#streams-memwriter)
-			- [streams Multicast](#streams-multicast)
-			- [streams Pipe](#streams-pipe)
-			- [streams Reader](#streams-reader)
-			- [streams Reduce](#streams-reduce)
-			- [streams ReduceMap](#streams-reducemap)
-			- [streams ReduceSlice](#streams-reduceslice)
-			- [streams WriteAll](#streams-writeall)
+- [🪄 Fp](#fp)
+  - [Err](#fp-err)
+  - [None](#fp-none)
+  - [Ok](#fp-ok)
+  - [OkZero](#fp-okzero)
+  - [Option](#fp-option)
+  - [OptionFromPtr](#fp-optionfromptr)
+  - [OptionFromTuple](#fp-optionfromtuple)
+  - [Option_Map](#fp-option_map)
+  - [Option_Match](#fp-option_match)
+  - [Option_Or](#fp-option_or)
+  - [Result](#fp-result)
+  - [Result_Map](#fp-result_map)
+  - [Result_Match](#fp-result_match)
+  - [Result_Or](#fp-result_or)
+  - [Some](#fp-some)
+- [🗝️ Maps](#maps)
+  - [Equals](#maps-equals)
+  - [Filter](#maps-filter)
+  - [FilterMap](#maps-filtermap)
+  - [FilterMapTuple](#maps-filtermaptuple)
+  - [Fold](#maps-fold)
+  - [Map](#maps-map)
+  - [Reduce](#maps-reduce)
+  - [Slice](#maps-slice)
+- [⛓️ Slices](#slices)
+  - [All](#slices-all)
+  - [Contains](#slices-contains)
+  - [Filter](#slices-filter)
+  - [FilterMap](#slices-filtermap)
+  - [Find](#slices-find)
+  - [Fold](#slices-fold)
+  - [Map](#slices-map)
+  - [Reduce](#slices-reduce)
+  - [Some](#slices-some)
+  - [ToMap](#slices-tomap)
+- [🌊 Streams](#streams)
+  - [Batch](#streams-batch)
+  - [CSV](#streams-csv)
+  - [CSVTransform](#streams-csvtransform)
+  - [CSVTransform_tabSeparated](#streams-csvtransform_tabseparated)
+  - [Compact](#streams-compact)
+  - [ConsumeErrSkip](#streams-consumeerrskip)
+  - [Filter](#streams-filter)
+  - [FilterMap](#streams-filtermap)
+  - [Flatten](#streams-flatten)
+  - [JSON](#streams-json)
+  - [JSONEachRowTransform](#streams-jsoneachrowtransform)
+  - [JSONTransform](#streams-jsontransform)
+  - [Lines](#streams-lines)
+  - [Map](#streams-map)
+  - [MemWriter](#streams-memwriter)
+  - [Multicast](#streams-multicast)
+  - [Pipe](#streams-pipe)
+  - [PipeCSV](#streams-pipecsv)
+  - [PipeJSON](#streams-pipejson)
+  - [PipeJSONEachRow](#streams-pipejsoneachrow)
+  - [Reader](#streams-reader)
+  - [Reduce](#streams-reduce)
+  - [ReduceMap](#streams-reducemap)
+  - [ReduceSlice](#streams-reduceslice)
+  - [WriteAll](#streams-writeall)
 
 ## <a name="fp"></a>🪄 Fp
 
@@ -1227,17 +1227,24 @@ Powerful data streaming and processing utilities with fluent API for functional 
 
 - [Batch](#streams-batch)
 - [CSV](#streams-csv)
+- [CSVTransform](#streams-csvtransform)
+- [CSVTransform_tabSeparated](#streams-csvtransform_tabseparated)
 - [Compact](#streams-compact)
 - [ConsumeErrSkip](#streams-consumeerrskip)
 - [Filter](#streams-filter)
 - [FilterMap](#streams-filtermap)
 - [Flatten](#streams-flatten)
 - [JSON](#streams-json)
+- [JSONEachRowTransform](#streams-jsoneachrowtransform)
+- [JSONTransform](#streams-jsontransform)
 - [Lines](#streams-lines)
 - [Map](#streams-map)
 - [MemWriter](#streams-memwriter)
 - [Multicast](#streams-multicast)
 - [Pipe](#streams-pipe)
+- [PipeCSV](#streams-pipecsv)
+- [PipeJSON](#streams-pipejson)
+- [PipeJSONEachRow](#streams-pipejsoneachrow)
 - [Reader](#streams-reader)
 - [Reduce](#streams-reduce)
 - [ReduceMap](#streams-reducemap)
@@ -1307,6 +1314,75 @@ func ExampleCSV() {
 	// Row 2: [Alice 25 NYC]
 	// Row 3: [Bob 30 LA]
 	// Row 4: [Charlie 35 Chicago]
+}
+```
+
+</details>
+
+
+---
+
+#### streams CSVTransform
+
+ExampleCSVTransform demonstrates converting a stream to CSV format.
+
+
+<details><summary>Code</summary>
+
+```go
+func ExampleCSVTransform() {
+	// Create a stream of employees
+	employees := []Employee{
+		{ID: 1, Name: "Alice Johnson", Department: "Engineering", Salary: 75000.00},
+		{ID: 2, Name: "Bob Smith", Department: "Marketing", Salary: 65000.00},
+		{ID: 3, Name: "Charlie Brown", Department: "Engineering", Salary: 80000.00},
+	}
+	stream := MemReader(employees, nil)
+
+	// Transform to CSV with comma separator
+	transform := CSVTransform(stream, CSVSeparatorComma)
+	transform.WriteTo(os.Stdout)
+
+	// Output:
+	// ID,Name,Department,Salary
+	// 1,Alice Johnson,Engineering,75000.00
+	// 2,Bob Smith,Marketing,65000.00
+	// 3,Charlie Brown,Engineering,80000.00
+}
+```
+
+</details>
+
+
+---
+
+#### streams CSVTransform_tabSeparated
+
+ExampleCSVTransform_tabSeparated demonstrates CSV with tab separator.
+
+
+<details><summary>Code</summary>
+
+```go
+func ExampleCSVTransform_tabSeparated() {
+
+	// Create a stream of products
+	products := []ProductCSV{
+		{SKU: "LAPTOP-001", Name: "Gaming Laptop", Price: 1299.99},
+		{SKU: "MOUSE-002", Name: "Wireless Mouse", Price: 49.99},
+		{SKU: "KEYBOARD-003", Name: "Mechanical Keyboard", Price: 129.99},
+	}
+	stream := MemReader(products, nil)
+
+	// Transform to CSV with tab separator
+	transform := CSVTransform(stream, CSVSeparatorTab)
+	transform.WriteTo(os.Stdout)
+
+	// Output:
+	// SKU	Product Name	Price
+	// LAPTOP-001	Gaming Laptop	$1299.99
+	// MOUSE-002	Wireless Mouse	$49.99
+	// KEYBOARD-003	Mechanical Keyboard	$129.99
 }
 ```
 
@@ -1531,6 +1607,83 @@ func ExampleJSON() {
 
 ---
 
+#### streams JSONEachRowTransform
+
+ExampleJSONEachRowTransform demonstrates converting a stream to JSON lines format.
+
+
+<details><summary>Code</summary>
+
+```go
+func ExampleJSONEachRowTransform() {
+	// Define a simple structure for demonstration
+	type LogEntry struct {
+		Timestamp string `json:"timestamp"`
+		Level     string `json:"level"`
+		Message   string `json:"message"`
+	}
+
+	// Create a stream of log entries
+	logs := []LogEntry{
+		{Timestamp: "2025-06-28T10:00:00Z", Level: "INFO", Message: "Application started"},
+		{Timestamp: "2025-06-28T10:01:00Z", Level: "WARN", Message: "High memory usage detected"},
+		{Timestamp: "2025-06-28T10:02:00Z", Level: "ERROR", Message: "Database connection failed"},
+	}
+	stream := MemReader(logs, nil)
+
+	// Transform to JSON lines format and write to stdout
+	transform := JSONEachRowTransform(stream)
+	transform.WriteTo(os.Stdout)
+
+	// Output:
+	// {"timestamp":"2025-06-28T10:00:00Z","level":"INFO","message":"Application started"}
+	// {"timestamp":"2025-06-28T10:01:00Z","level":"WARN","message":"High memory usage detected"}
+	// {"timestamp":"2025-06-28T10:02:00Z","level":"ERROR","message":"Database connection failed"}
+}
+```
+
+</details>
+
+
+---
+
+#### streams JSONTransform
+
+ExampleJSONTransform demonstrates converting a stream to JSON array format.
+
+
+<details><summary>Code</summary>
+
+```go
+func ExampleJSONTransform() {
+	// Define a simple structure for demonstration
+	type Person struct {
+		ID   int    `json:"id"`
+		Name string `json:"name"`
+	}
+
+	// Create a stream from a slice of persons
+	people := []Person{
+		{ID: 1, Name: "Alice"},
+		{ID: 2, Name: "Bob"},
+		{ID: 3, Name: "Charlie"},
+	}
+	stream := MemReader(people, nil)
+
+	// Transform to JSON and write to stdout
+	transform := JSONTransform(stream)
+	transform.WriteTo(os.Stdout)
+
+	// Output:
+	// [{"id":1,"name":"Alice"},{"id":2,"name":"Bob"},{"id":3,"name":"Charlie"}]
+}
+```
+
+</details>
+
+
+---
+
 #### streams Lines
 
 ExampleLines demonstrates reading lines from a string.
@@ -1689,6 +1842,130 @@ func ExamplePipe() {
 	// Output:
 	// Items written: 4
 	// Items: [hello world from streams]
+}
+```
+
+</details>
+
+
+---
+
+#### streams PipeCSV
+
+ExamplePipeCSV demonstrates using the PipeCSV convenience function.
+
+
+<details><summary>Code</summary>
+
+```go
+func ExamplePipeCSV() {
+	// Create a stream of employees
+	employees := []Employee{
+		{ID: 101, Name: "Diana Prince", Department: "Legal", Salary: 90000.00},
+		{ID: 102, Name: "Clark Kent", Department: "Journalism", Salary: 55000.00},
+	}
+	stream := MemReader(employees, nil)
+
+	// Use PipeCSV to write directly to stdout with comma separator
+	rowsWritten, err := PipeCSV(stream, os.Stdout, CSVSeparatorComma)
+	if err != nil {
+		fmt.Printf("Error: %v\n", err)
+		return
+	}
+	fmt.Printf("Rows written: %d\n", rowsWritten)
+
+	// Output:
+	// ID,Name,Department,Salary
+	// 101,Diana Prince,Legal,90000.00
+	// 102,Clark Kent,Journalism,55000.00
+	// Rows written: 3
+}
+```
+
+</details>
+
+
+---
+
+#### streams PipeJSON
+
+ExamplePipeJSON demonstrates using the PipeJSON convenience function.
+
+
+<details><summary>Code</summary>
+
+```go
+func ExamplePipeJSON() {
+	// Define a simple structure
+	type Product struct {
+		ID    int     `json:"id"`
+		Name  string  `json:"name"`
+		Price float64 `json:"price"`
+	}
+
+	// Create a stream of products
+	products := []Product{
+		{ID: 1, Name: "Laptop", Price: 999.99},
+		{ID: 2, Name: "Mouse", Price: 29.99},
+	}
+	stream := MemReader(products, nil)
+
+	// Use PipeJSON to write directly to stdout
+	bytesWritten, err := PipeJSON(stream, os.Stdout)
+	if err != nil {
+		fmt.Printf("Error: %v\n", err)
+		return
+	}
+	fmt.Printf("\nBytes written: %d\n", bytesWritten)
+
+	// Output:
+	// [{"id":1,"name":"Laptop","price":999.99},{"id":2,"name":"Mouse","price":29.99}]
+	// Bytes written: 79
+}
+```
+
+</details>
+
+
+---
+
+#### streams PipeJSONEachRow
+
+ExamplePipeJSONEachRow demonstrates using the PipeJSONEachRow convenience function.
+
+
+<details><summary>Code</summary>
+
+```go
+func ExamplePipeJSONEachRow() {
+	// Define a simple metric structure
+	type Metric struct {
+		Name  string  `json:"name"`
+		Value float64 `json:"value"`
+		Unit  string  `json:"unit"`
+	}
+
+	// Create a stream of metrics
+	metrics := []Metric{
+		{Name: "cpu_usage", Value: 85.5, Unit: "percent"},
+		{Name: "memory_usage", Value: 1024, Unit: "MB"},
+		{Name: "disk_usage", Value: 75.2, Unit: "percent"},
+	}
+	stream := MemReader(metrics, nil)
+
+	// Use PipeJSONEachRow to write to stdout
+	bytesWritten, err := PipeJSONEachRow(stream, os.Stdout)
+	if err != nil {
+		fmt.Printf("Error: %v\n", err)
+		return
+	}
+	fmt.Printf("Bytes written: %d\n", bytesWritten)
+
+	// Output:
+	// {"name":"cpu_usage","value":85.5,"unit":"percent"}
+	// {"name":"memory_usage","value":1024,"unit":"MB"}
+	// {"name":"disk_usage","value":75.2,"unit":"percent"}
+	// Bytes written: 152
 }
 ```
 

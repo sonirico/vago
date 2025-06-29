@@ -151,6 +151,18 @@ func (s Slice[T]) Fold(predicate func(x, y T) T, initial T) T {
 	return FoldSame(s, predicate, initial)
 }
 
+func (s Slice[T]) Copy() Slice[T] {
+	// Copy creates a shallow copy of the slice.
+	// Returns a new slice with the same elements.
+	if s == nil {
+		return nil
+	}
+
+	res := make([]T, len(s))
+	copy(res, s)
+	return res
+}
+
 // Equals compares two slices and returns whether they contain equal elements.
 // Two slices are considered equal if they have the same length and corresponding
 // elements satisfy the equality function.
@@ -617,4 +629,16 @@ func InsertVector[T any](arr, items []T, idx int) (res []T) {
 	}
 
 	return append(arr[:idx], append(items, arr[idx:]...)...)
+}
+
+// Copy creates a shallow copy of the slice.
+// Returns a new slice with the same elements.
+func Copy[T any](arr []T) []T {
+	if arr == nil {
+		return nil
+	}
+
+	res := make([]T, len(arr))
+	copy(res, arr)
+	return res
 }
