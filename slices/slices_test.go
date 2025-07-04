@@ -1490,3 +1490,40 @@ func ExampleInsertVector() {
 	// Output:
 	// After inserting [3, 4] at index 2: [1 2 3 4 5 6]
 }
+
+func ExampleForEach() {
+	numbers := []int{1, 2, 3, 4, 5}
+
+	// Print each number
+	ForEach(numbers, func(n int) {
+		fmt.Println(n)
+	})
+
+	// Output:
+	// 1
+	// 2
+	// 3
+	// 4
+	// 5
+}
+func ExampleRange() {
+	// Create a slice of numbers from 1 to 5
+	numbers := []int{1, 2, 3, 4, 5}
+
+	Range(numbers, func(n int, idx int) bool {
+		// This function is called for each number
+		// Returning true continues the iteration
+		fmt.Println(idx, n)
+		if n == 5 {
+			return false // Stop after printing 5
+		}
+		return true
+	})
+
+	// Output:
+	// 0 1
+	// 1 2
+	// 2 3
+	// 3 4
+	// 4 5
+}
