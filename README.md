@@ -14,14 +14,28 @@
 
 📖 **[View full documentation and examples on pkg.go.dev →](https://pkg.go.dev/github.com/sonirico/vago)**
 
+## ✨ Workspace Architecture
+
+This project leverages Go workspaces to provide **isolated dependencies** for each module. This means:
+
+- 🎯 **Lightweight imports**: When you import `fp` or `streams`, you won't download database drivers or logging dependencies
+- 🔧 **Modular design**: Each module (`db`, `lol`, `num`) maintains its own `go.mod` with specific dependencies
+- 📦 **Zero bloat**: Use only what you need without carrying unnecessary dependencies
+- 🚀 **Fast builds**: Smaller dependency graphs lead to faster compilation and smaller binaries
+
+**Example**: Importing `github.com/sonirico/vago/fp` will only pull functional programming utilities, not database connections or logging frameworks.
+
 ## Modules
 
 ## <a name="table-of-contents"></a>Table of Contents
 
 - [🪄 Fp](#fp) - 15 functions
+- [📝 Lol](#lol) - 6 functions
 - [🗝️ Maps](#maps) - 8 functions
+- [🔢 Num](#num) - 14 functions
 - [⛓️ Slices](#slices) - 10 functions
 - [🌊 Streams](#streams) - 26 functions
+- [🔞 Zero](#zero) - 3 functions
 
 ## <a name="fp"></a>🪄 Fp
 
@@ -578,6 +592,323 @@ func ExampleSome() {
 
 <br/>
 
+## <a name="lol"></a>📝 Lol
+
+Package lol (lots of logs) provides a unified logging interface with multiple backends.
+
+This package offers a simple, structured logging interface that can be backed by
+different logging implementations. Currently it supports zerolog as the primary backend.
+
+Key features:
+- Structured logging with fields
+- Multiple log levels (trace, debug, info, warn, error, fatal, panic)
+- APM trace context integration
+- Environment-aware configuration
+- Testing utilities
+
+Basic usage:
+
+	logger := lol.NewZerologLogger(
+		lol.Fields{"service": "myapp"},
+		"production",
+		"info",
+		os.Stdout,
+		lol.APMConfig{Enabled: true},
+	)
+
+	logger.Info("Application started")
+	logger.WithField("user_id", 123).Warn("User action")
+
+For testing:
+
+	testLogger := lol.NewTest()
+	testLogger.Error("This won't be printed")
+
+
+### Functions
+
+- [Logger_LogLevels](#lol-logger_loglevels)
+- [Logger_WithField](#lol-logger_withfield)
+- [NewTest](#lol-newtest)
+- [NewZerologLogger](#lol-newzerologlogger)
+- [ParseEnv](#lol-parseenv)
+- [ParseLevel](#lol-parselevel)
+
+#### lol Logger_LogLevels
+
+ExampleLogger_LogLevels demonstrates different log levels
+
+
+<details><summary>Code</summary>
+
+```go
+func ExampleLogger_LogLevels() {
+	var buf bytes.Buffer
+
+	logger := NewZerologLogger(
+		Fields{"component": "auth"},
+		"development",
+		"trace", // Set to trace level to see all messages
+		&buf,
+		APMConfig{Enabled: false},
+	)
+
+	// Log at different levels
+	logger.Trace("Entering authentication function")
+	logger.Debug("Validating user credentials")
+	logger.Info("User authentication successful")
+	logger.Warn("Rate limit approaching")
+	logger.Error("Authentication failed")
+
+	output := buf.String()
+	fmt.Printf(
+		"Contains trace message: %t\n",
+		bytes.Contains([]byte(output), []byte("Entering authentication")),
+	)
+	fmt.Printf(
+		"Contains debug message: %t\n",
+		bytes.Contains([]byte(output), []byte("Validating user")),
+	)
+	fmt.Printf(
+		"Contains info message: %t\n",
+		bytes.Contains([]byte(output), []byte("authentication successful")),
+	)
+	fmt.Printf("Contains warn message: %t\n", bytes.Contains([]byte(output), []byte("Rate limit")))
+	fmt.Printf(
+		"Contains error message: %t\n",
+		bytes.Contains([]byte(output), []byte("Authentication failed")),
+	)
+
+	// Output:
+	// Contains trace message: true
+	// Contains debug message: true
+	// Contains info message: true
+	// Contains warn message: true
+	// Contains error message: true
+}
+```
+
+</details>
+
+
+[⬆️ Back to Top](#table-of-contents)
+
+---
+
+#### lol Logger_WithField
+
+ExampleLogger_WithField demonstrates adding contextual fields to log messages
+
+
+<details><summary>Code</summary>
+
+```go
+func ExampleLogger_WithField() {
+	var buf bytes.Buffer
+
+	logger := NewZerologLogger(
+		Fields{"app": "demo"},
+		"development",
+		"debug",
+		&buf,
+		APMConfig{Enabled: false},
+	)
+
+	// Chain multiple fields
+	enrichedLogger := logger.WithField("request_id", "req-123").
+		WithField("user_agent", "test-client")
+	enrichedLogger.Info("Processing request")
+
+	// Add more context
+	enrichedLogger.WithField("duration_ms", 45).Info("Request completed")
+
+	output := buf.String()
+	fmt.Printf(
+		"Output contains 'request_id': %t\n",
+		bytes.Contains([]byte(output), []byte("request_id")),
+	)
+	fmt.Printf(
+		"Output contains 'user_agent': %t\n",
+		bytes.Contains([]byte(output), []byte("user_agent")),
+	)
+	fmt.Printf(
+		"Output contains 'duration_ms': %t\n",
+		bytes.Contains([]byte(output), []byte("duration_ms")),
+	)
+
+	// Output:
+	// Output contains 'request_id': true
+	// Output contains 'user_agent': true
+	// Output contains 'duration_ms': true
+}
+```
+
+</details>
+
+
+[⬆️ Back to Top](#table-of-contents)
+
+---
+
+#### lol NewTest
+
+ExampleNewTest demonstrates creating a test logger that doesn't output anything
+
+
+<details><summary>Code</summary>
+
+```go
+func ExampleNewTest() {
+	// Create a test logger for unit tests
+	testLogger := NewTest()
+
+	// These messages won't be printed to stdout/stderr
+	testLogger.Info("This is a test message")
+	testLogger.Error("This error won't be shown")
+	testLogger.WithField("test_field", "test_value").Debug("Debug message")
+
+	fmt.Println("Test logger created successfully")
+	fmt.Println("Messages logged silently for testing")
+
+	// Output:
+	// Test logger created successfully
+	// Messages logged silently for testing
+}
+```
+
+</details>
+
+
+[⬆️ Back to Top](#table-of-contents)
+
+---
+
+#### lol NewZerologLogger
+
+ExampleNewZerologLogger demonstrates creating a structured logger with zerolog backend
+
+
+<details><summary>Code</summary>
+
+```go
+func ExampleNewZerologLogger() {
+	// Create a logger with custom fields and configuration
+	var buf bytes.Buffer
+
+	logger := NewZerologLogger(
+		Fields{"service": "example-app", "version": "1.0.0"},
+		"production",
+		"info",
+		&buf,
+		APMConfig{Enabled: false}, // Disable APM for this example
+	)
+
+	// Log some messages
+	logger.Info("Application started successfully")
+	logger.WithField("user_id", 123).WithField("action", "login").Info("User logged in")
+	logger.Warn("This is a warning message")
+
+	fmt.Printf(
+		"Logged output contains 'Application started': %t\n",
+		bytes.Contains(buf.Bytes(), []byte("Application started")),
+	)
+	fmt.Printf(
+		"Logged output contains 'user_id': %t\n",
+		bytes.Contains(buf.Bytes(), []byte("user_id")),
+	)
+	fmt.Printf(
+		"Logged output contains 'service': %t\n",
+		bytes.Contains(buf.Bytes(), []byte("service")),
+	)
+
+	// Output:
+	// Logged output contains 'Application started': true
+	// Logged output contains 'user_id': true
+	// Logged output contains 'service': true
+}
+```
+
+</details>
+
+
+[⬆️ Back to Top](#table-of-contents)
+
+---
+
+#### lol ParseEnv
+
+ExampleParseEnv demonstrates parsing environment strings
+
+
+<details><summary>Code</summary>
+
+```go
+func ExampleParseEnv() {
+	// Parse different environments
+	envs := []string{"test", "local", "development", "staging", "production"}
+
+	for _, envStr := range envs {
+		env := ParseEnv(envStr)
+		fmt.Printf("Environment '%s' parsed as: %d\n", envStr, env)
+	}
+
+	// Output:
+	// Environment 'test' parsed as: 0
+	// Environment 'local' parsed as: 1
+	// Environment 'development' parsed as: 2
+	// Environment 'staging' parsed as: 3
+	// Environment 'production' parsed as: 4
+}
+```
+
+</details>
+
+
+[⬆️ Back to Top](#table-of-contents)
+
+---
+
+#### lol ParseLevel
+
+ExampleParseLevel demonstrates parsing log levels from strings
+
+
+<details><summary>Code</summary>
+
+```go
+func ExampleParseLevel() {
+	// Parse different log levels
+	levels := []string{"trace", "debug", "info", "warn", "error", "fatal", "panic"}
+
+	for _, levelStr := range levels {
+		level := ParseLevel(levelStr)
+		fmt.Printf("Level '%s' parsed as: %d\n", levelStr, level)
+	}
+
+	// Output:
+	// Level 'trace' parsed as: 6
+	// Level 'debug' parsed as: 5
+	// Level 'info' parsed as: 4
+	// Level 'warn' parsed as: 3
+	// Level 'error' parsed as: 2
+	// Level 'fatal' parsed as: 1
+	// Level 'panic' parsed as: 0
+}
+```
+
+</details>
+
+
+[⬆️ Back to Top](#table-of-contents)
+
+---
+
+
+[⬆️ Back to Top](#table-of-contents)
+
+
+<br/>
+
 ## <a name="maps"></a>🗝️ Maps
 
 Package maps provides generic utility functions to work with Go maps.
@@ -872,6 +1203,502 @@ func ExampleSlice() {
 	// Note: map iteration order is not guaranteed
 	// Output:
 	// Users count: 3
+}
+```
+
+</details>
+
+
+[⬆️ Back to Top](#table-of-contents)
+
+---
+
+
+[⬆️ Back to Top](#table-of-contents)
+
+
+<br/>
+
+## <a name="num"></a>🔢 Num
+
+Numeric utilities including high-precision decimal operations.
+
+### Functions
+
+- [Abs](#num-abs)
+- [Dec_Add](#num-dec_add)
+- [Dec_Compare](#num-dec_compare)
+- [Dec_Div](#num-dec_div)
+- [Dec_IsZero](#num-dec_iszero)
+- [Dec_Mul](#num-dec_mul)
+- [Dec_Percent](#num-dec_percent)
+- [Dec_Round](#num-dec_round)
+- [Dec_Sub](#num-dec_sub)
+- [MustDecFromAny](#num-mustdecfromany)
+- [MustDecFromString](#num-mustdecfromstring)
+- [NewDecFromFloat](#num-newdecfromfloat)
+- [NewDecFromInt](#num-newdecfromint)
+- [NewDecFromString](#num-newdecfromstring)
+
+#### num Abs
+
+ExampleAbs demonstrates absolute value calculation
+
+
+<details><summary>Code</summary>
+
+```go
+func ExampleAbs() {
+	// Calculate absolute values for different types
+	intVal := -42
+	floatVal := -3.14
+
+	absInt := Abs(intVal)
+	absFloat := Abs(floatVal)
+
+	fmt.Printf("Original int: %d, Absolute: %d\n", intVal, absInt)
+	fmt.Printf("Original float: %.2f, Absolute: %.2f\n", floatVal, absFloat)
+
+	// Output:
+	// Original int: -42, Absolute: 42
+	// Original float: -3.14, Absolute: 3.14
+}
+```
+
+</details>
+
+
+[⬆️ Back to Top](#table-of-contents)
+
+---
+
+#### num Dec_Add
+
+ExampleDec_Add demonstrates decimal addition
+
+
+<details><summary>Code</summary>
+
+```go
+func ExampleDec_Add() {
+	// Perform decimal addition
+	price1 := MustDecFromString("123.45")
+	price2 := MustDecFromString("67.89")
+
+	total := price1.Add(price2)
+
+	fmt.Printf("Price 1: %s\n", price1.String())
+	fmt.Printf("Price 2: %s\n", price2.String())
+	fmt.Printf("Total: %s\n", total.String())
+
+	// Output:
+	// Price 1: 123.45
+	// Price 2: 67.89
+	// Total: 191.34
+}
+```
+
+</details>
+
+
+[⬆️ Back to Top](#table-of-contents)
+
+---
+
+#### num Dec_Compare
+
+ExampleDec_Compare demonstrates decimal comparison
+
+
+<details><summary>Code</summary>
+
+```go
+func ExampleDec_Compare() {
+	// Compare decimal values
+	price1 := MustDecFromString("99.99")
+	price2 := MustDecFromString("100.00")
+	price3 := MustDecFromString("99.99")
+
+	fmt.Printf("Price 1: %s\n", price1.String())
+	fmt.Printf("Price 2: %s\n", price2.String())
+	fmt.Printf("Price 3: %s\n", price3.String())
+
+	fmt.Printf("Price 1 < Price 2: %t\n", price1.LessThan(price2))
+	fmt.Printf("Price 1 > Price 2: %t\n", price1.GreaterThan(price2))
+	fmt.Printf("Price 1 == Price 3: %t\n", price1.Equal(price3))
+	fmt.Printf("Price 1 <= Price 2: %t\n", price1.LessThanOrEqual(price2))
+
+	// Output:
+	// Price 1: 99.99
+	// Price 2: 100
+	// Price 3: 99.99
+	// Price 1 < Price 2: true
+	// Price 1 > Price 2: false
+	// Price 1 == Price 3: true
+	// Price 1 <= Price 2: true
+}
+```
+
+</details>
+
+
+[⬆️ Back to Top](#table-of-contents)
+
+---
+
+#### num Dec_Div
+
+ExampleDec_Div demonstrates decimal division
+
+
+<details><summary>Code</summary>
+
+```go
+func ExampleDec_Div() {
+	// Calculate unit price
+	totalCost := MustDecFromString("127.50")
+	quantity := MustDecFromString("25")
+
+	unitPrice := totalCost.Div(quantity)
+
+	fmt.Printf("Total cost: %s\n", totalCost.String())
+	fmt.Printf("Quantity: %s\n", quantity.String())
+	fmt.Printf("Unit price: %s\n", unitPrice.String())
+
+	// Output:
+	// Total cost: 127.5
+	// Quantity: 25
+	// Unit price: 5.1
+}
+```
+
+</details>
+
+
+[⬆️ Back to Top](#table-of-contents)
+
+---
+
+#### num Dec_IsZero
+
+ExampleDec_IsZero demonstrates zero checking
+
+
+<details><summary>Code</summary>
+
+```go
+func ExampleDec_IsZero() {
+	// Check if decimal is zero
+	zero := Zero
+	nonZero := MustDecFromString("0.01")
+	alsoZero := MustDecFromString("0.00")
+
+	fmt.Printf("Zero value: %s, IsZero: %t\n", zero.String(), zero.IsZero())
+	fmt.Printf("Non-zero value: %s, IsZero: %t\n", nonZero.String(), nonZero.IsZero())
+	fmt.Printf("Also zero: %s, IsZero: %t\n", alsoZero.String(), alsoZero.IsZero())
+
+	// Output:
+	// Zero value: 0, IsZero: true
+	// Non-zero value: 0.01, IsZero: false
+	// Also zero: 0, IsZero: true
+}
+```
+
+</details>
+
+
+[⬆️ Back to Top](#table-of-contents)
+
+---
+
+#### num Dec_Mul
+
+ExampleDec_Mul demonstrates decimal multiplication
+
+
+<details><summary>Code</summary>
+
+```go
+func ExampleDec_Mul() {
+	// Calculate area
+	length := MustDecFromString("12.5")
+	width := MustDecFromString("8.4")
+
+	area := length.Mul(width)
+
+	fmt.Printf("Length: %s\n", length.String())
+	fmt.Printf("Width: %s\n", width.String())
+	fmt.Printf("Area: %s\n", area.String())
+
+	// Output:
+	// Length: 12.5
+	// Width: 8.4
+	// Area: 105
+}
+```
+
+</details>
+
+
+[⬆️ Back to Top](#table-of-contents)
+
+---
+
+#### num Dec_Percent
+
+ExampleDec_Percent demonstrates percentage calculations
+
+
+<details><summary>Code</summary>
+
+```go
+func ExampleDec_Percent() {
+	// Calculate percentage
+	value := MustDecFromString("850.00")
+	percentage := MustDecFromString("15") // 15%
+
+	percentValue := value.ApplyPercent(percentage)
+	finalValue := value.AddPercent(percentage)
+
+	fmt.Printf("Original value: %s\n", value.String())
+	fmt.Printf("Percentage: %s%%\n", percentage.String())
+	fmt.Printf("Percentage amount: %s\n", percentValue.String())
+	fmt.Printf("Final value (with percentage): %s\n", finalValue.String())
+
+	// Output:
+	// Original value: 850
+	// Percentage: 15%
+	// Percentage amount: 127.5
+	// Final value (with percentage): 977.5
+}
+```
+
+</details>
+
+
+[⬆️ Back to Top](#table-of-contents)
+
+---
+
+#### num Dec_Round
+
+ExampleDec_Round demonstrates decimal rounding
+
+
+<details><summary>Code</summary>
+
+```go
+func ExampleDec_Round() {
+	// Round to different precision levels
+	value := MustDecFromString("123.456789")
+
+	rounded2 := value.RoundTo(2)
+	rounded4 := value.RoundTo(4)
+	rounded0 := value.RoundTo(0)
+
+	fmt.Printf("Original: %s\n", value.String())
+	fmt.Printf("Rounded to 2 decimals: %s\n", rounded2.String())
+	fmt.Printf("Rounded to 4 decimals: %s\n", rounded4.String())
+	fmt.Printf("Rounded to 0 decimals: %s\n", rounded0.String())
+
+	// Output:
+	// Original: 123.456789
+	// Rounded to 2 decimals: 123.46
+	// Rounded to 4 decimals: 123.4568
+	// Rounded to 0 decimals: 123
+}
+```
+
+</details>
+
+
+[⬆️ Back to Top](#table-of-contents)
+
+---
+
+#### num Dec_Sub
+
+ExampleDec_Sub demonstrates decimal subtraction
+
+
+<details><summary>Code</summary>
+
+```go
+func ExampleDec_Sub() {
+	// Perform decimal subtraction
+	balance := MustDecFromString("1000.00")
+	withdrawal := MustDecFromString("750.25")
+
+	remaining := balance.Sub(withdrawal)
+
+	fmt.Printf("Initial balance: %s\n", balance.String())
+	fmt.Printf("Withdrawal: %s\n", withdrawal.String())
+	fmt.Printf("Remaining: %s\n", remaining.String())
+
+	// Output:
+	// Initial balance: 1000
+	// Withdrawal: 750.25
+	// Remaining: 249.75
+}
+```
+
+</details>
+
+
+[⬆️ Back to Top](#table-of-contents)
+
+---
+
+#### num MustDecFromAny
+
+ExampleMustDecFromAny demonstrates creating a decimal from any supported type
+
+
+<details><summary>Code</summary>
+
+```go
+func ExampleMustDecFromAny() {
+	// Create decimals from different types
+	fromInt := MustDecFromAny(100)
+	fromFloat := MustDecFromAny(3.14159)
+	fromString := MustDecFromAny("42.42")
+
+	fmt.Printf("From int: %s\n", fromInt.String())
+	fmt.Printf("From float: %s\n", fromFloat.String())
+	fmt.Printf("From string: %s\n", fromString.String())
+
+	// Output:
+	// From int: 100
+	// From float: 3.14159
+	// From string: 42.42
+}
+```
+
+</details>
+
+
+[⬆️ Back to Top](#table-of-contents)
+
+---
+
+#### num MustDecFromString
+
+ExampleMustDecFromString demonstrates creating a decimal from a string (panics on error)
+
+
+<details><summary>Code</summary>
+
+```go
+func ExampleMustDecFromString() {
+	// Create decimal from valid string
+	price := MustDecFromString("999.99")
+
+	fmt.Printf("Price: %s\n", price.String())
+	if f, ok := price.Float64(); ok {
+		fmt.Printf("As float: %.2f\n", f)
+	}
+
+	// Output:
+	// Price: 999.99
+}
+```
+
+</details>
+
+
+[⬆️ Back to Top](#table-of-contents)
+
+---
+
+#### num NewDecFromFloat
+
+ExampleNewDecFromFloat demonstrates creating a decimal from a float
+
+
+<details><summary>Code</summary>
+
+```go
+func ExampleNewDecFromFloat() {
+	// Create decimal from float
+	temperature := NewDecFromFloat(36.5)
+
+	fmt.Printf("Temperature: %s\n", temperature.String())
+	if f, ok := temperature.Float64(); ok {
+		fmt.Printf("As float: %.1f\n", f)
+	}
+	fmt.Printf("Number of decimals: %d\n", temperature.NumberOfDecimals())
+
+	// Output:
+	// Temperature: 36.5
+	// As float: 36.5
+	// Number of decimals: 1
+}
+```
+
+</details>
+
+
+[⬆️ Back to Top](#table-of-contents)
+
+---
+
+#### num NewDecFromInt
+
+ExampleNewDecFromInt demonstrates creating a decimal from an integer
+
+
+<details><summary>Code</summary>
+
+```go
+func ExampleNewDecFromInt() {
+	// Create decimal from integer
+	quantity := NewDecFromInt(42)
+
+	fmt.Printf("Quantity: %s\n", quantity.String())
+	fmt.Printf("As int: %d\n", quantity.IntPart())
+	fmt.Printf("Is zero: %t\n", quantity.IsZero())
+
+	// Output:
+	// Quantity: 42
+	// As int: 42
+	// Is zero: false
+}
+```
+
+</details>
+
+
+[⬆️ Back to Top](#table-of-contents)
+
+---
+
+#### num NewDecFromString
+
+ExampleNewDecFromString demonstrates creating a decimal from a string
+
+
+<details><summary>Code</summary>
+
+```go
+func ExampleNewDecFromString() {
+	// Create decimal from string
+	price, err := NewDecFromString("123.456")
+	if err != nil {
+		fmt.Printf("Error: %v\n", err)
+		return
+	}
+
+	fmt.Printf("Price: %s\n", price.String())
+	fmt.Printf("Is set: %t\n", price.Isset())
+
+	// Try with invalid string
+	_, err = NewDecFromString("invalid")
+	fmt.Printf("Invalid string error: %v\n", err != nil)
+
+	// Output:
+	// Price: 123.456
+	// Is set: true
+	// Invalid string error: true
 }
 ```
 
@@ -2247,6 +3074,135 @@ func ExampleWriteAll() {
 	// Output:
 	// Bytes written: 3
 	// Items: [hello world streams]
+}
+```
+
+</details>
+
+
+[⬆️ Back to Top](#table-of-contents)
+
+---
+
+
+[⬆️ Back to Top](#table-of-contents)
+
+
+<br/>
+
+## <a name="zero"></a>🔞 Zero
+
+Zero-value utilities and string manipulation functions.
+
+### Functions
+
+- [B2S](#zero-b2s)
+- [S2B](#zero-s2b)
+- [ZeroAllocConversions](#zero-zeroallocconversions)
+
+#### zero B2S
+
+ExampleB2S demonstrates converting []byte to string without memory allocation
+
+
+<details><summary>Code</summary>
+
+```go
+func ExampleB2S() {
+	// Convert []byte to string using zero-allocation conversion
+	b := []byte("Hello, Gophers!")
+	s := B2S(b)
+
+	fmt.Printf("Original bytes: %v\n", b)
+	fmt.Printf("Converted to string: %s\n", s)
+	fmt.Printf("Length: %d\n", len(s))
+	fmt.Printf(
+		"Same underlying data: %t\n",
+		uintptr(unsafe.Pointer(&b[0])) == uintptr(unsafe.Pointer(unsafe.StringData(s))),
+	)
+
+	// Output:
+	// Original bytes: [72 101 108 108 111 44 32 71 111 112 104 101 114 115 33]
+	// Converted to string: Hello, Gophers!
+	// Length: 15
+	// Same underlying data: true
+}
+```
+
+</details>
+
+
+[⬆️ Back to Top](#table-of-contents)
+
+---
+
+#### zero S2B
+
+ExampleS2B demonstrates converting a string to []byte without memory allocation
+
+
+<details><summary>Code</summary>
+
+```go
+func ExampleS2B() {
+	// Convert string to []byte using zero-allocation conversion
+	s := "Hello, World!"
+	b := S2B(s)
+
+	fmt.Printf("Original string: %s\n", s)
+	fmt.Printf("Converted to bytes: %v\n", b)
+	fmt.Printf("Bytes as string: %s\n", string(b))
+	fmt.Printf(
+		"Same underlying data: %t\n",
+		uintptr(unsafe.Pointer(unsafe.StringData(s))) == uintptr(unsafe.Pointer(&b[0])),
+	)
+
+	// Output:
+	// Original string: Hello, World!
+	// Converted to bytes: [72 101 108 108 111 44 32 87 111 114 108 100 33]
+	// Bytes as string: Hello, World!
+	// Same underlying data: true
+}
+```
+
+</details>
+
+
+[⬆️ Back to Top](#table-of-contents)
+
+---
+
+#### zero ZeroAllocConversions
+
+ExampleZeroAllocConversions demonstrates the performance benefits of zero-allocation conversions
+
+
+<details><summary>Code</summary>
+
+```go
+func ExampleZeroAllocConversions() {
+	// Traditional conversion (allocates memory)
+	original := "Performance matters!"
+	traditionalBytes := []byte(original)
+	traditionalString := string(traditionalBytes)
+
+	// Zero-allocation conversion (shares memory)
+	zeroAllocBytes := S2B(original)
+	zeroAllocString := B2S(zeroAllocBytes)
+
+	fmt.Printf("Original: %s\n", original)
+	fmt.Printf("Traditional conversion: %s\n", traditionalString)
+	fmt.Printf("Zero-alloc conversion: %s\n", zeroAllocString)
+	fmt.Printf(
+		"All results equal: %t\n",
+		original == traditionalString && traditionalString == zeroAllocString,
+	)
+
+	// Output:
+	// Original: Performance matters!
+	// Traditional conversion: Performance matters!
+	// Zero-alloc conversion: Performance matters!
+	// All results equal: true
 }
 ```
 

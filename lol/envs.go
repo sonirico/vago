@@ -20,9 +20,9 @@ func ParseEnv(env string) Environment {
 		return LocalEnvironment
 	case "development", "dev":
 		return DevelopmentEnvironment
-	case "staging":
+	case "staging", "stg":
 		return StagingEnvironment
-	case "production", "prod":
+	case "production", "prod", "prd":
 		return ProductionEnvironment
 	default:
 		panic(fmt.Sprintf("invalid environment: %s", env))

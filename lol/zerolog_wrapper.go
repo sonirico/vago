@@ -6,7 +6,7 @@ import (
 	"io"
 
 	"github.com/rs/zerolog"
-	"go.elastic.co/apm/v2"
+	"go.elastic.co/apm/module/apmzerolog/v2"
 )
 
 type zerologWrapper struct {
@@ -138,22 +138,11 @@ func (z *zerologWrapper) WithFields(fields Fields) Logger {
 		log: logger.Logger(),
 	}
 }
-
 func (z *zerologWrapper) WithTrace(ctx context.Context) Logger {
-	logger := z.log.With()
-
-	// Add APM trace context if available
-	if tx := apm.TransactionFromContext(ctx); tx != nil {
-		logger = logger.Str("trace.id", tx.TraceContext().Trace.String())
-		logger = logger.Str("transaction.id", tx.TraceContext().Transaction.String())
-	}
-
-	if span := apm.SpanFromContext(ctx); span != nil {
-		logger = logger.Str("span.id", span.TraceContext().Span.String())
-	}
-
+	hook := apmzerolog.TraceContextHook(ctx)
+	logger := z.log.Hook(hook).With().Timestamp().Logger()
 	return &zerologWrapper{
-		log: logger.Logger(),
+		log: logger,
 	}
 }
 
