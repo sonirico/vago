@@ -315,8 +315,8 @@ func TestDB(t *testing.T) {
 	assert.NoError(t, stream.err, "Stream should have no error initially")
 }
 
-// ExampleStream demonstrates how to use Stream with database rows.
-func ExampleDatabaseStream() {
+// ExampleDB demonstrates how to use DB with database rows.
+func ExampleDB() {
 	// Mock data that simulates database rows
 	mockData := &mockRows{
 		data: [][]any{
