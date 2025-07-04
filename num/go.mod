@@ -1,10 +1,14 @@
-module github.com/sonirico/vago
+module github.com/sonirico/vago/num
 
 go 1.23.0
 
 toolchain go1.23.9
 
-require github.com/stretchr/testify v1.10.0
+require (
+	github.com/shopspring/decimal v1.4.0
+	github.com/stretchr/testify v1.10.0
+	golang.org/x/exp v0.0.0-20230510235704-dd950f8aeaea
+)
 
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect

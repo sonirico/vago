@@ -21,7 +21,7 @@
 - [🪄 Fp](#fp) - 15 functions
 - [🗝️ Maps](#maps) - 8 functions
 - [⛓️ Slices](#slices) - 10 functions
-- [🌊 Streams](#streams) - 25 functions
+- [🌊 Streams](#streams) - 26 functions
 
 ## <a name="fp"></a>🪄 Fp
 
@@ -1233,7 +1233,8 @@ func ExampleToMap() {
 
 ## <a name="streams"></a>🌊 Streams
 
-Powerful data streaming and processing utilities with fluent API for functional programming patterns.
+Package streams provides interfaces and types for reading and writing streams of data.
+
 
 ### Functions
 
@@ -1242,6 +1243,7 @@ Powerful data streaming and processing utilities with fluent API for functional 
 - [CSVTransform](#streams-csvtransform)
 - [CSVTransform_tabSeparated](#streams-csvtransform_tabseparated)
 - [ConsumeErrSkip](#streams-consumeerrskip)
+- [DatabaseStream](#streams-databasestream)
 - [Filter](#streams-filter)
 - [FilterMap](#streams-filtermap)
 - [Flatten](#streams-flatten)
@@ -1452,6 +1454,54 @@ func ExampleConsumeErrSkip() {
 
 	// Output:
 	// Valid numbers: [1 2 4 5]
+}
+```
+
+</details>
+
+
+[⬆️ Back to Top](#table-of-contents)
+
+---
+
+#### streams DatabaseStream
+
+ExampleStream demonstrates how to use Stream with database rows.
+
+
+<details><summary>Code</summary>
+
+```go
+func ExampleDatabaseStream() {
+	// Mock data that simulates database rows
+	mockData := &mockRows{
+		data: [][]any{
+			{1, "Alice"},
+			{2, "Bob"},
+			{3, "Charlie"},
+		},
+	}
+
+	// Create a stream with a scan function
+	stream := DB(mockData, func(rows DBRows, user *User) error {
+		return rows.Scan(&user.ID, &user.Name)
+	})
+
+	// Iterate through the stream
+	for stream.Next() {
+		user := stream.Data()
+		fmt.Printf("User ID: %d, Name: %s\n", user.ID, user.Name)
+	}
+
+	// Check for errors
+	if err := stream.Err(); err != nil {
+		log.Printf("Error during streaming: %v", err)
+	}
+
+	// Output:
+	// User ID: 1, Name: Alice
+	// User ID: 2, Name: Bob
+	// User ID: 3, Name: Charlie
 }
 ```
 

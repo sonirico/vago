@@ -24,9 +24,9 @@ build:
 .PHONY: fmt
 fmt:
 	$(info: Make: Format)
-	gofmt -w ./**/*
-	goimports -w ./**/*
-	golines -w ./**/*
+	gofmt -w ./**/*.go
+	goimports -w ./**/*.go
+	golines -w ./**/*.go
 
 .PHONY: lint
 lint:

@@ -75,7 +75,14 @@ func (m mod) String() string {
 	if emoji == "" {
 		emoji = "⚙️"
 	}
-	buf.WriteString(fmt.Sprintf("## <a name=\"%s\"></a>%s %s\n\n", moduleAnchor, emoji, strings.ToUpper(m.title[:1])+m.title[1:]))
+	buf.WriteString(
+		fmt.Sprintf(
+			"## <a name=\"%s\"></a>%s %s\n\n",
+			moduleAnchor,
+			emoji,
+			strings.ToUpper(m.title[:1])+m.title[1:],
+		),
+	)
 	buf.WriteString(m.description)
 	buf.WriteString("\n\n")
 
@@ -118,7 +125,8 @@ func createModuleFromExamples(moduleName string) *mod {
 	mainFile := fmt.Sprintf("%s/%s.go", moduleName, moduleName)
 	if _, err := os.Stat(mainFile); err == nil {
 		if fset := token.NewFileSet(); fset != nil {
-			if f, err := parser.ParseFile(fset, mainFile, nil, parser.ParseComments); err == nil && f.Doc != nil {
+			if f, err := parser.ParseFile(fset, mainFile, nil, parser.ParseComments); err == nil &&
+				f.Doc != nil {
 				m.description = cleanComment(f.Doc.Text())
 			}
 		}
@@ -185,7 +193,12 @@ func createModuleFromExamples(moduleName string) *mod {
 }
 
 // extractSourceWithComments extracts the source code of a function preserving comments
-func extractSourceWithComments(buf *bytes.Buffer, fset *token.FileSet, fn *ast.FuncDecl, filePath string) error {
+func extractSourceWithComments(
+	buf *bytes.Buffer,
+	fset *token.FileSet,
+	fn *ast.FuncDecl,
+	filePath string,
+) error {
 	// Read the source file
 	content, err := os.ReadFile(filePath)
 	if err != nil {
@@ -341,7 +354,15 @@ func readme() {
 			emoji = "⚙️"
 		}
 		moduleAnchor := strings.ToLower(m.title)
-		_, _ = buf.WriteString(fmt.Sprintf("- [%s %s](#%s) - %d functions\n", emoji, strings.ToUpper(m.title[:1])+m.title[1:], moduleAnchor, len(m.funs)))
+		_, _ = buf.WriteString(
+			fmt.Sprintf(
+				"- [%s %s](#%s) - %d functions\n",
+				emoji,
+				strings.ToUpper(m.title[:1])+m.title[1:],
+				moduleAnchor,
+				len(m.funs),
+			),
+		)
 	}
 	_, _ = buf.WriteString("\n")
 
