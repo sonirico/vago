@@ -1,3 +1,4 @@
+// Package streams provides interfaces and types for reading and writing streams of data.
 package streams
 
 import "io"

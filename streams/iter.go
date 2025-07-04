@@ -15,8 +15,6 @@ func Iter[T any](stream ReadStream[T]) iter.Seq[T] {
 				break
 			}
 		}
-
-		return
 	}
 }
 
