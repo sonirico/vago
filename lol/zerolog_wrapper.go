@@ -3,14 +3,14 @@ package lol
 import (
 	"context"
 	"fmt"
-	"io"
 
 	"github.com/rs/zerolog"
 	"go.elastic.co/apm/module/apmzerolog/v2"
 )
 
 type zerologWrapper struct {
-	log zerolog.Logger
+	log        zerolog.Logger
+	apmEnabled bool
 }
 
 func (z *zerologWrapper) Trace(args ...any) {
@@ -139,55 +139,77 @@ func (z *zerologWrapper) WithFields(fields Fields) Logger {
 	}
 }
 func (z *zerologWrapper) WithTrace(ctx context.Context) Logger {
+	if !z.apmEnabled {
+		return z
+	}
 	hook := apmzerolog.TraceContextHook(ctx)
-	logger := z.log.Hook(hook).With().Timestamp().Logger()
+
 	return &zerologWrapper{
-		log: logger,
+		log: z.log.With().Logger().Hook(hook),
 	}
 }
 
-// NewZerologLogger creates a new Logger using zerolog as the backend
-func NewZerologLogger(
-	fields Fields,
-	env, level string,
-	writer io.Writer,
-	apmConfig APMConfig,
-) Logger {
-	// Parse log level
-	logLevel, err := zerolog.ParseLevel(level)
-	if err != nil {
-		logLevel = zerolog.InfoLevel
+func zerologParseLevel(level Level) zerolog.Level {
+	switch level {
+	case LevelTrace:
+		return zerolog.TraceLevel
+	case LevelDebug:
+		return zerolog.DebugLevel
+	case LevelInfo:
+		return zerolog.InfoLevel
+	case LevelWarn:
+		return zerolog.WarnLevel
+	case LevelError:
+		return zerolog.ErrorLevel
+	case LevelFatal:
+		return zerolog.FatalLevel
+	case LevelPanic:
+		return zerolog.PanicLevel
+	default:
+		return zerolog.InfoLevel
+	}
+}
+
+// NewZerolog creates a new Logger using zerolog as the backend
+func NewZerolog(opts ...Opt) Logger {
+	// Default configuration
+	config := newDefaultConfig()
+	// Apply options
+	for _, opt := range opts {
+		opt(&config)
 	}
 
+	// Parse log level
+	logLevel := zerologParseLevel(config.level)
+
 	// Configure zerolog
-	zerolog.TimeFieldFormat = "2006-01-02T15:04:05.000Z07:00"
+	zerolog.TimeFieldFormat = config.timeFieldFormat
 
 	// Create base logger
 	var logger zerolog.Logger
-	if env == "local" || env == "development" {
+	if config.env == EnvLocal {
 		// Pretty logging for local development
-		logger = zerolog.New(zerolog.ConsoleWriter{Out: writer}).With().Timestamp().Logger()
+		logger = zerolog.New(zerolog.ConsoleWriter{Out: config.writer}).With().Timestamp().Logger()
 	} else {
 		// JSON logging for production
-		logger = zerolog.New(writer).With().Timestamp().Logger()
+		logger = zerolog.New(config.writer).With().Timestamp().Logger()
+	}
+
+	// If APM is enabled, set the error stack marshaler and
+	// create a multi-writer that includes the APM writer
+	if config.apm {
+		zerolog.ErrorStackMarshaler = apmzerolog.MarshalErrorStack
+		logger = zerolog.New(zerolog.MultiLevelWriter(
+			config.writer, new(apmzerolog.Writer)))
 	}
 
 	// Set log level
 	logger = logger.Level(logLevel)
 
-	// Add environment
-	logger = logger.With().Str("env", env).Logger()
-
-	// Add initial fields
-	if fields != nil {
-		loggerWith := logger.With()
-		for k, v := range fields {
-			loggerWith = loggerWith.Interface(k, v)
-		}
-		logger = loggerWith.Logger()
-	}
-
-	return &zerologWrapper{
+	log := &zerologWrapper{
 		log: logger,
 	}
+
+	// Add initial fields
+	return log.WithFields(config.fields)
 }

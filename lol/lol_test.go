@@ -2,20 +2,22 @@ package lol
 
 import (
 	"bytes"
+	"context"
 	"fmt"
+
+	"go.elastic.co/apm/v2"
 )
 
-// ExampleNewZerologLogger demonstrates creating a structured logger with zerolog backend
-func ExampleNewZerologLogger() {
+// ExampleNewZerolog demonstrates creating a structured logger with zerolog backend
+func ExampleNewZerolog() {
 	// Create a logger with custom fields and configuration
 	var buf bytes.Buffer
 
-	logger := NewZerologLogger(
-		Fields{"service": "example-app", "version": "1.0.0"},
-		"production",
-		"info",
-		&buf,
-		APMConfig{Enabled: false}, // Disable APM for this example
+	logger := NewZerolog(
+		WithFields(Fields{"service": "example-app", "version": "1.0.0"}),
+		WithEnv(EnvProd),
+		WithLevel(LevelInfo),
+		WithWriter(&buf),
 	)
 
 	// Log some messages
@@ -36,40 +38,27 @@ func ExampleNewZerologLogger() {
 		bytes.Contains(buf.Bytes(), []byte("service")),
 	)
 
+	fmt.Printf(
+		"Logged output contains 'version': %t\n",
+		bytes.Contains(buf.Bytes(), []byte("version")),
+	)
+
 	// Output:
 	// Logged output contains 'Application started': true
 	// Logged output contains 'user_id': true
 	// Logged output contains 'service': true
-}
-
-// ExampleNewTest demonstrates creating a test logger that doesn't output anything
-func ExampleNewTest() {
-	// Create a test logger for unit tests
-	testLogger := NewTest()
-
-	// These messages won't be printed to stdout/stderr
-	testLogger.Info("This is a test message")
-	testLogger.Error("This error won't be shown")
-	testLogger.WithField("test_field", "test_value").Debug("Debug message")
-
-	fmt.Println("Test logger created successfully")
-	fmt.Println("Messages logged silently for testing")
-
-	// Output:
-	// Test logger created successfully
-	// Messages logged silently for testing
+	// Logged output contains 'version': true
 }
 
 // ExampleLogger_WithField demonstrates adding contextual fields to log messages
 func ExampleLogger_WithField() {
 	var buf bytes.Buffer
 
-	logger := NewZerologLogger(
-		Fields{"app": "demo"},
-		"development",
-		"debug",
-		&buf,
-		APMConfig{Enabled: false},
+	logger := NewZerolog(
+		WithFields(Fields{"app": "demo"}),
+		WithEnv(EnvDev),
+		WithLevel(LevelDebug),
+		WithWriter(&buf),
 	)
 
 	// Chain multiple fields
@@ -104,12 +93,11 @@ func ExampleLogger_WithField() {
 func ExampleLogger_LogLevels() {
 	var buf bytes.Buffer
 
-	logger := NewZerologLogger(
-		Fields{"component": "auth"},
-		"development",
-		"trace", // Set to trace level to see all messages
-		&buf,
-		APMConfig{Enabled: false},
+	logger := NewZerolog(
+		WithFields(Fields{"component": "auth"}),
+		WithEnv(EnvDev),
+		WithLevel(LevelTrace), // Set to trace level to see all messages
+		WithWriter(&buf),
 	)
 
 	// Log at different levels
@@ -146,40 +134,68 @@ func ExampleLogger_LogLevels() {
 	// Contains error message: true
 }
 
-// ExampleParseLevel demonstrates parsing log levels from strings
-func ExampleParseLevel() {
-	// Parse different log levels
-	levels := []string{"trace", "debug", "info", "warn", "error", "fatal", "panic"}
+// ExampleLogger_WithTrace demonstrates APM trace context integration
+func ExampleLogger_WithTrace() {
+	var buf bytes.Buffer
 
-	for _, levelStr := range levels {
-		level := ParseLevel(levelStr)
-		fmt.Printf("Level '%s' parsed as: %d\n", levelStr, level)
-	}
+	logger := NewZerolog(
+		WithFields(Fields{"service": "payment-service"}),
+		WithEnv(EnvDev),
+		WithLevel(LevelInfo),
+		WithWriter(&buf),
+		WithApm(), // Enable APM tracing
+	)
+
+	// Create an APM transaction (simulating real APM integration)
+	tracer := apm.DefaultTracer()
+	tx := tracer.StartTransaction("payment-processing", "request")
+	defer tx.End()
+
+	// Create context with the transaction
+	ctx := apm.ContextWithTransaction(context.Background(), tx)
+
+	// Start a span for more detailed tracing
+	span, ctx := apm.StartSpan(ctx, "payment-validation", "internal")
+	defer span.End()
+
+	// Create a logger with trace context
+	tracedLogger := logger.WithTrace(ctx)
+
+	// Log with trace context - these should include APM trace fields
+	tracedLogger.Info("Processing payment request")
+	tracedLogger.WithField("payment_id", "pay_123").
+		WithField("amount", 99.99).
+		Info("Payment validation started")
+
+	// Log without trace context for comparison
+	logger.Info("Regular log message without trace context")
+
+	output := buf.String()
+	fmt.Printf(
+		"Output contains 'Processing payment': %t\n",
+		bytes.Contains([]byte(output), []byte("Processing payment")),
+	)
+	fmt.Printf(
+		"Output contains 'payment_id': %t\n",
+		bytes.Contains([]byte(output), []byte("payment_id")),
+	)
+	fmt.Printf(
+		"Output contains 'service': %t\n",
+		bytes.Contains([]byte(output), []byte("service")),
+	)
+
+	// Check for APM trace fields in the output
+	// The apmzerolog hook should add these fields when WithTrace is used
+	fmt.Printf(
+		"Output contains trace information: %t\n",
+		bytes.Contains([]byte(output), []byte("trace")) ||
+			bytes.Contains([]byte(output), []byte("transaction")) ||
+			bytes.Contains([]byte(output), []byte("span")),
+	)
 
 	// Output:
-	// Level 'trace' parsed as: 6
-	// Level 'debug' parsed as: 5
-	// Level 'info' parsed as: 4
-	// Level 'warn' parsed as: 3
-	// Level 'error' parsed as: 2
-	// Level 'fatal' parsed as: 1
-	// Level 'panic' parsed as: 0
-}
-
-// ExampleParseEnv demonstrates parsing environment strings
-func ExampleParseEnv() {
-	// Parse different environments
-	envs := []string{"test", "local", "development", "staging", "production"}
-
-	for _, envStr := range envs {
-		env := ParseEnv(envStr)
-		fmt.Printf("Environment '%s' parsed as: %d\n", envStr, env)
-	}
-
-	// Output:
-	// Environment 'test' parsed as: 0
-	// Environment 'local' parsed as: 1
-	// Environment 'development' parsed as: 2
-	// Environment 'staging' parsed as: 3
-	// Environment 'production' parsed as: 4
+	// Output contains 'Processing payment': true
+	// Output contains 'payment_id': true
+	// Output contains 'service': true
+	// Output contains trace information: true
 }

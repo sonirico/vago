@@ -1,30 +1,10 @@
 package lol
 
-import "fmt"
-
-type Environment uint8
+type Env uint8
 
 const (
-	TestEnvironment Environment = iota
-	LocalEnvironment
-	DevelopmentEnvironment
-	StagingEnvironment
-	ProductionEnvironment
+	EnvTest Env = iota
+	EnvLocal
+	EnvDev
+	EnvProd
 )
-
-func ParseEnv(env string) Environment {
-	switch env {
-	case "test":
-		return TestEnvironment
-	case "local":
-		return LocalEnvironment
-	case "development", "dev":
-		return DevelopmentEnvironment
-	case "staging", "stg":
-		return StagingEnvironment
-	case "production", "prod", "prd":
-		return ProductionEnvironment
-	default:
-		panic(fmt.Sprintf("invalid environment: %s", env))
-	}
-}
