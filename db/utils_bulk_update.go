@@ -63,7 +63,7 @@ func BulkUpdate(
 			"%s, %s",
 			pkName,
 			strings.Join(slices.Map(cols, func(colDef [2]string) string {
-				return fmt.Sprintf("%s", colDef[1])
+				return colDef[1]
 			}), ", "),
 		)
 

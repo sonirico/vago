@@ -3,7 +3,6 @@ package db
 import (
 	"context"
 	"database/sql"
-	"io"
 	"testing"
 
 	"github.com/sonirico/vago/lol"
@@ -22,8 +21,7 @@ type test struct {
 
 var (
 	ErrTest = errors.New("test error")
-
-	log = lol.NewZerologLogger(nil, "test", "debug", io.Discard, lol.NoAPM)
+	log     = lol.ZeroTestLogger
 )
 
 func TestDatabaseServiceDo(t *testing.T) {

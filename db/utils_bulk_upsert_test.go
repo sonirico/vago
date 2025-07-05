@@ -94,14 +94,14 @@ func TestBuildSqlStmt(t *testing.T) {
 							PKVal:         []string{"id"},
 							UniqueKeysVal: []string{"unique_key"},
 							IncludePKVal:  false,
-							ColsVal:       []string{"id", "unique_key", "value", "extra_value"},
+							ColsVal:       []string{"unique_key", "value", "extra_value"},
 							RowVal:        []any{"abc", 100, "extra1"},
 						},
 						&MockBulkable{
 							PKVal:         []string{"id"},
 							UniqueKeysVal: []string{"unique_key"},
 							IncludePKVal:  false,
-							ColsVal:       []string{"id", "unique_key", "value", "extra_value"},
+							ColsVal:       []string{"unique_key", "value", "extra_value"},
 							RowVal:        []any{"def", 200, "extra2"},
 						},
 					},
@@ -114,11 +114,11 @@ func TestBuildSqlStmt(t *testing.T) {
 		INSERT INTO my_table
 		(unique_key,value,extra_value)
 		VALUES
-		($1,$2,$3),($4,$5,$6)
+		($1,$2),($3,$4)
 		ON CONFLICT (unique_key) 
 			DO UPDATE SET
 			unique_key = EXCLUDED.unique_key,value = EXCLUDED.value,extra_value = EXCLUDED.extra_value
-		RETURNING id,unique_key,value,extra_value
+		RETURNING unique_key,value,extra_value
 		`,
 			expectedArgs: []any{"abc", 100, "extra1", "def", 200, "extra2"},
 		},
@@ -168,14 +168,14 @@ func TestBuildSqlStmt(t *testing.T) {
 							PKVal:         []string{"id"},
 							UniqueKeysVal: []string{},
 							IncludePKVal:  false,
-							ColsVal:       []string{"id", "value", "extra_value"},
+							ColsVal:       []string{"value", "extra_value"},
 							RowVal:        []any{100, "extra1"},
 						},
 						&MockBulkable{
 							PKVal:         []string{"id"},
 							UniqueKeysVal: []string{},
 							IncludePKVal:  false,
-							ColsVal:       []string{"id", "value", "extra_value"},
+							ColsVal:       []string{"value", "extra_value"},
 							RowVal:        []any{200, "extra2"},
 						},
 					},
@@ -223,14 +223,14 @@ func TestBuildSqlStmt(t *testing.T) {
 							PKVal:         []string{"id"},
 							UniqueKeysVal: []string{"unique_key"},
 							IncludePKVal:  false,
-							ColsVal:       []string{"id", "unique_key", "value", "extra_value"},
+							ColsVal:       []string{"unique_key", "value", "extra_value"},
 							RowVal:        []any{"abc", 100, "extra1"},
 						},
 						&MockBulkable{
 							PKVal:         []string{"id"},
 							UniqueKeysVal: []string{"unique_key"},
 							IncludePKVal:  false,
-							ColsVal:       []string{"id", "unique_key", "value", "extra_value"},
+							ColsVal:       []string{"unique_key", "value", "extra_value"},
 							RowVal:        []any{"def", 200, "extra2"},
 						},
 					},
@@ -243,9 +243,9 @@ func TestBuildSqlStmt(t *testing.T) {
 		INSERT INTO my_table
 		(unique_key,value,extra_value)
 		VALUES
-		($1,$2,$3),($4,$5,$6)
+		($1,$2),($3,$4)
 		ON CONFLICT (unique_key) DO NOTHING
-		RETURNING id,unique_key,value,extra_value
+		RETURNING unique_key,value,extra_value
 		`,
 			expectedArgs: []any{"abc", 100, "extra1", "def", 200, "extra2"},
 		},
@@ -293,14 +293,14 @@ func TestBuildSqlStmt(t *testing.T) {
 							PKVal:         []string{"id"},
 							UniqueKeysVal: []string{},
 							IncludePKVal:  false,
-							ColsVal:       []string{"id", "value", "extra_value"},
+							ColsVal:       []string{"value", "extra_value"},
 							RowVal:        []any{100, "extra1"},
 						},
 						&MockBulkable{
 							PKVal:         []string{"id"},
 							UniqueKeysVal: []string{},
 							IncludePKVal:  false,
-							ColsVal:       []string{"id", "value", "extra_value"},
+							ColsVal:       []string{"value", "extra_value"},
 							RowVal:        []any{200, "extra2"},
 						},
 					},
