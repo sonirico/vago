@@ -10,7 +10,8 @@ import (
 	"github.com/sonirico/vago/slices"
 )
 
-func buildSqlStmt(
+// BulkUpsertSQL returns the SQL statement and arguments for a bulk upsert (insert or update on conflict).
+func BulkUpsertSQL(
 	rows BulkableRanger,
 	tableName string,
 	updateOnConflict bool,
@@ -92,21 +93,17 @@ func buildSqlStmt(
 	return stmt, args, nil
 }
 
+// BulkUpsert executes a bulk upsert (insert or update on conflict) operation on the database.
 func BulkUpsert(
 	ctx Context, logger lol.Logger, rows BulkableRanger, tableName string,
 	updateOnConflict bool,
 ) (Rows, error) {
-	var (
-		query string
-		args  []any
-		err   error
-	)
-
 	if rows.Len() < 1 {
 		return nil, errors.New("empty rows")
 	}
 
-	if query, args, err = buildSqlStmt(rows, tableName, updateOnConflict); err != nil {
+	query, args, err := BulkUpsertSQL(rows, tableName, updateOnConflict)
+	if err != nil {
 		return nil, err
 	}
 	logger.Debugln(query, args)

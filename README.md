@@ -29,13 +29,309 @@ This project leverages Go workspaces to provide **isolated dependencies** for ea
 
 ## <a name="table-of-contents"></a>Table of Contents
 
+- [🗃️ Db](#db) - 6 functions
 - [🪄 Fp](#fp) - 15 functions
 - [📝 Lol](#lol) - 4 functions
 - [🗝️ Maps](#maps) - 8 functions
 - [🔢 Num](#num) - 14 functions
 - [⛓️ Slices](#slices) - 10 functions
 - [🌊 Streams](#streams) - 26 functions
-- [🔞 Zero](#zero) - 3 functions
+- [🔞 Zero](#zero) - 2 functions
+
+## <a name="db"></a>🗃️ Db
+
+Package db provides a unified set of abstractions, interfaces, and utilities for database access,
+transaction management, migrations, and efficient bulk operations across multiple backends.
+
+Features:
+  - Backend-agnostic interfaces for SQL (Postgres, ClickHouse), MongoDB, and Redis.
+  - Context and transaction management with hooks for after-commit actions.
+  - Executor interfaces for read-only, read-write, and transactional operations.
+  - Bulk DML helpers: efficient bulk insert, update, and upsert with conflict handling.
+  - Migration helpers for Postgres and ClickHouse using golang-migrate.
+  - Type utilities for nullable JSON, array types, and custom scanning.
+  - Common error types and helpers for consistent error handling.
+  - Query helpers for generic, type-safe data access patterns.
+
+Main Interfaces:
+  - Handler, Querier, Tx, Result, Rows, Row: Abstract over database drivers.
+  - Context: Extends context.Context with database query and transaction hooks.
+  - Executor, ExecutorRO, ExecutorRW: Transactional execution patterns.
+  - Bulkable, BulkableRanger: Bulk DML abstractions.
+
+Backend Adapters:
+  - db_pgx.go: Postgres (pgx) support
+  - db_clickhouse.go: ClickHouse support
+  - db_mongo.go: MongoDB support
+  - db_redis.go: Redis support
+
+Utilities:
+  - utils_bulk_insert.go, utils_bulk_update.go, utils_bulk_upsert.go: Bulk DML
+  - utils_in_clause.go, utils_order_clause.go, utils_query.go: Query helpers
+  - types.go: NullJSON, NullJSONArray, and more
+  - errors.go: Common error values and helpers
+  - migrate.go, migrations_postgres.go, migrations_clickhouse.go: Migration helpers
+
+Example:
+
+	import (
+	    "github.com/sonirico/vago/db"
+	    "github.com/sonirico/vago/lol"
+	)
+
+	Setup a logger and a database handler (e.g., pgx)
+	logger := lol.NewLogger()
+	handler, _ := db.OpenPgxConn(logger, "postgres://user:pass@localhost/db", false)
+	executor := db.NewExecutor(logger, handler)
+
+	Run a transactional operation: either all operations succeed, or none are applied
+	err := executor.DoWithTx(ctx, func(ctx db.Context) error {
+	    Multiple DB operations in a transaction
+	    if _, err := ctx.Querier().ExecContext(ctx, "INSERT INTO users (name) VALUES ($1)", "alice"); err != nil {
+	        return err
+	    }
+	    if _, err := ctx.Querier().ExecContext(ctx, "INSERT INTO accounts (user) VALUES ($1)", "alice"); err != nil {
+	        return err
+	    }
+	    If any error is returned, all changes are rolled back
+	    return nil
+	})
+
+
+### Functions
+
+- [BulkInsertSQL](#db-bulkinsertsql)
+- [BulkUpdateSQL](#db-bulkupdatesql)
+- [BulkUpsertSQL](#db-bulkupsertsql)
+- [Executor](#db-executor)
+- [In](#db-in)
+- [OrderBy_usage](#db-orderby_usage)
+
+#### db BulkInsertSQL
+
+ExampleBulkInsertSQL demonstrates how to use BulkInsertSQL to generate an SQL statement for bulk insertion.
+
+
+<details><summary>Code</summary>
+
+```go
+func ExampleBulkInsertSQL() {
+	rows := BulkRanger[Bulkable]([]Bulkable{
+		&mockBulkable{
+			ColsVal: []string{"id", "name", "value"},
+			RowVal:  []any{1, "foo", 100},
+		},
+		&mockBulkable{
+			ColsVal: []string{"id", "name", "value"},
+			RowVal:  []any{2, "bar", 200},
+		},
+	})
+	query, args, _ := BulkInsertSQL(rows, "my_table")
+	fmt.Println("SQL:", normalizeSQL(query))
+	fmt.Println("ARGS:", args)
+	// Output:
+	// SQL: INSERT INTO my_table (id,name,value) VALUES ($1,$2,$3),($4,$5,$6)
+	// ARGS: [1 foo 100 2 bar 200]
+}
+```
+
+</details>
+
+
+[⬆️ Back to Top](#table-of-contents)
+
+---
+
+#### db BulkUpdateSQL
+
+ExampleBulkUpdateSQL demonstrates how to use BulkUpdateSQL to generate an SQL statement for bulk updates.
+
+
+<details><summary>Code</summary>
+
+```go
+func ExampleBulkUpdateSQL() {
+	rows := mockBulkUpdate{
+		&mockBulkUpdatable{
+			pk:   [2]string{"int", "id"},
+			cols: [][2]string{{"int", "value"}, {"text", "name"}},
+			vals: []any{1, "foo", 100, "bar"},
+		},
+		&mockBulkUpdatable{
+			pk:   [2]string{"int", "id"},
+			cols: [][2]string{{"int", "value"}, {"text", "name"}},
+			vals: []any{2, "baz", 200, "qux"},
+		},
+	}
+	query, args, _ := BulkUpdateSQL(rows, "my_table")
+	fmt.Println("SQL:", normalizeSQL(query))
+	fmt.Println("ARGS:", args)
+	// Output:
+	// SQL: UPDATE my_table SET value = bulk_update_tmp.value::int,name = bulk_update_tmp.name::text FROM (VALUES ($1::int, $2::int, $3::text), ($4::int, $5::int, $6::text)) as bulk_update_tmp(id, value, name) WHERE my_table.id::int = bulk_update_tmp.id::int
+	// ARGS: [1 foo 100 bar 2 baz 200 qux]
+}
+```
+
+</details>
+
+
+[⬆️ Back to Top](#table-of-contents)
+
+---
+
+#### db BulkUpsertSQL
+
+Example for BulkUpsertSQL with update on conflict clause
+
+
+<details><summary>Code</summary>
+
+```go
+func ExampleBulkUpsertSQL() {
+	rows := BulkRanger[Bulkable]([]Bulkable{
+		&mockBulkable{
+			PKVal:         []string{"id"},
+			UniqueKeysVal: []string{"unique_key"},
+			IncludePKVal:  true,
+			ColsVal:       []string{"id", "unique_key", "value"},
+			RowVal:        []any{1, "abc", 100},
+		},
+	})
+	onConflictUpdate := false
+	query, args, _ := BulkUpsertSQL(rows, "my_table", onConflictUpdate)
+	fmt.Println("SQL:", normalizeSQL(query))
+	fmt.Println("ARGS:", args)
+
+	fmt.Println("--")
+
+	onConflictUpdate = true
+	query, args, _ = BulkUpsertSQL(rows, "my_table", onConflictUpdate)
+	fmt.Println("SQL:", normalizeSQL(query))
+	fmt.Println("ARGS:", args)
+
+	// Output:
+	// SQL: INSERT INTO my_table (id,unique_key,value) VALUES ($1,$2,$3) ON CONFLICT (unique_key) DO NOTHING RETURNING id,unique_key,value
+	// ARGS: [1 abc 100]
+	// --
+	// SQL: INSERT INTO my_table (id,unique_key,value) VALUES ($1,$2,$3) ON CONFLICT (unique_key) DO UPDATE SET id = EXCLUDED.id,unique_key = EXCLUDED.unique_key,value = EXCLUDED.value RETURNING id,unique_key,value
+	// ARGS: [1 abc 100]
+}
+```
+
+</details>
+
+
+[⬆️ Back to Top](#table-of-contents)
+
+---
+
+#### db Executor
+
+Example for Do and DoWithTx usage with a database service and context.
+
+
+<details><summary>Code</summary>
+
+```go
+func ExampleExecutor() {
+	db, mock, _ := sqlmock.New(
+		sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
+	defer db.Close()
+	log := lol.ZeroTestLogger
+
+	// Setup mock expectations
+	mock.ExpectQuery("SELECT 1;").
+		WillReturnRows(sqlmock.NewRows([]string{"n"}).AddRow(1))
+
+	ex := newDatabaseSqlExecutor(log, db)
+
+	err := ex.Do(context.Background(), func(ctx Context) error {
+		var n int
+		return ctx.Querier().
+			QueryRowContext(ctx, "SELECT 1;").Scan(&n)
+	})
+	fmt.Println("Do error:", err)
+
+	mock.ExpectBegin()
+	mock.ExpectQuery("SELECT 2;").
+		WillReturnRows(sqlmock.NewRows([]string{"n"}).AddRow(2))
+	mock.ExpectCommit()
+
+	err = ex.DoWithTx(context.Background(), func(ctx Context) error {
+		var n int
+		return ctx.Querier().QueryRowContext(ctx, "SELECT 2;").Scan(&n)
+	})
+	fmt.Println("DoWithTx error:", err)
+
+	// Output:
+	// Do error: <nil>
+	// DoWithTx error: <nil>
+}
+```
+
+</details>
+
+
+[⬆️ Back to Top](#table-of-contents)
+
+---
+
+#### db In
+
+ExampleIn demonstrates how to use the In function to generate an SQL IN clause and its arguments.
+
+
+<details><summary>Code</summary>
+
+```go
+func ExampleIn() {
+	args := []any{"foo"}
+	inArgs := []int{1, 2, 3}
+	s, a := In(args, inArgs)
+	fmt.Println(s)
+	fmt.Println(a)
+	// Output:
+	// ($2,$3,$4)
+	// [foo 1 2 3]
+}
+```
+
+</details>
+
+
+[⬆️ Back to Top](#table-of-contents)
+
+---
+
+#### db OrderBy_usage
+
+ExampleOrderBy_usage demonstrates how to use OrderBy types to generate SQL ORDER BY clauses.
+
+
+<details><summary>Code</summary>
+
+```go
+func ExampleOrderBy_usage() {
+	fmt.Println(OrderASC.FullClause("foo"))
+	fmt.Println(OrderDESC.FullClause("foo"))
+	// Output:
+	//  ORDER BY foo ASC
+	//  ORDER BY foo DESC
+}
+```
+
+</details>
+
+
+[⬆️ Back to Top](#table-of-contents)
+
+---
+
+
+[⬆️ Back to Top](#table-of-contents)
+
+
+<br/>
 
 ## <a name="fp"></a>🪄 Fp
 
@@ -3079,7 +3375,6 @@ Zero-value utilities and string manipulation functions.
 
 - [B2S](#zero-b2s)
 - [S2B](#zero-s2b)
-- [ZeroAllocConversions](#zero-zeroallocconversions)
 
 #### zero B2S
 
@@ -3143,47 +3438,6 @@ func ExampleS2B() {
 	// Converted to bytes: [72 101 108 108 111 44 32 87 111 114 108 100 33]
 	// Bytes as string: Hello, World!
 	// Same underlying data: true
-}
-```
-
-</details>
-
-
-[⬆️ Back to Top](#table-of-contents)
-
----
-
-#### zero ZeroAllocConversions
-
-ExampleZeroAllocConversions demonstrates the performance benefits of zero-allocation conversions
-
-
-<details><summary>Code</summary>
-
-```go
-func ExampleZeroAllocConversions() {
-	// Traditional conversion (allocates memory)
-	original := "Performance matters!"
-	traditionalBytes := []byte(original)
-	traditionalString := string(traditionalBytes)
-
-	// Zero-allocation conversion (shares memory)
-	zeroAllocBytes := S2B(original)
-	zeroAllocString := B2S(zeroAllocBytes)
-
-	fmt.Printf("Original: %s\n", original)
-	fmt.Printf("Traditional conversion: %s\n", traditionalString)
-	fmt.Printf("Zero-alloc conversion: %s\n", zeroAllocString)
-	fmt.Printf(
-		"All results equal: %t\n",
-		original == traditionalString && traditionalString == zeroAllocString,
-	)
-
-	// Output:
-	// Original: Performance matters!
-	// Traditional conversion: Performance matters!
-	// Zero-alloc conversion: Performance matters!
-	// All results equal: true
 }
 ```
 

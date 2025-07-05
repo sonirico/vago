@@ -59,6 +59,17 @@ var moduleEmojis = map[string]string{
 	"zero":    "🔞",
 }
 
+var moduleDescriptions = map[string]string{
+	"streams": "Powerful data streaming and processing utilities with fluent API for functional programming patterns.",
+	"slices":  "Comprehensive slice manipulation utilities with functional programming patterns.",
+	"maps":    "Map manipulation and transformation utilities.",
+	"fp":      "Functional programming utilities including Option and Result types.",
+	"lol":     "Structured logging utilities with multiple backends and APM integration.",
+	"num":     "Numeric utilities including high-precision decimal operations.",
+	"db":      "Database utilities and adapters for PostgreSQL, MongoDB, Redis, and ClickHouse.\n\n**Note:** This module always appears in the documentation, even if only interface or example tests are present, to ensure discoverability.",
+	"zero":    "Zero-value utilities and string manipulation functions.",
+}
+
 type (
 	fun struct {
 		name    string
@@ -149,23 +160,8 @@ func createModuleFromExamples(moduleName string) *mod {
 
 	// Set default descriptions for known modules
 	if m.description == "" {
-		switch moduleName {
-		case "streams":
-			m.description = "Powerful data streaming and processing utilities with fluent API for functional programming patterns."
-		case "slices":
-			m.description = "Comprehensive slice manipulation utilities with functional programming patterns."
-		case "maps":
-			m.description = "Map manipulation and transformation utilities."
-		case "fp":
-			m.description = "Functional programming utilities including Option and Result types."
-		case "lol":
-			m.description = "Structured logging utilities with multiple backends and APM integration."
-		case "num":
-			m.description = "Numeric utilities including high-precision decimal operations."
-		case "db":
-			m.description = "Database utilities and adapters for PostgreSQL, MongoDB, Redis, and ClickHouse."
-		case "zero":
-			m.description = "Zero-value utilities and string manipulation functions."
+		if desc, ok := moduleDescriptions[moduleName]; ok {
+			m.description = desc
 		}
 	}
 

@@ -23,6 +23,7 @@ type ClickhouseHttp struct {
 	client *http.Client
 }
 
+// NewClickHouseHttp creates a new ClickhouseHttp client for the given address and HTTP client.
 func NewClickHouseHttp(log lol.Logger, addr string, clientHttp *http.Client) *ClickhouseHttp {
 	u, err := url.Parse(addr)
 	if err != nil {
@@ -38,6 +39,7 @@ func NewClickHouseHttp(log lol.Logger, addr string, clientHttp *http.Client) *Cl
 	return cli
 }
 
+// Query executes a SQL query against ClickHouse over HTTP and returns the response body as an io.ReadCloser.
 func (r *ClickhouseHttp) Query(ctx context.Context, query string) (res io.ReadCloser, err error) {
 	r.log.Debugln(query)
 
@@ -46,11 +48,13 @@ func (r *ClickhouseHttp) Query(ctx context.Context, query string) (res io.ReadCl
 	return r.request(ctx, http.MethodPost, "", bodyReader, http.StatusOK)
 }
 
+// Ping checks the health of the ClickHouse HTTP endpoint.
 func (r *ClickhouseHttp) Ping(ctx context.Context) error {
 	_, err := r.request(ctx, http.MethodGet, "/ping", nil, http.StatusOK)
 	return err
 }
 
+// request performs an HTTP request to the ClickHouse server and returns the response body if the status code matches expectedStatusCode.
 func (r *ClickhouseHttp) request(
 	ctx context.Context,
 	method string,

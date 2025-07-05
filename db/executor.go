@@ -31,14 +31,17 @@ type (
 	}
 )
 
+// NewExecutor creates a new Executor using the provided logger and Handler.
 func NewExecutor(log lol.Logger, db Handler) Executor {
 	return newExecutor(log, db)
 }
 
+// NewDatabaseSqlExecutor creates a new Executor for a *sql.DB database.
 func NewDatabaseSqlExecutor(log lol.Logger, db *sql.DB) Executor {
 	return newDatabaseSqlExecutor(log, db)
 }
 
+// NewExecutorPgx creates a new Executor for a pgxpool.Pool database.
 func NewExecutorPgx(log lol.Logger, db *pgxpool.Pool) Executor {
 	return newPgxExecutor(log, db)
 }

@@ -3,6 +3,7 @@ package db
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"testing"
 
 	"github.com/sonirico/vago/lol"
@@ -24,7 +25,7 @@ var (
 	log     = lol.ZeroTestLogger
 )
 
-func TestDatabaseServiceDo(t *testing.T) {
+func TestExecutorDo(t *testing.T) {
 
 	tests := []test{
 		{
@@ -101,9 +102,9 @@ func TestDatabaseServiceDo(t *testing.T) {
 
 		defer db.Close()
 
-		dbSvc := newDatabaseSqlExecutor(log, db)
+		ex := newDatabaseSqlExecutor(log, db)
 
-		err := dbSvc.Do(context.Background(), testcase.input)
+		err := ex.Do(context.Background(), testcase.input)
 
 		if !errors.Is(err, testcase.want) {
 			t.Errorf("Expected: %v, got: %v", testcase.want, err)
@@ -112,7 +113,7 @@ func TestDatabaseServiceDo(t *testing.T) {
 	}
 }
 
-func TestDatabaseServiceDoWithTx(t *testing.T) {
+func TestExecutorDoWithTx(t *testing.T) {
 
 	tests := []test{
 		{
@@ -196,13 +197,49 @@ func TestDatabaseServiceDoWithTx(t *testing.T) {
 
 		defer db.Close()
 
-		dbSvc := newDatabaseSqlExecutor(log, db)
+		ex := newDatabaseSqlExecutor(log, db)
 
-		err := dbSvc.DoWithTx(context.Background(), testcase.input)
+		err := ex.DoWithTx(context.Background(), testcase.input)
 
 		if !errors.Is(err, testcase.want) {
 			t.Errorf("Expected: %v, got: %v", testcase.want, err)
 		}
 
 	}
+}
+
+// Example for Do and DoWithTx usage with a database service and context.
+func ExampleExecutor() {
+	db, mock, _ := sqlmock.New(
+		sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
+	defer db.Close()
+	log := lol.ZeroTestLogger
+
+	// Setup mock expectations
+	mock.ExpectQuery("SELECT 1;").
+		WillReturnRows(sqlmock.NewRows([]string{"n"}).AddRow(1))
+
+	ex := newDatabaseSqlExecutor(log, db)
+
+	err := ex.Do(context.Background(), func(ctx Context) error {
+		var n int
+		return ctx.Querier().
+			QueryRowContext(ctx, "SELECT 1;").Scan(&n)
+	})
+	fmt.Println("Do error:", err)
+
+	mock.ExpectBegin()
+	mock.ExpectQuery("SELECT 2;").
+		WillReturnRows(sqlmock.NewRows([]string{"n"}).AddRow(2))
+	mock.ExpectCommit()
+
+	err = ex.DoWithTx(context.Background(), func(ctx Context) error {
+		var n int
+		return ctx.Querier().QueryRowContext(ctx, "SELECT 2;").Scan(&n)
+	})
+	fmt.Println("DoWithTx error:", err)
+
+	// Output:
+	// Do error: <nil>
+	// DoWithTx error: <nil>
 }

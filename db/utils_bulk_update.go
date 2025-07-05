@@ -26,50 +26,45 @@ type (
 
 // TODO: Make BulkUpdateReturning
 
-func BulkUpdate(
-	ctx Context, logger lol.Logger, rows bulkUpdate, tableName string,
-) (Result, error) {
+// BulkUpdateSQL returns the SQL statement and arguments for a bulk update.
+func BulkUpdateSQL(rows bulkUpdate, tableName string) (string, []any, error) {
 	if rows.Len() < 1 {
-		return nil, errors.New("empty rows")
+		return "", nil, errors.New("empty rows")
 	}
 
-	var (
-		row  = rows.Get(0)
-		cols = row.BulkUpdateCols()
+	row := rows.Get(0)
+	cols := row.BulkUpdateCols()
 
-		valuePlaceholders = make([]string, 0, rows.Len()*(len(cols)))
-		args              = make([]any, 0, rows.Len()*len(cols))
-	)
+	valuePlaceholders := make([]string, 0, rows.Len()*(len(cols)))
+	args := make([]any, 0, rows.Len()*len(cols))
 
 	pk := row.PK()
 	pkType, pkName := pk[0], pk[1]
 
-	var (
-		setStmt = strings.Join(slices.Map(cols, func(t [2]string) string {
-			colType, colName := t[0], t[1]
-			return fmt.Sprintf("%s = bulk_update_tmp.%s::%s", colName, colName, colType)
-		}), ",")
+	setStmt := strings.Join(slices.Map(cols, func(t [2]string) string {
+		colType, colName := t[0], t[1]
+		return fmt.Sprintf("%s = bulk_update_tmp.%s::%s", colName, colName, colType)
+	}), ",")
 
-		whereStmt = fmt.Sprintf(
-			"%s.%s::%s = bulk_update_tmp.%s::%s",
-			tableName,
-			pkName,
-			pkType,
-			pkName,
-			pkType,
-		)
-
-		tupleDef = fmt.Sprintf(
-			"%s, %s",
-			pkName,
-			strings.Join(slices.Map(cols, func(colDef [2]string) string {
-				return colDef[1]
-			}), ", "),
-		)
-
-		cursor = 1
-		tpl    string
+	whereStmt := fmt.Sprintf(
+		"%s.%s::%s = bulk_update_tmp.%s::%s",
+		tableName,
+		pkName,
+		pkType,
+		pkName,
+		pkType,
 	)
+
+	tupleDef := fmt.Sprintf(
+		"%s, %s",
+		pkName,
+		strings.Join(slices.Map(cols, func(colDef [2]string) string {
+			return colDef[1]
+		}), ", "),
+	)
+
+	cursor := 1
+	tpl := ""
 
 	colsWithPk := append([][2]string{pk}, cols...)
 
@@ -93,8 +88,17 @@ func BulkUpdate(
 		tupleDef,
 		whereStmt,
 	)
+	return stmt, args, nil
+}
 
+// BulkUpdate executes a bulk update operation on the database.
+func BulkUpdate(
+	ctx Context, logger lol.Logger, rows bulkUpdate, tableName string,
+) (Result, error) {
+	stmt, args, err := BulkUpdateSQL(rows, tableName)
+	if err != nil {
+		return nil, err
+	}
 	logger.Debugln(stmt, args)
-
 	return ctx.Querier().ExecContext(ctx, stmt, args...)
 }
