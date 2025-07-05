@@ -1,7 +1,7 @@
 
 <div align="center">
-  <img src="vago.png" alt="Visigoth" width="200"/>
-  
+  <img src="vago.gif" alt="a golang gopher napping in the beach" title="a golang gopher napping in the beach" width="200"/>
+
   # vago
   
   The ultimate toolkit for vaGo developers. A comprehensive collection of functions, data structures, and utilities designed to enhance productivity and code quality with no learning curve and less effort.
