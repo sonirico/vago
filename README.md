@@ -30,7 +30,7 @@ This project leverages Go workspaces to provide **isolated dependencies** for ea
 ## <a name="table-of-contents"></a>Table of Contents
 
 - [🪄 Fp](#fp) - 15 functions
-- [📝 Lol](#lol) - 6 functions
+- [📝 Lol](#lol) - 4 functions
 - [🗝️ Maps](#maps) - 8 functions
 - [🔢 Num](#num) - 14 functions
 - [⛓️ Slices](#slices) - 10 functions
@@ -608,12 +608,12 @@ Key features:
 
 Basic usage:
 
-	logger := lol.NewZerologLogger(
-		lol.Fields{"service": "myapp"},
-		"production",
-		"info",
-		os.Stdout,
-		lol.APMConfig{Enabled: true},
+	logger := lol.NewZerolog(
+		lol.WithFields(lol.Fields{"service": "myapp"}),
+		lol.WithEnv("production"),
+		lol.WithLevel("info"),
+		lol.WithWriter(os.Stdout),
+		lol.WithAPM(lol.APMConfig{Enabled: true}),
 	)
 
 	logger.Info("Application started")
@@ -629,10 +629,8 @@ For testing:
 
 - [Logger_LogLevels](#lol-logger_loglevels)
 - [Logger_WithField](#lol-logger_withfield)
-- [NewTest](#lol-newtest)
-- [NewZerologLogger](#lol-newzerologlogger)
-- [ParseEnv](#lol-parseenv)
-- [ParseLevel](#lol-parselevel)
+- [Logger_WithTrace](#lol-logger_withtrace)
+- [NewZerolog](#lol-newzerolog)
 
 #### lol Logger_LogLevels
 
@@ -645,12 +643,11 @@ ExampleLogger_LogLevels demonstrates different log levels
 func ExampleLogger_LogLevels() {
 	var buf bytes.Buffer
 
-	logger := NewZerologLogger(
-		Fields{"component": "auth"},
-		"development",
-		"trace", // Set to trace level to see all messages
-		&buf,
-		APMConfig{Enabled: false},
+	logger := NewZerolog(
+		WithFields(Fields{"component": "auth"}),
+		WithEnv(EnvDev),
+		WithLevel(LevelTrace), // Set to trace level to see all messages
+		WithWriter(&buf),
 	)
 
 	// Log at different levels
@@ -706,12 +703,11 @@ ExampleLogger_WithField demonstrates adding contextual fields to log messages
 func ExampleLogger_WithField() {
 	var buf bytes.Buffer
 
-	logger := NewZerologLogger(
-		Fields{"app": "demo"},
-		"development",
-		"debug",
-		&buf,
-		APMConfig{Enabled: false},
+	logger := NewZerolog(
+		WithFields(Fields{"app": "demo"}),
+		WithEnv(EnvDev),
+		WithLevel(LevelDebug),
+		WithWriter(&buf),
 	)
 
 	// Chain multiple fields
@@ -750,29 +746,77 @@ func ExampleLogger_WithField() {
 
 ---
 
-#### lol NewTest
+#### lol Logger_WithTrace
 
-ExampleNewTest demonstrates creating a test logger that doesn't output anything
+ExampleLogger_WithTrace demonstrates APM trace context integration
 
 
 <details><summary>Code</summary>
 
 ```go
-func ExampleNewTest() {
-	// Create a test logger for unit tests
-	testLogger := NewTest()
+func ExampleLogger_WithTrace() {
+	var buf bytes.Buffer
 
-	// These messages won't be printed to stdout/stderr
-	testLogger.Info("This is a test message")
-	testLogger.Error("This error won't be shown")
-	testLogger.WithField("test_field", "test_value").Debug("Debug message")
+	logger := NewZerolog(
+		WithFields(Fields{"service": "payment-service"}),
+		WithEnv(EnvDev),
+		WithLevel(LevelInfo),
+		WithWriter(&buf),
+		WithApm(), // Enable APM tracing
+	)
 
-	fmt.Println("Test logger created successfully")
-	fmt.Println("Messages logged silently for testing")
+	// Create an APM transaction (simulating real APM integration)
+	tracer := apm.DefaultTracer()
+	tx := tracer.StartTransaction("payment-processing", "request")
+	defer tx.End()
+
+	// Create context with the transaction
+	ctx := apm.ContextWithTransaction(context.Background(), tx)
+
+	// Start a span for more detailed tracing
+	span, ctx := apm.StartSpan(ctx, "payment-validation", "internal")
+	defer span.End()
+
+	// Create a logger with trace context
+	tracedLogger := logger.WithTrace(ctx)
+
+	// Log with trace context - these should include APM trace fields
+	tracedLogger.Info("Processing payment request")
+	tracedLogger.WithField("payment_id", "pay_123").
+		WithField("amount", 99.99).
+		Info("Payment validation started")
+
+	// Log without trace context for comparison
+	logger.Info("Regular log message without trace context")
+
+	output := buf.String()
+	fmt.Printf(
+		"Output contains 'Processing payment': %t\n",
+		bytes.Contains([]byte(output), []byte("Processing payment")),
+	)
+	fmt.Printf(
+		"Output contains 'payment_id': %t\n",
+		bytes.Contains([]byte(output), []byte("payment_id")),
+	)
+	fmt.Printf(
+		"Output contains 'service': %t\n",
+		bytes.Contains([]byte(output), []byte("service")),
+	)
+
+	// Check for APM trace fields in the output
+	// The apmzerolog hook should add these fields when WithTrace is used
+	fmt.Printf(
+		"Output contains trace information: %t\n",
+		bytes.Contains([]byte(output), []byte("trace")) ||
+			bytes.Contains([]byte(output), []byte("transaction")) ||
+			bytes.Contains([]byte(output), []byte("span")),
+	)
 
 	// Output:
-	// Test logger created successfully
-	// Messages logged silently for testing
+	// Output contains 'Processing payment': true
+	// Output contains 'payment_id': true
+	// Output contains 'service': true
+	// Output contains trace information: true
 }
 ```
 
@@ -783,24 +827,23 @@ func ExampleNewTest() {
 
 ---
 
-#### lol NewZerologLogger
+#### lol NewZerolog
 
-ExampleNewZerologLogger demonstrates creating a structured logger with zerolog backend
+ExampleNewZerolog demonstrates creating a structured logger with zerolog backend
 
 
 <details><summary>Code</summary>
 
 ```go
-func ExampleNewZerologLogger() {
+func ExampleNewZerolog() {
 	// Create a logger with custom fields and configuration
 	var buf bytes.Buffer
 
-	logger := NewZerologLogger(
-		Fields{"service": "example-app", "version": "1.0.0"},
-		"production",
-		"info",
-		&buf,
-		APMConfig{Enabled: false}, // Disable APM for this example
+	logger := NewZerolog(
+		WithFields(Fields{"service": "example-app", "version": "1.0.0"}),
+		WithEnv(EnvProd),
+		WithLevel(LevelInfo),
+		WithWriter(&buf),
 	)
 
 	// Log some messages
@@ -821,78 +864,16 @@ func ExampleNewZerologLogger() {
 		bytes.Contains(buf.Bytes(), []byte("service")),
 	)
 
+	fmt.Printf(
+		"Logged output contains 'version': %t\n",
+		bytes.Contains(buf.Bytes(), []byte("version")),
+	)
+
 	// Output:
 	// Logged output contains 'Application started': true
 	// Logged output contains 'user_id': true
 	// Logged output contains 'service': true
-}
-```
-
-</details>
-
-
-[⬆️ Back to Top](#table-of-contents)
-
----
-
-#### lol ParseEnv
-
-ExampleParseEnv demonstrates parsing environment strings
-
-
-<details><summary>Code</summary>
-
-```go
-func ExampleParseEnv() {
-	// Parse different environments
-	envs := []string{"test", "local", "development", "staging", "production"}
-
-	for _, envStr := range envs {
-		env := ParseEnv(envStr)
-		fmt.Printf("Environment '%s' parsed as: %d\n", envStr, env)
-	}
-
-	// Output:
-	// Environment 'test' parsed as: 0
-	// Environment 'local' parsed as: 1
-	// Environment 'development' parsed as: 2
-	// Environment 'staging' parsed as: 3
-	// Environment 'production' parsed as: 4
-}
-```
-
-</details>
-
-
-[⬆️ Back to Top](#table-of-contents)
-
----
-
-#### lol ParseLevel
-
-ExampleParseLevel demonstrates parsing log levels from strings
-
-
-<details><summary>Code</summary>
-
-```go
-func ExampleParseLevel() {
-	// Parse different log levels
-	levels := []string{"trace", "debug", "info", "warn", "error", "fatal", "panic"}
-
-	for _, levelStr := range levels {
-		level := ParseLevel(levelStr)
-		fmt.Printf("Level '%s' parsed as: %d\n", levelStr, level)
-	}
-
-	// Output:
-	// Level 'trace' parsed as: 6
-	// Level 'debug' parsed as: 5
-	// Level 'info' parsed as: 4
-	// Level 'warn' parsed as: 3
-	// Level 'error' parsed as: 2
-	// Level 'fatal' parsed as: 1
-	// Level 'panic' parsed as: 0
+	// Logged output contains 'version': true
 }
 ```
 
@@ -2070,7 +2051,7 @@ Package streams provides interfaces and types for reading and writing streams of
 - [CSVTransform](#streams-csvtransform)
 - [CSVTransform_tabSeparated](#streams-csvtransform_tabseparated)
 - [ConsumeErrSkip](#streams-consumeerrskip)
-- [DatabaseStream](#streams-databasestream)
+- [DB](#streams-db)
 - [Filter](#streams-filter)
 - [FilterMap](#streams-filtermap)
 - [Flatten](#streams-flatten)
@@ -2291,15 +2272,15 @@ func ExampleConsumeErrSkip() {
 
 ---
 
-#### streams DatabaseStream
+#### streams DB
 
-ExampleStream demonstrates how to use Stream with database rows.
+ExampleDB demonstrates how to use DB with database rows.
 
 
 <details><summary>Code</summary>
 
 ```go
-func ExampleDatabaseStream() {
+func ExampleDB() {
 	// Mock data that simulates database rows
 	mockData := &mockRows{
 		data: [][]any{
