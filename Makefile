@@ -1,5 +1,5 @@
-SOURCE_FILES ?=./... ./db/... ./lol/...
-TEST_OPTIONS := -v -failfast -race
+SOURCE_FILES ?=./... ./db/... ./lol/... ./num/...
+TEST_OPTIONS := -json -v -failfast -race
 TEST_PATTERN ?=.
 BENCH_OPTIONS ?= -v -bench=. -benchmem
 CLEAN_OPTIONS ?=-modcache -testcache
@@ -10,7 +10,7 @@ all: help
 
 .PHONY: help
 help:
-	@echo "make format - use gofmt, goimports, golines"
+	@echo "make fmt - use gofmt, goimports, golines"
 	@echo "make lint - run golangci-lint"
 	@echo "make test - run go test including race detection"
 	@echo "make bench - run go test including benchmarking"
@@ -31,7 +31,7 @@ lint:
 
 .PHONY: test
 test:
-	CGO_ENABLED=1 go test ${TEST_OPTIONS} ${SOURCE_FILES} -run ${TEST_PATTERN} -timeout=${TEST_TIMEOUT}
+	CGO_ENABLED=1 go test ${TEST_OPTIONS} ${SOURCE_FILES} -run ${TEST_PATTERN} -timeout=${TEST_TIMEOUT} | tparse --all --progress
 
 .PHONY: bench
 bench:
@@ -45,3 +45,4 @@ docs:
 setup:
 	go install golang.org/x/tools/cmd/goimports@latest
 	go install github.com/segmentio/golines@latest
+	go install github.com/mfridman/tparse@latest

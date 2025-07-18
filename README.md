@@ -1,6 +1,6 @@
 
 <div align="center">
-  <img src="vago.gif" alt="a golang gopher napping in the beach" title="a golang gopher napping in the beach" width="200"/>
+  <img src="vago.png" alt="a golang gopher napping in the beach" title="a golang gopher napping in the beach" width="200"/>
 
   # vago
   
@@ -30,6 +30,7 @@ This project leverages Go workspaces to provide **isolated dependencies** for ea
 ## <a name="table-of-contents"></a>Table of Contents
 
 - [🗃️ Db](#db) - 6 functions
+- [🪾 Ent](#ent) - 18 functions
 - [🪄 Fp](#fp) - 15 functions
 - [📝 Lol](#lol) - 4 functions
 - [🗝️ Maps](#maps) - 8 functions
@@ -317,6 +318,566 @@ func ExampleOrderBy_usage() {
 	// Output:
 	//  ORDER BY foo ASC
 	//  ORDER BY foo DESC
+}
+```
+
+</details>
+
+
+[⬆️ Back to Top](#table-of-contents)
+
+---
+
+
+[⬆️ Back to Top](#table-of-contents)
+
+
+<br/>
+
+## <a name="ent"></a>🪾 Ent
+
+Package ent provides utilities for managing environment variables in a type-safe manner.
+
+
+### Functions
+
+- [Bool](#ent-bool)
+- [CondStrOrPanic](#ent-condstrorpanic)
+- [Contains](#ent-contains)
+- [Duration](#ent-duration)
+- [Enum](#ent-enum)
+- [EnumOrPanic](#ent-enumorpanic)
+- [FixedStrOrPanic](#ent-fixedstrorpanic)
+- [Float64](#ent-float64)
+- [Get](#ent-get)
+- [Int](#ent-int)
+- [Int64](#ent-int64)
+- [Int64OrPanic](#ent-int64orpanic)
+- [IntOrPanic](#ent-intorpanic)
+- [JSON](#ent-json)
+- [SliceInt](#ent-sliceint)
+- [SliceStr](#ent-slicestr)
+- [Str](#ent-str)
+- [StrOrPanic](#ent-strorpanic)
+
+#### ent Bool
+
+ExampleBool demonstrates how to retrieve boolean environment variables with various true/false representations.
+
+
+<details><summary>Code</summary>
+
+```go
+func ExampleBool() {
+	// Set environment variable
+	os.Setenv("DEBUG", "true")
+	defer os.Unsetenv("DEBUG")
+
+	debug := Bool("DEBUG", false)
+	fmt.Println(debug)
+	// Output:
+	// 
+	// true
+}
+```
+
+</details>
+
+
+[⬆️ Back to Top](#table-of-contents)
+
+---
+
+#### ent CondStrOrPanic
+
+ExampleCondStrOrPanic demonstrates how to conditionally retrieve environment variables with panic on missing values.
+
+
+<details><summary>Code</summary>
+
+```go
+func ExampleCondStrOrPanic() {
+	// Set environment variable
+	os.Setenv("DEBUG_MODE", "true")
+	defer os.Unsetenv("DEBUG_MODE")
+
+	// Get value only if condition is true
+	debugMode := CondStrOrPanic(true, "DEBUG_MODE")
+	fmt.Println(debugMode)
+
+	// Returns empty string if condition is false
+	emptyValue := CondStrOrPanic(false, "DEBUG_MODE")
+	fmt.Println(emptyValue)
+	// Output:
+	// 
+	// true
+	//
+}
+```
+
+</details>
+
+
+[⬆️ Back to Top](#table-of-contents)
+
+---
+
+#### ent Contains
+
+ExampleContains demonstrates how to check if a value exists in a slice of strings.
+
+
+<details><summary>Code</summary>
+
+```go
+func ExampleContains() {
+	fruits := []string{"apple", "banana", "cherry"}
+
+	hasBanana := contains(fruits, "banana")
+	fmt.Println(hasBanana)
+
+	hasOrange := contains(fruits, "orange")
+	fmt.Println(hasOrange)
+	// Output:
+	// 
+	// true
+	// false
+}
+```
+
+</details>
+
+
+[⬆️ Back to Top](#table-of-contents)
+
+---
+
+#### ent Duration
+
+ExampleDuration demonstrates how to retrieve time.Duration environment variables with fallback values.
+
+
+<details><summary>Code</summary>
+
+```go
+func ExampleDuration() {
+	// Set environment variable
+	os.Setenv("REQUEST_TIMEOUT", "30s")
+	defer os.Unsetenv("REQUEST_TIMEOUT")
+
+	timeout := Duration("REQUEST_TIMEOUT", 10*time.Second)
+	fmt.Println(timeout)
+	// Output:
+	// 
+	// 30s
+}
+```
+
+</details>
+
+
+[⬆️ Back to Top](#table-of-contents)
+
+---
+
+#### ent Enum
+
+ExampleEnum demonstrates how to retrieve environment variables with validation against allowed values.
+
+
+<details><summary>Code</summary>
+
+```go
+func ExampleEnum() {
+	// Set environment variable
+	os.Setenv("ENV", "staging")
+	defer os.Unsetenv("ENV")
+
+	env := Enum("ENV", "dev", "dev", "staging", "prod")
+	fmt.Println(env)
+	// Output:
+	// 
+	// staging
+}
+```
+
+</details>
+
+
+[⬆️ Back to Top](#table-of-contents)
+
+---
+
+#### ent EnumOrPanic
+
+ExampleEnumOrPanic demonstrates how to retrieve required environment variables with validation against allowed values, panicking if invalid.
+
+
+<details><summary>Code</summary>
+
+```go
+func ExampleEnumOrPanic() {
+	// Set environment variable
+	os.Setenv("LOG_LEVEL", "info")
+	defer os.Unsetenv("LOG_LEVEL")
+
+	logLevel := EnumOrPanic("LOG_LEVEL", "debug", "info", "warn", "error")
+	fmt.Println(logLevel)
+	// Output:
+	// 
+	// info
+}
+```
+
+</details>
+
+
+[⬆️ Back to Top](#table-of-contents)
+
+---
+
+#### ent FixedStrOrPanic
+
+ExampleFixedStrOrPanic demonstrates how to retrieve environment variables with length validation.
+
+
+<details><summary>Code</summary>
+
+```go
+func ExampleFixedStrOrPanic() {
+	// Set environment variable with exact length
+	os.Setenv("API_KEY", "abc123")
+	defer os.Unsetenv("API_KEY")
+
+	// Get value with length validation
+	apiKey := FixedStrOrPanic("API_KEY", 6)
+	fmt.Println(apiKey)
+	// Output:
+	// 
+	// abc123
+}
+```
+
+</details>
+
+
+[⬆️ Back to Top](#table-of-contents)
+
+---
+
+#### ent Float64
+
+ExampleFloat64 demonstrates how to retrieve float64 environment variables with fallback values.
+
+
+<details><summary>Code</summary>
+
+```go
+func ExampleFloat64() {
+	// Set environment variable
+	os.Setenv("PRICE", "19.99")
+	defer os.Unsetenv("PRICE")
+
+	price := Float64("PRICE", 0.0)
+	fmt.Println(price)
+	// Output:
+	// 
+	// 19.99
+}
+```
+
+</details>
+
+
+[⬆️ Back to Top](#table-of-contents)
+
+---
+
+#### ent Get
+
+ExampleGet demonstrates how to retrieve environment variables with fallback values.
+
+
+<details><summary>Code</summary>
+
+```go
+func ExampleGet() {
+	// Set an environment variable
+	os.Setenv("APP_NAME", "MyApplication")
+	defer os.Unsetenv("APP_NAME")
+
+	// Get existing env var
+	appName := Get("APP_NAME", "DefaultApp")
+	fmt.Println(appName)
+
+	// Get non-existing env var with fallback
+	dbHost := Get("DB_HOST", "localhost")
+	fmt.Println(dbHost)
+	// Output:
+	// 
+	// MyApplication
+	// localhost
+}
+```
+
+</details>
+
+
+[⬆️ Back to Top](#table-of-contents)
+
+---
+
+#### ent Int
+
+ExampleInt demonstrates how to retrieve integer environment variables with fallback values.
+
+
+<details><summary>Code</summary>
+
+```go
+func ExampleInt() {
+	// Set environment variable
+	os.Setenv("WORKER_COUNT", "4")
+	defer os.Unsetenv("WORKER_COUNT")
+
+	workers := Int("WORKER_COUNT", 1)
+	fmt.Println(workers)
+	// Output:
+	// 
+	// 4
+}
+```
+
+</details>
+
+
+[⬆️ Back to Top](#table-of-contents)
+
+---
+
+#### ent Int64
+
+ExampleInt64 demonstrates how to retrieve int64 environment variables with fallback values.
+
+
+<details><summary>Code</summary>
+
+```go
+func ExampleInt64() {
+	// Set environment variable
+	os.Setenv("MAX_CONNECTIONS", "100")
+	defer os.Unsetenv("MAX_CONNECTIONS")
+
+	maxConn := Int64("MAX_CONNECTIONS", 50)
+	fmt.Println(maxConn)
+	// Output:
+	// 
+	// 100
+}
+```
+
+</details>
+
+
+[⬆️ Back to Top](#table-of-contents)
+
+---
+
+#### ent Int64OrPanic
+
+ExampleInt64OrPanic demonstrates how to retrieve required int64 environment variables that panic if missing or invalid.
+
+
+<details><summary>Code</summary>
+
+```go
+func ExampleInt64OrPanic() {
+	// Set required environment variable
+	os.Setenv("PORT", "8080")
+	defer os.Unsetenv("PORT")
+
+	port := Int64OrPanic("PORT")
+	fmt.Println(port)
+	// Output:
+	// 
+	// 8080
+}
+```
+
+</details>
+
+
+[⬆️ Back to Top](#table-of-contents)
+
+---
+
+#### ent IntOrPanic
+
+ExampleIntOrPanic demonstrates how to retrieve required integer environment variables that panic if missing or invalid.
+
+
+<details><summary>Code</summary>
+
+```go
+func ExampleIntOrPanic() {
+	// Set required environment variable
+	os.Setenv("TIMEOUT", "30")
+	defer os.Unsetenv("TIMEOUT")
+
+	timeout := IntOrPanic("TIMEOUT")
+	fmt.Println(timeout)
+	// Output:
+	// 
+	// 30
+}
+```
+
+</details>
+
+
+[⬆️ Back to Top](#table-of-contents)
+
+---
+
+#### ent JSON
+
+ExampleJSON demonstrates how to parse JSON environment variables into Go structs with type safety.
+
+
+<details><summary>Code</summary>
+
+```go
+func ExampleJSON() {
+	type Config struct {
+		Host string `json:"host"`
+		Port int    `json:"port"`
+	}
+
+	// Set environment variable
+	os.Setenv("DB_CONFIG", `{"host":"localhost","port":5432}`)
+	defer os.Unsetenv("DB_CONFIG")
+
+	config, err := JSON[Config]("DB_CONFIG", `{"host":"127.0.0.1","port":3306}`)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(config.Host)
+	// Output:
+	// 
+	// localhost
+}
+```
+
+</details>
+
+
+[⬆️ Back to Top](#table-of-contents)
+
+---
+
+#### ent SliceInt
+
+ExampleSliceInt demonstrates how to retrieve integer slice environment variables from comma-separated values.
+
+
+<details><summary>Code</summary>
+
+```go
+func ExampleSliceInt() {
+	// Set environment variable
+	os.Setenv("PORTS", "8080,8081,8082")
+	defer os.Unsetenv("PORTS")
+
+	ports := SliceInt("PORTS", []int{3000})
+	fmt.Println(len(ports))
+	// Output:
+	// 
+	// 3
+}
+```
+
+</details>
+
+
+[⬆️ Back to Top](#table-of-contents)
+
+---
+
+#### ent SliceStr
+
+ExampleSliceStr demonstrates how to retrieve string slice environment variables from comma-separated values.
+
+
+<details><summary>Code</summary>
+
+```go
+func ExampleSliceStr() {
+	// Set environment variable
+	os.Setenv("ALLOWED_HOSTS", "localhost,127.0.0.1,example.com")
+	defer os.Unsetenv("ALLOWED_HOSTS")
+
+	hosts := SliceStr("ALLOWED_HOSTS", []string{"localhost"})
+	fmt.Println(len(hosts))
+	// Output:
+	// 
+	// 3
+}
+```
+
+</details>
+
+
+[⬆️ Back to Top](#table-of-contents)
+
+---
+
+#### ent Str
+
+ExampleStr demonstrates how to retrieve string environment variables with fallback values.
+
+
+<details><summary>Code</summary>
+
+```go
+func ExampleStr() {
+	// Set environment variable
+	os.Setenv("USER_NAME", "john_doe")
+	defer os.Unsetenv("USER_NAME")
+
+	username := Str("USER_NAME", "anonymous")
+	fmt.Println(username)
+	// Output:
+	// 
+	// john_doe
+}
+```
+
+</details>
+
+
+[⬆️ Back to Top](#table-of-contents)
+
+---
+
+#### ent StrOrPanic
+
+ExampleStrOrPanic demonstrates how to retrieve required environment variables that panic if missing.
+
+
+<details><summary>Code</summary>
+
+```go
+func ExampleStrOrPanic() {
+	// Set required environment variable
+	os.Setenv("REQUIRED_CONFIG", "important_value")
+	defer os.Unsetenv("REQUIRED_CONFIG")
+
+	// Get required value (panics if missing)
+	config := StrOrPanic("REQUIRED_CONFIG")
+	fmt.Println(config)
+	// Output:
+	// 
+	// important_value
 }
 ```
 

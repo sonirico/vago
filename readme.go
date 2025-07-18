@@ -19,7 +19,7 @@ import (
 
 const title = `
 <div align="center">
-  <img src="vago.gif" alt="a golang gopher napping in the beach" title="a golang gopher napping in the beach" width="200"/>
+  <img src="vago.png" alt="a golang gopher napping in the beach" title="a golang gopher napping in the beach" width="200"/>
 
   # vago
   
@@ -49,6 +49,7 @@ This project leverages Go workspaces to provide **isolated dependencies** for ea
 `
 
 var moduleEmojis = map[string]string{
+	"ent":     "🪾",
 	"fp":      "🪄",
 	"maps":    "🗝️",
 	"slices":  "⛓️",
@@ -60,6 +61,7 @@ var moduleEmojis = map[string]string{
 }
 
 var moduleDescriptions = map[string]string{
+	"ent":     "Environment variable management utilities with type-safe retrieval and validation.",
 	"streams": "Powerful data streaming and processing utilities with fluent API for functional programming patterns.",
 	"slices":  "Comprehensive slice manipulation utilities with functional programming patterns.",
 	"maps":    "Map manipulation and transformation utilities.",
@@ -331,7 +333,7 @@ func extractSourceWithComments(
 // readme generates the complete README.md file for the vago project.
 func readme() {
 	modules := []string{
-		"slices", "maps", "fp", "streams", "lol", "num", "db", "zero",
+		"ent", "slices", "maps", "fp", "streams", "lol", "num", "db", "zero",
 	}
 
 	// Open README.md for writing (truncate if exists)
