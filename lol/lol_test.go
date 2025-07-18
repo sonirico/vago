@@ -89,8 +89,8 @@ func ExampleLogger_WithField() {
 	// Output contains 'duration_ms': true
 }
 
-// ExampleLogger_LogLevels demonstrates different log levels
-func ExampleLogger_LogLevels() {
+// ExampleLogger_Trace demonstrates different log levels
+func ExampleLogger_Trace() {
 	var buf bytes.Buffer
 
 	logger := NewZerolog(

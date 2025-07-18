@@ -203,8 +203,8 @@ func ExampleDec_Round() {
 	// Rounded to 0 decimals: 123
 }
 
-// ExampleDec_Compare demonstrates decimal comparison
-func ExampleDec_Compare() {
+// ExampleDec_LessThan demonstrates decimal comparison
+func ExampleDec_LessThan() {
 	// Compare decimal values
 	price1 := MustDecFromString("99.99")
 	price2 := MustDecFromString("100.00")

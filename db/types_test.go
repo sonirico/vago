@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestNullJSON_Scan_Value(t *testing.T) {
+func TestNullJSON_Scan(t *testing.T) {
 	t.Parallel()
 
 	type M map[string]int
@@ -34,14 +34,14 @@ func TestNullJSON_Scan_nil(t *testing.T) {
 	assert.Nil(t, n.JSON)
 }
 
-func ExampleNullJSON_usage() {
+func ExampleNullJSON_Scan() {
 	n := NullJSON[string, int]{}
 	_ = n.Scan([]byte(`{"a":1}`))
 	_, _ = n.Value()
 	fmt.Println(n.JSON)
 	fmt.Println(n.Valid)
 	// Output:
-
+	//
 	// map[a:1]
 	// true
 }
