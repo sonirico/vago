@@ -33,7 +33,7 @@ This project leverages Go workspaces to provide **isolated dependencies** for ea
 - [🪾 Ent](#ent) - 18 functions
 - [🪄 Fp](#fp) - 15 functions
 - [📝 Lol](#lol) - 4 functions
-- [🗝️ Maps](#maps) - 8 functions
+- [🗝️ Maps](#maps) - 12 functions
 - [🔢 Num](#num) - 14 functions
 - [⛓️ Slices](#slices) - 10 functions
 - [🌊 Streams](#streams) - 26 functions
@@ -376,7 +376,7 @@ func ExampleBool() {
 	debug := Bool("DEBUG", false)
 	fmt.Println(debug)
 	// Output:
-	// 
+	//
 	// true
 }
 ```
@@ -409,7 +409,7 @@ func ExampleCondStrOrPanic() {
 	emptyValue := CondStrOrPanic(false, "DEBUG_MODE")
 	fmt.Println(emptyValue)
 	// Output:
-	// 
+	//
 	// true
 	//
 }
@@ -439,7 +439,7 @@ func ExampleContains() {
 	hasOrange := contains(fruits, "orange")
 	fmt.Println(hasOrange)
 	// Output:
-	// 
+	//
 	// true
 	// false
 }
@@ -468,7 +468,7 @@ func ExampleDuration() {
 	timeout := Duration("REQUEST_TIMEOUT", 10*time.Second)
 	fmt.Println(timeout)
 	// Output:
-	// 
+	//
 	// 30s
 }
 ```
@@ -496,7 +496,7 @@ func ExampleEnum() {
 	env := Enum("ENV", "dev", "dev", "staging", "prod")
 	fmt.Println(env)
 	// Output:
-	// 
+	//
 	// staging
 }
 ```
@@ -524,7 +524,7 @@ func ExampleEnumOrPanic() {
 	logLevel := EnumOrPanic("LOG_LEVEL", "debug", "info", "warn", "error")
 	fmt.Println(logLevel)
 	// Output:
-	// 
+	//
 	// info
 }
 ```
@@ -553,7 +553,7 @@ func ExampleFixedStrOrPanic() {
 	apiKey := FixedStrOrPanic("API_KEY", 6)
 	fmt.Println(apiKey)
 	// Output:
-	// 
+	//
 	// abc123
 }
 ```
@@ -581,7 +581,7 @@ func ExampleFloat64() {
 	price := Float64("PRICE", 0.0)
 	fmt.Println(price)
 	// Output:
-	// 
+	//
 	// 19.99
 }
 ```
@@ -614,7 +614,7 @@ func ExampleGet() {
 	dbHost := Get("DB_HOST", "localhost")
 	fmt.Println(dbHost)
 	// Output:
-	// 
+	//
 	// MyApplication
 	// localhost
 }
@@ -643,7 +643,7 @@ func ExampleInt() {
 	workers := Int("WORKER_COUNT", 1)
 	fmt.Println(workers)
 	// Output:
-	// 
+	//
 	// 4
 }
 ```
@@ -671,7 +671,7 @@ func ExampleInt64() {
 	maxConn := Int64("MAX_CONNECTIONS", 50)
 	fmt.Println(maxConn)
 	// Output:
-	// 
+	//
 	// 100
 }
 ```
@@ -699,7 +699,7 @@ func ExampleInt64OrPanic() {
 	port := Int64OrPanic("PORT")
 	fmt.Println(port)
 	// Output:
-	// 
+	//
 	// 8080
 }
 ```
@@ -727,7 +727,7 @@ func ExampleIntOrPanic() {
 	timeout := IntOrPanic("TIMEOUT")
 	fmt.Println(timeout)
 	// Output:
-	// 
+	//
 	// 30
 }
 ```
@@ -763,7 +763,7 @@ func ExampleJSON() {
 	}
 	fmt.Println(config.Host)
 	// Output:
-	// 
+	//
 	// localhost
 }
 ```
@@ -791,7 +791,7 @@ func ExampleSliceInt() {
 	ports := SliceInt("PORTS", []int{3000})
 	fmt.Println(len(ports))
 	// Output:
-	// 
+	//
 	// 3
 }
 ```
@@ -819,7 +819,7 @@ func ExampleSliceStr() {
 	hosts := SliceStr("ALLOWED_HOSTS", []string{"localhost"})
 	fmt.Println(len(hosts))
 	// Output:
-	// 
+	//
 	// 3
 }
 ```
@@ -847,7 +847,7 @@ func ExampleStr() {
 	username := Str("USER_NAME", "anonymous")
 	fmt.Println(username)
 	// Output:
-	// 
+	//
 	// john_doe
 }
 ```
@@ -876,7 +876,7 @@ func ExampleStrOrPanic() {
 	config := StrOrPanic("REQUIRED_CONFIG")
 	fmt.Println(config)
 	// Output:
-	// 
+	//
 	// important_value
 }
 ```
@@ -1484,20 +1484,20 @@ For testing:
 
 ### Functions
 
-- [Logger_LogLevels](#lol-logger_loglevels)
+- [Logger_Trace](#lol-logger_trace)
 - [Logger_WithField](#lol-logger_withfield)
 - [Logger_WithTrace](#lol-logger_withtrace)
 - [NewZerolog](#lol-newzerolog)
 
-#### lol Logger_LogLevels
+#### lol Logger_Trace
 
-ExampleLogger_LogLevels demonstrates different log levels
+ExampleLogger_Trace demonstrates different log levels
 
 
 <details><summary>Code</summary>
 
 ```go
-func ExampleLogger_LogLevels() {
+func ExampleLogger_Trace() {
 	var buf bytes.Buffer
 
 	logger := NewZerolog(
@@ -1761,9 +1761,13 @@ reducing, and comparing maps.
 - [FilterMap](#maps-filtermap)
 - [FilterMapTuple](#maps-filtermaptuple)
 - [Fold](#maps-fold)
+- [Keys](#maps-keys)
 - [Map](#maps-map)
 - [Reduce](#maps-reduce)
+- [SeqKeys](#maps-seqkeys)
+- [SeqValues](#maps-seqvalues)
 - [Slice](#maps-slice)
+- [Values](#maps-values)
 
 #### maps Equals
 
@@ -1950,6 +1954,39 @@ func ExampleFold() {
 
 ---
 
+#### maps Keys
+
+ExampleKeys demonstrates extracting all keys from a map.
+
+
+<details><summary>Code</summary>
+
+```go
+func ExampleKeys() {
+	// Create a map of products to prices
+	prices := map[string]int{
+		"apple":  100,
+		"banana": 50,
+		"cherry": 200,
+	}
+
+	// Extract all product names
+	products := Keys(prices)
+
+	fmt.Printf("Product count: %d\n", len(products))
+	// Note: map iteration order is not guaranteed
+	// Output:
+	// Product count: 3
+}
+```
+
+</details>
+
+
+[⬆️ Back to Top](#table-of-contents)
+
+---
+
 #### maps Map
 
 ExampleMap demonstrates transforming keys and values in a map.
@@ -2016,6 +2053,76 @@ func ExampleReduce() {
 
 ---
 
+#### maps SeqKeys
+
+ExampleSeqKeys demonstrates iterating over map keys using iterator pattern.
+
+
+<details><summary>Code</summary>
+
+```go
+func ExampleSeqKeys() {
+	// Create a map of products to prices
+	prices := map[string]int{
+		"apple":  100,
+		"banana": 50,
+		"cherry": 200,
+	}
+
+	// Iterate over keys lazily
+	keyCount := 0
+	for range SeqKeys(prices) {
+		keyCount++
+	}
+
+	fmt.Printf("Key count: %d\n", keyCount)
+	// Output:
+	// Key count: 3
+}
+```
+
+</details>
+
+
+[⬆️ Back to Top](#table-of-contents)
+
+---
+
+#### maps SeqValues
+
+ExampleSeqValues demonstrates iterating over map values using iterator pattern.
+
+
+<details><summary>Code</summary>
+
+```go
+func ExampleSeqValues() {
+	// Create a map of products to prices
+	prices := map[string]int{
+		"apple":  100,
+		"banana": 50,
+		"cherry": 200,
+	}
+
+	// Calculate total using iterator
+	total := 0
+	for price := range SeqValues(prices) {
+		total += price
+	}
+
+	fmt.Printf("Total price: %d\n", total)
+	// Output:
+	// Total price: 350
+}
+```
+
+</details>
+
+
+[⬆️ Back to Top](#table-of-contents)
+
+---
+
 #### maps Slice
 
 ExampleSlice demonstrates converting a map to a slice.
@@ -2051,6 +2158,39 @@ func ExampleSlice() {
 
 ---
 
+#### maps Values
+
+ExampleValues demonstrates extracting all values from a map.
+
+
+<details><summary>Code</summary>
+
+```go
+func ExampleValues() {
+	// Create a map of products to prices
+	prices := map[string]int{
+		"apple":  100,
+		"banana": 50,
+		"cherry": 200,
+	}
+
+	// Extract all prices
+	allPrices := Values(prices)
+
+	fmt.Printf("Price count: %d\n", len(allPrices))
+	// Note: map iteration order is not guaranteed
+	// Output:
+	// Price count: 3
+}
+```
+
+</details>
+
+
+[⬆️ Back to Top](#table-of-contents)
+
+---
+
 
 [⬆️ Back to Top](#table-of-contents)
 
@@ -2065,9 +2205,9 @@ Numeric utilities including high-precision decimal operations.
 
 - [Abs](#num-abs)
 - [Dec_Add](#num-dec_add)
-- [Dec_Compare](#num-dec_compare)
 - [Dec_Div](#num-dec_div)
 - [Dec_IsZero](#num-dec_iszero)
+- [Dec_LessThan](#num-dec_lessthan)
 - [Dec_Mul](#num-dec_mul)
 - [Dec_Percent](#num-dec_percent)
 - [Dec_Round](#num-dec_round)
@@ -2143,47 +2283,6 @@ func ExampleDec_Add() {
 
 ---
 
-#### num Dec_Compare
-
-ExampleDec_Compare demonstrates decimal comparison
-
-
-<details><summary>Code</summary>
-
-```go
-func ExampleDec_Compare() {
-	// Compare decimal values
-	price1 := MustDecFromString("99.99")
-	price2 := MustDecFromString("100.00")
-	price3 := MustDecFromString("99.99")
-
-	fmt.Printf("Price 1: %s\n", price1.String())
-	fmt.Printf("Price 2: %s\n", price2.String())
-	fmt.Printf("Price 3: %s\n", price3.String())
-
-	fmt.Printf("Price 1 < Price 2: %t\n", price1.LessThan(price2))
-	fmt.Printf("Price 1 > Price 2: %t\n", price1.GreaterThan(price2))
-	fmt.Printf("Price 1 == Price 3: %t\n", price1.Equal(price3))
-	fmt.Printf("Price 1 <= Price 2: %t\n", price1.LessThanOrEqual(price2))
-
-	// Output:
-	// Price 1: 99.99
-	// Price 2: 100
-	// Price 3: 99.99
-	// Price 1 < Price 2: true
-	// Price 1 > Price 2: false
-	// Price 1 == Price 3: true
-	// Price 1 <= Price 2: true
-}
-```
-
-</details>
-
-
-[⬆️ Back to Top](#table-of-contents)
-
----
-
 #### num Dec_Div
 
 ExampleDec_Div demonstrates decimal division
@@ -2239,6 +2338,47 @@ func ExampleDec_IsZero() {
 	// Zero value: 0, IsZero: true
 	// Non-zero value: 0.01, IsZero: false
 	// Also zero: 0, IsZero: true
+}
+```
+
+</details>
+
+
+[⬆️ Back to Top](#table-of-contents)
+
+---
+
+#### num Dec_LessThan
+
+ExampleDec_LessThan demonstrates decimal comparison
+
+
+<details><summary>Code</summary>
+
+```go
+func ExampleDec_LessThan() {
+	// Compare decimal values
+	price1 := MustDecFromString("99.99")
+	price2 := MustDecFromString("100.00")
+	price3 := MustDecFromString("99.99")
+
+	fmt.Printf("Price 1: %s\n", price1.String())
+	fmt.Printf("Price 2: %s\n", price2.String())
+	fmt.Printf("Price 3: %s\n", price3.String())
+
+	fmt.Printf("Price 1 < Price 2: %t\n", price1.LessThan(price2))
+	fmt.Printf("Price 1 > Price 2: %t\n", price1.GreaterThan(price2))
+	fmt.Printf("Price 1 == Price 3: %t\n", price1.Equal(price3))
+	fmt.Printf("Price 1 <= Price 2: %t\n", price1.LessThanOrEqual(price2))
+
+	// Output:
+	// Price 1: 99.99
+	// Price 2: 100
+	// Price 3: 99.99
+	// Price 1 < Price 2: true
+	// Price 1 > Price 2: false
+	// Price 1 == Price 3: true
+	// Price 1 <= Price 2: true
 }
 ```
 
