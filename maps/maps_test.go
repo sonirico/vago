@@ -444,3 +444,315 @@ func ExampleSlice() {
 	// Output:
 	// Users count: 3
 }
+
+func TestKeys(t *testing.T) {
+	type testCase struct {
+		name     string
+		payload  map[string]int
+		expected int // expected length
+	}
+
+	tests := []testCase{
+		{
+			name:     "nil map returns nil slice",
+			payload:  nil,
+			expected: 0,
+		},
+		{
+			name:     "empty map returns empty slice",
+			payload:  map[string]int{},
+			expected: 0,
+		},
+		{
+			name:     "filled map returns all keys",
+			payload:  map[string]int{"apple": 1, "banana": 2, "cherry": 3},
+			expected: 3,
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			actual := Keys(test.payload)
+
+			if test.payload == nil && actual != nil {
+				t.Errorf("expected nil slice for nil map, got %v", actual)
+				return
+			}
+
+			if len(actual) != test.expected {
+				t.Errorf("unexpected slice length\nwant %d\nhave %d",
+					test.expected, len(actual))
+				return
+			}
+
+			// Verify all keys are present (order may vary)
+			if test.payload != nil {
+				for expectedKey := range test.payload {
+					found := false
+					for _, actualKey := range actual {
+						if actualKey == expectedKey {
+							found = true
+							break
+						}
+					}
+					if !found {
+						t.Errorf("missing key %v in result", expectedKey)
+					}
+				}
+			}
+		})
+	}
+}
+
+func TestValues(t *testing.T) {
+	type testCase struct {
+		name     string
+		payload  map[string]int
+		expected int // expected length
+	}
+
+	tests := []testCase{
+		{
+			name:     "nil map returns nil slice",
+			payload:  nil,
+			expected: 0,
+		},
+		{
+			name:     "empty map returns empty slice",
+			payload:  map[string]int{},
+			expected: 0,
+		},
+		{
+			name:     "filled map returns all values",
+			payload:  map[string]int{"apple": 1, "banana": 2, "cherry": 3},
+			expected: 3,
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			actual := Values(test.payload)
+
+			if test.payload == nil && actual != nil {
+				t.Errorf("expected nil slice for nil map, got %v", actual)
+				return
+			}
+
+			if len(actual) != test.expected {
+				t.Errorf("unexpected slice length\nwant %d\nhave %d",
+					test.expected, len(actual))
+				return
+			}
+
+			// Verify all values are present (order may vary)
+			if test.payload != nil {
+				for _, expectedValue := range test.payload {
+					found := false
+					for _, actualValue := range actual {
+						if actualValue == expectedValue {
+							found = true
+							break
+						}
+					}
+					if !found {
+						t.Errorf("missing value %v in result", expectedValue)
+					}
+				}
+			}
+		})
+	}
+}
+
+func TestSeqKeys(t *testing.T) {
+	type testCase struct {
+		name     string
+		payload  map[string]int
+		expected int // expected count
+	}
+
+	tests := []testCase{
+		{
+			name:     "nil map yields no keys",
+			payload:  nil,
+			expected: 0,
+		},
+		{
+			name:     "empty map yields no keys",
+			payload:  map[string]int{},
+			expected: 0,
+		},
+		{
+			name:     "filled map yields all keys",
+			payload:  map[string]int{"apple": 1, "banana": 2, "cherry": 3},
+			expected: 3,
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			seq := SeqKeys(test.payload)
+
+			var actualKeys []string
+			for key := range seq {
+				actualKeys = append(actualKeys, key)
+			}
+
+			if len(actualKeys) != test.expected {
+				t.Errorf("unexpected key count\nwant %d\nhave %d",
+					test.expected, len(actualKeys))
+				return
+			}
+
+			// Verify all keys are present (order may vary)
+			if test.payload != nil {
+				for expectedKey := range test.payload {
+					found := false
+					for _, actualKey := range actualKeys {
+						if actualKey == expectedKey {
+							found = true
+							break
+						}
+					}
+					if !found {
+						t.Errorf("missing key %v in result", expectedKey)
+					}
+				}
+			}
+		})
+	}
+}
+
+func TestSeqValues(t *testing.T) {
+	type testCase struct {
+		name     string
+		payload  map[string]int
+		expected int // expected count
+	}
+
+	tests := []testCase{
+		{
+			name:     "nil map yields no values",
+			payload:  nil,
+			expected: 0,
+		},
+		{
+			name:     "empty map yields no values",
+			payload:  map[string]int{},
+			expected: 0,
+		},
+		{
+			name:     "filled map yields all values",
+			payload:  map[string]int{"apple": 1, "banana": 2, "cherry": 3},
+			expected: 3,
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			seq := SeqValues(test.payload)
+
+			var actualValues []int
+			for value := range seq {
+				actualValues = append(actualValues, value)
+			}
+
+			if len(actualValues) != test.expected {
+				t.Errorf("unexpected value count\nwant %d\nhave %d",
+					test.expected, len(actualValues))
+				return
+			}
+
+			// Verify all values are present (order may vary)
+			if test.payload != nil {
+				for _, expectedValue := range test.payload {
+					found := false
+					for _, actualValue := range actualValues {
+						if actualValue == expectedValue {
+							found = true
+							break
+						}
+					}
+					if !found {
+						t.Errorf("missing value %v in result", expectedValue)
+					}
+				}
+			}
+		})
+	}
+}
+
+// ExampleKeys demonstrates extracting all keys from a map.
+func ExampleKeys() {
+	// Create a map of products to prices
+	prices := map[string]int{
+		"apple":  100,
+		"banana": 50,
+		"cherry": 200,
+	}
+
+	// Extract all product names
+	products := Keys(prices)
+
+	fmt.Printf("Product count: %d\n", len(products))
+	// Note: map iteration order is not guaranteed
+	// Output:
+	// Product count: 3
+}
+
+// ExampleValues demonstrates extracting all values from a map.
+func ExampleValues() {
+	// Create a map of products to prices
+	prices := map[string]int{
+		"apple":  100,
+		"banana": 50,
+		"cherry": 200,
+	}
+
+	// Extract all prices
+	allPrices := Values(prices)
+
+	fmt.Printf("Price count: %d\n", len(allPrices))
+	// Note: map iteration order is not guaranteed
+	// Output:
+	// Price count: 3
+}
+
+// ExampleSeqKeys demonstrates iterating over map keys using iterator pattern.
+func ExampleSeqKeys() {
+	// Create a map of products to prices
+	prices := map[string]int{
+		"apple":  100,
+		"banana": 50,
+		"cherry": 200,
+	}
+
+	// Iterate over keys lazily
+	keyCount := 0
+	for range SeqKeys(prices) {
+		keyCount++
+	}
+
+	fmt.Printf("Key count: %d\n", keyCount)
+	// Output:
+	// Key count: 3
+}
+
+// ExampleSeqValues demonstrates iterating over map values using iterator pattern.
+func ExampleSeqValues() {
+	// Create a map of products to prices
+	prices := map[string]int{
+		"apple":  100,
+		"banana": 50,
+		"cherry": 200,
+	}
+
+	// Calculate total using iterator
+	total := 0
+	for price := range SeqValues(prices) {
+		total += price
+	}
+
+	fmt.Printf("Total price: %d\n", total)
+	// Output:
+	// Total price: 350
+}

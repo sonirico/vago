@@ -4,6 +4,10 @@
 package maps
 
 import (
+	"iter"
+	"maps"
+	nslices "slices"
+
 	"github.com/sonirico/vago/fp"
 	"github.com/sonirico/vago/slices"
 	"github.com/sonirico/vago/tuples"
@@ -239,4 +243,42 @@ func Slice[K comparable, V, R any](
 	}
 
 	return res
+}
+
+// Values extracts all values from a map and returns them as a slice.
+// The order of values in the resulting slice is not guaranteed, as map iteration
+// in Go is not deterministic.
+//
+// This function uses Go's built-in maps.Values iterator and collects the results
+// into a standard slice for convenient manipulation.
+func Values[K comparable, V any](m map[K]V) []V {
+	return nslices.Collect(maps.Values(m))
+}
+
+// Keys extracts all keys from a map and returns them as a slice.
+// The order of keys in the resulting slice is not guaranteed, as map iteration
+// in Go is not deterministic.
+//
+// This function uses Go's built-in maps.Keys iterator and collects the results
+// into a standard slice for convenient manipulation.
+func Keys[K comparable, V any](m map[K]V) []K {
+	return nslices.Collect(maps.Keys(m))
+}
+
+// SeqKeys returns an iterator sequence that yields all keys from a map.
+// This function uses Go 1.23's iterator pattern and leverages the built-in maps.Keys function.
+//
+// The iteration order is not guaranteed, as map iteration in Go is not deterministic.
+// This is useful for streaming operations or when you want to process keys lazily.
+func SeqKeys[K comparable, V any](m map[K]V) iter.Seq[K] {
+	return maps.Keys(m)
+}
+
+// SeqValues returns an iterator sequence that yields all values from a map.
+// This function uses Go 1.23's iterator pattern and leverages the built-in maps.Values function.
+//
+// The iteration order is not guaranteed, as map iteration in Go is not deterministic.
+// This is useful for streaming operations or when you want to process values lazily.
+func SeqValues[K comparable, V any](m map[K]V) iter.Seq[V] {
+	return maps.Values(m)
 }
