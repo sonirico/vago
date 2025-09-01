@@ -1,13 +1,13 @@
 module github.com/sonirico/vago/num
 
-go 1.23.0
+go 1.24.0
 
-toolchain go1.23.9
+toolchain go1.24.2
 
 require (
 	github.com/shopspring/decimal v1.4.0
-	github.com/stretchr/testify v1.10.0
-	golang.org/x/exp v0.0.0-20230510235704-dd950f8aeaea
+	github.com/stretchr/testify v1.11.1
+	golang.org/x/exp v0.0.0-20250819193227-8b4c13bb791b
 )
 
 require (
