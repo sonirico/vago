@@ -498,3 +498,90 @@ func ForEach[T any](arr []T, fn func(t T)) {
 		fn(x)
 	}
 }
+
+// Uniq removes duplicate elements from the slice.
+// Returns a new slice with unique elements.
+func Uniq[T comparable](arr []T) []T {
+	if arr == nil {
+		return nil
+	}
+
+	seen := make(map[T]struct{})
+	res := make([]T, 0, len(arr))
+	for _, x := range arr {
+		if _, ok := seen[x]; !ok {
+			seen[x] = struct{}{}
+			res = append(res, x)
+		}
+	}
+	return res
+}
+
+// UniqFn removes duplicate elements from the slice based on a custom equality function.
+// Returns a new slice with unique elements.
+func UniqFn[T any](arr []T, fn func(a, b T) bool) []T {
+	if arr == nil {
+		return nil
+	}
+
+	res := make([]T, 0, len(arr))
+	for i, x := range arr {
+		unique := true
+		for j := range i {
+			if fn(x, arr[j]) {
+				unique = false
+				break
+			}
+		}
+		if unique {
+			res = append(res, x)
+		}
+	}
+	return res
+}
+
+// UniqSorted removes duplicate elements from a sorted slice.
+// Returns a new slice with unique elements.
+func UniqSorted[T comparable](arr []T) []T {
+	if arr == nil {
+		return nil
+	}
+
+	if len(arr) == 0 {
+		return []T{}
+	}
+
+	res := make([]T, 0, len(arr))
+	res = append(res, arr[0])
+	for i := 1; i < len(arr); i++ {
+		x := arr[i]
+		if x != res[len(res)-1] {
+			res = append(res, x)
+		}
+	}
+
+	return res
+}
+
+// UniqSortedFn removes duplicate elements from a sorted slice based on a custom equality function.
+// Returns a new slice with unique elements.
+func UniqSortedFn[T any](arr []T, fn func(a, b T) bool) []T {
+	if arr == nil {
+		return nil
+	}
+
+	if len(arr) == 0 {
+		return []T{}
+	}
+
+	res := make([]T, 0, len(arr))
+	res = append(res, arr[0])
+	for i := 1; i < len(arr); i++ {
+		x := arr[i]
+		if !fn(x, res[len(res)-1]) {
+			res = append(res, x)
+		}
+	}
+
+	return res
+}

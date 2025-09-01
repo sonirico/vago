@@ -1527,3 +1527,588 @@ func ExampleRange() {
 	// 3 4
 	// 4 5
 }
+
+func TestUniq(t *testing.T) {
+	type testCase struct {
+		name     string
+		payload  []int
+		expected []int
+	}
+
+	tests := []testCase{
+		{
+			name:     "nil slice should return nil",
+			payload:  nil,
+			expected: nil,
+		},
+		{
+			name:     "empty slice should return empty slice",
+			payload:  []int{},
+			expected: []int{},
+		},
+		{
+			name:     "slice with no duplicates should return same slice",
+			payload:  []int{1, 2, 3, 4, 5},
+			expected: []int{1, 2, 3, 4, 5},
+		},
+		{
+			name:     "slice with duplicates should return unique elements",
+			payload:  []int{1, 2, 2, 3, 3, 3, 4, 5, 5},
+			expected: []int{1, 2, 3, 4, 5},
+		},
+		{
+			name:     "slice with all same elements should return single element",
+			payload:  []int{7, 7, 7, 7},
+			expected: []int{7},
+		},
+		{
+			name:     "slice with duplicates at different positions",
+			payload:  []int{3, 1, 4, 1, 5, 9, 2, 6, 5, 3},
+			expected: []int{3, 1, 4, 5, 9, 2, 6},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			actual := Uniq(test.payload)
+
+			if !Equals(test.expected, actual, func(x, y int) bool {
+				return x == y
+			}) {
+				t.Errorf("unexpected result\nwant: %v\nhave: %v", test.expected, actual)
+			}
+		})
+	}
+}
+
+func TestUniqFn(t *testing.T) {
+	type person struct {
+		name string
+		age  int
+	}
+
+	type testCase struct {
+		name     string
+		payload  []person
+		expected []person
+		eqFn     func(a, b person) bool
+	}
+
+	tests := []testCase{
+		{
+			name:     "nil slice should return nil",
+			payload:  nil,
+			expected: nil,
+			eqFn: func(a, b person) bool {
+				return a.name == b.name
+			},
+		},
+		{
+			name:     "empty slice should return empty slice",
+			payload:  []person{},
+			expected: []person{},
+			eqFn: func(a, b person) bool {
+				return a.name == b.name
+			},
+		},
+		{
+			name:     "unique by name - no duplicates",
+			payload:  []person{{"Alice", 25}, {"Bob", 30}, {"Carol", 35}},
+			expected: []person{{"Alice", 25}, {"Bob", 30}, {"Carol", 35}},
+			eqFn: func(a, b person) bool {
+				return a.name == b.name
+			},
+		},
+		{
+			name: "unique by name - with duplicates",
+			payload: []person{
+				{"Alice", 25},
+				{"Bob", 30},
+				{"Alice", 40},
+				{"Carol", 35},
+				{"Bob", 50},
+			},
+			expected: []person{{"Alice", 25}, {"Bob", 30}, {"Carol", 35}},
+			eqFn: func(a, b person) bool {
+				return a.name == b.name
+			},
+		},
+		{
+			name: "unique by age - with duplicates",
+			payload: []person{
+				{"Alice", 25},
+				{"Bob", 30},
+				{"Carol", 25},
+				{"Dave", 35},
+				{"Eve", 30},
+			},
+			expected: []person{{"Alice", 25}, {"Bob", 30}, {"Dave", 35}},
+			eqFn: func(a, b person) bool {
+				return a.age == b.age
+			},
+		},
+		{
+			name:     "all elements are duplicates by name",
+			payload:  []person{{"Alice", 25}, {"Alice", 30}, {"Alice", 35}},
+			expected: []person{{"Alice", 25}},
+			eqFn: func(a, b person) bool {
+				return a.name == b.name
+			},
+		},
+		{
+			name: "complex equality function - same name and age",
+			payload: []person{
+				{"Alice", 25},
+				{"Bob", 30},
+				{"Alice", 25},
+				{"Carol", 35},
+				{"Bob", 40},
+			},
+			expected: []person{{"Alice", 25}, {"Bob", 30}, {"Carol", 35}, {"Bob", 40}},
+			eqFn: func(a, b person) bool {
+				return a.name == b.name && a.age == b.age
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			actual := UniqFn(test.payload, test.eqFn)
+
+			if len(actual) != len(test.expected) {
+				t.Errorf("unexpected length\nwant: %d\nhave: %d", len(test.expected), len(actual))
+				return
+			}
+
+			for i, expectedItem := range test.expected {
+				if i >= len(actual) {
+					t.Errorf("missing element at index %d: %v", i, expectedItem)
+					continue
+				}
+				if actual[i] != expectedItem {
+					t.Errorf(
+						"unexpected element at index %d\nwant: %v\nhave: %v",
+						i,
+						expectedItem,
+						actual[i],
+					)
+				}
+			}
+		})
+	}
+}
+
+func TestUniqFnWithInts(t *testing.T) {
+	type testCase struct {
+		name     string
+		payload  []int
+		expected []int
+		eqFn     func(a, b int) bool
+	}
+
+	tests := []testCase{
+		{
+			name:     "unique by absolute value",
+			payload:  []int{1, -1, 2, -2, 3, -3, 1, 2},
+			expected: []int{1, 2, 3},
+			eqFn: func(a, b int) bool {
+				abs := func(x int) int {
+					if x < 0 {
+						return -x
+					}
+					return x
+				}
+				return abs(a) == abs(b)
+			},
+		},
+		{
+			name:     "unique by even/odd",
+			payload:  []int{1, 3, 2, 4, 5, 6, 7, 8},
+			expected: []int{1, 2},
+			eqFn: func(a, b int) bool {
+				return (a % 2) == (b % 2)
+			},
+		},
+		{
+			name:     "exact equality (same as Uniq)",
+			payload:  []int{1, 2, 2, 3, 3, 3, 4, 5, 5},
+			expected: []int{1, 2, 3, 4, 5},
+			eqFn: func(a, b int) bool {
+				return a == b
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			actual := UniqFn(test.payload, test.eqFn)
+
+			if !Equals(test.expected, actual, func(x, y int) bool {
+				return x == y
+			}) {
+				t.Errorf("unexpected result\nwant: %v\nhave: %v", test.expected, actual)
+			}
+		})
+	}
+}
+
+// ExampleUniq demonstrates removing duplicate elements from a slice.
+func ExampleUniq() {
+	// Create a slice with duplicate elements
+	numbers := []int{1, 2, 2, 3, 3, 3, 4, 5, 5}
+
+	// Remove duplicates
+	unique := Uniq(numbers)
+
+	fmt.Printf("Original: %v\n", numbers)
+	fmt.Printf("Unique:   %v\n", unique)
+	// Output:
+	// Original: [1 2 2 3 3 3 4 5 5]
+	// Unique:   [1 2 3 4 5]
+}
+
+// ExampleUniqFn demonstrates removing duplicates using a custom equality function.
+func ExampleUniqFn() {
+	type person struct {
+		name string
+		age  int
+	}
+
+	// Create a slice with people having duplicate names
+	people := []person{
+		{"Alice", 25},
+		{"Bob", 30},
+		{"Alice", 40}, // duplicate name
+		{"Carol", 35},
+		{"Bob", 50}, // duplicate name
+	}
+
+	// Remove duplicates by name
+	uniqueByName := UniqFn(people, func(a, b person) bool {
+		return a.name == b.name
+	})
+
+	fmt.Printf("Original count: %d\n", len(people))
+	fmt.Printf("Unique by name count: %d\n", len(uniqueByName))
+	for _, p := range uniqueByName {
+		fmt.Printf("  %s (%d)\n", p.name, p.age)
+	}
+	// Output:
+	// Original count: 5
+	// Unique by name count: 3
+	//   Alice (25)
+	//   Bob (30)
+	//   Carol (35)
+}
+
+func TestUniqSorted(t *testing.T) {
+	type testCase struct {
+		name     string
+		payload  []int
+		expected []int
+	}
+
+	tests := []testCase{
+		{
+			name:     "nil slice should return nil",
+			payload:  nil,
+			expected: nil,
+		},
+		{
+			name:     "empty slice should return empty slice",
+			payload:  []int{},
+			expected: []int{},
+		},
+		{
+			name:     "single element slice should return same slice",
+			payload:  []int{42},
+			expected: []int{42},
+		},
+		{
+			name:     "sorted slice with no duplicates should return same slice",
+			payload:  []int{1, 2, 3, 4, 5},
+			expected: []int{1, 2, 3, 4, 5},
+		},
+		{
+			name:     "sorted slice with consecutive duplicates should return unique elements",
+			payload:  []int{1, 2, 2, 3, 3, 3, 4, 5, 5},
+			expected: []int{1, 2, 3, 4, 5},
+		},
+		{
+			name:     "sorted slice with all same elements should return single element",
+			payload:  []int{7, 7, 7, 7},
+			expected: []int{7},
+		},
+		{
+			name:     "sorted slice with duplicates at beginning",
+			payload:  []int{1, 1, 1, 2, 3, 4, 5},
+			expected: []int{1, 2, 3, 4, 5},
+		},
+		{
+			name:     "sorted slice with duplicates at end",
+			payload:  []int{1, 2, 3, 4, 5, 5, 5},
+			expected: []int{1, 2, 3, 4, 5},
+		},
+		{
+			name:     "sorted slice with mixed duplicates",
+			payload:  []int{1, 1, 2, 3, 3, 4, 4, 4, 5},
+			expected: []int{1, 2, 3, 4, 5},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			actual := UniqSorted(test.payload)
+
+			if !Equals(test.expected, actual, func(x, y int) bool {
+				return x == y
+			}) {
+				t.Errorf("unexpected result\nwant: %v\nhave: %v", test.expected, actual)
+			}
+		})
+	}
+}
+
+func TestUniqSortedFn(t *testing.T) {
+	type person struct {
+		name string
+		age  int
+	}
+
+	type testCase struct {
+		name     string
+		payload  []person
+		expected []person
+		eqFn     func(a, b person) bool
+	}
+
+	tests := []testCase{
+		{
+			name:     "nil slice should return nil",
+			payload:  nil,
+			expected: nil,
+			eqFn: func(a, b person) bool {
+				return a.name == b.name
+			},
+		},
+		{
+			name:     "empty slice should return empty slice",
+			payload:  []person{},
+			expected: []person{},
+			eqFn: func(a, b person) bool {
+				return a.name == b.name
+			},
+		},
+		{
+			name:     "single element slice should return same slice",
+			payload:  []person{{"Alice", 25}},
+			expected: []person{{"Alice", 25}},
+			eqFn: func(a, b person) bool {
+				return a.name == b.name
+			},
+		},
+		{
+			name:     "sorted by name - no duplicates",
+			payload:  []person{{"Alice", 25}, {"Bob", 30}, {"Carol", 35}},
+			expected: []person{{"Alice", 25}, {"Bob", 30}, {"Carol", 35}},
+			eqFn: func(a, b person) bool {
+				return a.name == b.name
+			},
+		},
+		{
+			name: "sorted by name - with consecutive duplicates",
+			payload: []person{
+				{"Alice", 25},
+				{"Alice", 40},
+				{"Bob", 30},
+				{"Bob", 50},
+				{"Carol", 35},
+			},
+			expected: []person{{"Alice", 25}, {"Bob", 30}, {"Carol", 35}},
+			eqFn: func(a, b person) bool {
+				return a.name == b.name
+			},
+		},
+		{
+			name: "sorted by age - with consecutive duplicates",
+			payload: []person{
+				{"Alice", 25},
+				{"Bob", 25},
+				{"Carol", 30},
+				{"Dave", 30},
+				{"Eve", 35},
+			},
+			expected: []person{{"Alice", 25}, {"Carol", 30}, {"Eve", 35}},
+			eqFn: func(a, b person) bool {
+				return a.age == b.age
+			},
+		},
+		{
+			name:     "all elements are duplicates by name",
+			payload:  []person{{"Alice", 25}, {"Alice", 30}, {"Alice", 35}},
+			expected: []person{{"Alice", 25}},
+			eqFn: func(a, b person) bool {
+				return a.name == b.name
+			},
+		},
+		{
+			name: "complex equality function - same name and age (sorted)",
+			payload: []person{
+				{"Alice", 25},
+				{"Alice", 30},
+				{"Bob", 30},
+				{"Bob", 30},
+				{"Carol", 35},
+			},
+			expected: []person{{"Alice", 25}, {"Alice", 30}, {"Bob", 30}, {"Carol", 35}},
+			eqFn: func(a, b person) bool {
+				return a.name == b.name && a.age == b.age
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			actual := UniqSortedFn(test.payload, test.eqFn)
+
+			if len(actual) != len(test.expected) {
+				t.Errorf("unexpected length\nwant: %d\nhave: %d", len(test.expected), len(actual))
+				return
+			}
+
+			for i, expectedItem := range test.expected {
+				if i >= len(actual) {
+					t.Errorf("missing element at index %d: %v", i, expectedItem)
+					continue
+				}
+				if actual[i] != expectedItem {
+					t.Errorf(
+						"unexpected element at index %d\nwant: %v\nhave: %v",
+						i,
+						expectedItem,
+						actual[i],
+					)
+				}
+			}
+		})
+	}
+}
+
+func TestUniqSortedFnWithInts(t *testing.T) {
+	type testCase struct {
+		name     string
+		payload  []int
+		expected []int
+		eqFn     func(a, b int) bool
+	}
+
+	tests := []testCase{
+		{
+			name:     "unique by absolute value (sorted by absolute value)",
+			payload:  []int{-1, 1, -2, 2, -3, 3}, // consecutive pairs with same absolute value
+			expected: []int{-1, -2, -3},
+			eqFn: func(a, b int) bool {
+				abs := func(x int) int {
+					if x < 0 {
+						return -x
+					}
+					return x
+				}
+				return abs(a) == abs(b)
+			},
+		},
+		{
+			name:     "unique by even/odd (sorted by parity)",
+			payload:  []int{2, 4, 6, 8, 1, 3, 5, 7}, // even numbers first, then odd
+			expected: []int{2, 1},
+			eqFn: func(a, b int) bool {
+				return (a % 2) == (b % 2)
+			},
+		},
+		{
+			name:     "exact equality (same as UniqSorted)",
+			payload:  []int{1, 2, 2, 3, 3, 3, 4, 5, 5},
+			expected: []int{1, 2, 3, 4, 5},
+			eqFn: func(a, b int) bool {
+				return a == b
+			},
+		},
+		{
+			name:     "empty slice",
+			payload:  []int{},
+			expected: []int{},
+			eqFn: func(a, b int) bool {
+				return a == b
+			},
+		},
+		{
+			name:     "single element",
+			payload:  []int{42},
+			expected: []int{42},
+			eqFn: func(a, b int) bool {
+				return a == b
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			actual := UniqSortedFn(test.payload, test.eqFn)
+
+			if !Equals(test.expected, actual, func(x, y int) bool {
+				return x == y
+			}) {
+				t.Errorf("unexpected result\nwant: %v\nhave: %v", test.expected, actual)
+			}
+		})
+	}
+}
+
+// ExampleUniqSorted demonstrates removing consecutive duplicate elements from a sorted slice.
+func ExampleUniqSorted() {
+	// Create a sorted slice with consecutive duplicate elements
+	sortedNumbers := []int{1, 2, 2, 3, 3, 3, 4, 5, 5}
+
+	// Remove consecutive duplicates
+	unique := UniqSorted(sortedNumbers)
+
+	fmt.Printf("Original sorted: %v\n", sortedNumbers)
+	fmt.Printf("Unique:          %v\n", unique)
+	// Output:
+	// Original sorted: [1 2 2 3 3 3 4 5 5]
+	// Unique:          [1 2 3 4 5]
+}
+
+// ExampleUniqSortedFn demonstrates removing consecutive duplicates using a custom equality function.
+func ExampleUniqSortedFn() {
+	type person struct {
+		name string
+		age  int
+	}
+
+	// Create a slice sorted by name with consecutive duplicates
+	sortedPeople := []person{
+		{"Alice", 25},
+		{"Alice", 40}, // consecutive duplicate name
+		{"Bob", 30},
+		{"Bob", 50}, // consecutive duplicate name
+		{"Carol", 35},
+	}
+
+	// Remove consecutive duplicates by name
+	uniqueByName := UniqSortedFn(sortedPeople, func(a, b person) bool {
+		return a.name == b.name
+	})
+
+	fmt.Printf("Original count: %d\n", len(sortedPeople))
+	fmt.Printf("Unique by name count: %d\n", len(uniqueByName))
+	for _, p := range uniqueByName {
+		fmt.Printf("  %s (%d)\n", p.name, p.age)
+	}
+	// Output:
+	// Original count: 5
+	// Unique by name count: 3
+	//   Alice (25)
+	//   Bob (30)
+	//   Carol (35)
+}

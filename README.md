@@ -35,7 +35,7 @@ This project leverages Go workspaces to provide **isolated dependencies** for ea
 - [📝 Lol](#lol) - 4 functions
 - [🗝️ Maps](#maps) - 12 functions
 - [🔢 Num](#num) - 14 functions
-- [⛓️ Slices](#slices) - 10 functions
+- [⛓️ Slices](#slices) - 14 functions
 - [🌊 Streams](#streams) - 26 functions
 - [🔞 Zero](#zero) - 2 functions
 
@@ -2712,6 +2712,10 @@ searching, and manipulating elements in a type-safe manner.
 - [Reduce](#slices-reduce)
 - [Some](#slices-some)
 - [ToMap](#slices-tomap)
+- [Uniq](#slices-uniq)
+- [UniqFn](#slices-uniqfn)
+- [UniqSorted](#slices-uniqsorted)
+- [UniqSortedFn](#slices-uniqsortedfn)
 
 #### slices All
 
@@ -3020,6 +3024,164 @@ func ExampleToMap() {
 	// Output:
 	// 'a' word: apple
 	// 'b' word: banana
+}
+```
+
+</details>
+
+
+[⬆️ Back to Top](#table-of-contents)
+
+---
+
+#### slices Uniq
+
+ExampleUniq demonstrates removing duplicate elements from a slice.
+
+
+<details><summary>Code</summary>
+
+```go
+func ExampleUniq() {
+	// Create a slice with duplicate elements
+	numbers := []int{1, 2, 2, 3, 3, 3, 4, 5, 5}
+
+	// Remove duplicates
+	unique := Uniq(numbers)
+
+	fmt.Printf("Original: %v\n", numbers)
+	fmt.Printf("Unique:   %v\n", unique)
+	// Output:
+	// Original: [1 2 2 3 3 3 4 5 5]
+	// Unique:   [1 2 3 4 5]
+}
+```
+
+</details>
+
+
+[⬆️ Back to Top](#table-of-contents)
+
+---
+
+#### slices UniqFn
+
+ExampleUniqFn demonstrates removing duplicates using a custom equality function.
+
+
+<details><summary>Code</summary>
+
+```go
+func ExampleUniqFn() {
+	type person struct {
+		name string
+		age  int
+	}
+
+	// Create a slice with people having duplicate names
+	people := []person{
+		{"Alice", 25},
+		{"Bob", 30},
+		{"Alice", 40}, // duplicate name
+		{"Carol", 35},
+		{"Bob", 50}, // duplicate name
+	}
+
+	// Remove duplicates by name
+	uniqueByName := UniqFn(people, func(a, b person) bool {
+		return a.name == b.name
+	})
+
+	fmt.Printf("Original count: %d\n", len(people))
+	fmt.Printf("Unique by name count: %d\n", len(uniqueByName))
+	for _, p := range uniqueByName {
+		fmt.Printf("  %s (%d)\n", p.name, p.age)
+	}
+	// Output:
+	// Original count: 5
+	// Unique by name count: 3
+	//   Alice (25)
+	//   Bob (30)
+	//   Carol (35)
+}
+```
+
+</details>
+
+
+[⬆️ Back to Top](#table-of-contents)
+
+---
+
+#### slices UniqSorted
+
+ExampleUniqSorted demonstrates removing consecutive duplicate elements from a sorted slice.
+
+
+<details><summary>Code</summary>
+
+```go
+func ExampleUniqSorted() {
+	// Create a sorted slice with consecutive duplicate elements
+	sortedNumbers := []int{1, 2, 2, 3, 3, 3, 4, 5, 5}
+
+	// Remove consecutive duplicates
+	unique := UniqSorted(sortedNumbers)
+
+	fmt.Printf("Original sorted: %v\n", sortedNumbers)
+	fmt.Printf("Unique:          %v\n", unique)
+	// Output:
+	// Original sorted: [1 2 2 3 3 3 4 5 5]
+	// Unique:          [1 2 3 4 5]
+}
+```
+
+</details>
+
+
+[⬆️ Back to Top](#table-of-contents)
+
+---
+
+#### slices UniqSortedFn
+
+ExampleUniqSortedFn demonstrates removing consecutive duplicates using a custom equality function.
+
+
+<details><summary>Code</summary>
+
+```go
+func ExampleUniqSortedFn() {
+	type person struct {
+		name string
+		age  int
+	}
+
+	// Create a slice sorted by name with consecutive duplicates
+	sortedPeople := []person{
+		{"Alice", 25},
+		{"Alice", 40}, // consecutive duplicate name
+		{"Bob", 30},
+		{"Bob", 50}, // consecutive duplicate name
+		{"Carol", 35},
+	}
+
+	// Remove consecutive duplicates by name
+	uniqueByName := UniqSortedFn(sortedPeople, func(a, b person) bool {
+		return a.name == b.name
+	})
+
+	fmt.Printf("Original count: %d\n", len(sortedPeople))
+	fmt.Printf("Unique by name count: %d\n", len(uniqueByName))
+	for _, p := range uniqueByName {
+		fmt.Printf("  %s (%d)\n", p.name, p.age)
+	}
+	// Output:
+	// Original count: 5
+	// Unique by name count: 3
+	//   Alice (25)
+	//   Bob (30)
+	//   Carol (35)
 }
 ```
 
