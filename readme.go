@@ -33,14 +33,14 @@ const title = `
 
 📖 **[View full documentation and examples on pkg.go.dev →](https://pkg.go.dev/github.com/sonirico/vago)**
 
-## ✨ Workspace Architecture
+## Workspace Architecture
 
 This project leverages Go workspaces to provide **isolated dependencies** for each module. This means:
 
-- 🎯 **Lightweight imports**: When you import ` + "`fp`" + ` or ` + "`streams`" + `, you won't download database drivers or logging dependencies
-- 🔧 **Modular design**: Each module (` + "`db`" + `, ` + "`lol`" + `, ` + "`num`" + `) maintains its own ` + "`go.mod`" + ` with specific dependencies
-- 📦 **Zero bloat**: Use only what you need without carrying unnecessary dependencies
-- 🚀 **Fast builds**: Smaller dependency graphs lead to faster compilation and smaller binaries
+- **Lightweight imports**: When you import ` + "`fp`" + ` or ` + "`streams`" + `, you won't download database drivers or logging dependencies
+- **Modular design**: Each module (` + "`db`" + `, ` + "`lol`" + `, ` + "`num`" + `) maintains its own ` + "`go.mod`" + ` with specific dependencies
+- **Zero bloat**: Use only what you need without carrying unnecessary dependencies
+- **Fast builds**: Smaller dependency graphs lead to faster compilation and smaller binaries
 
 **Example**: Importing ` + "`github.com/sonirico/vago/fp`" + ` will only pull functional programming utilities, not database connections or logging frameworks.
 
