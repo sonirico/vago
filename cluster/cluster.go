@@ -14,8 +14,6 @@ import (
 //go:generate easyjson
 
 type (
-
-
 	repo interface {
 		Set(ctx context.Context, key string, value []byte, ttl time.Duration) error
 		Scan(ctx context.Context, key string) (map[string][]byte, error)

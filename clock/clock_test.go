@@ -114,6 +114,10 @@ func TestMockClock_Concurrent(t *testing.T) {
 	// Verify the final time is after the initial time
 	final := m.Now()
 	if !final.After(initialTime) {
-		t.Errorf("After concurrent operations, time should have advanced from %v, got %v", initialTime, final)
+		t.Errorf(
+			"After concurrent operations, time should have advanced from %v, got %v",
+			initialTime,
+			final,
+		)
 	}
 }

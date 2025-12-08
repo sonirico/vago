@@ -23,22 +23,22 @@ type (
 
 //easyjson:json
 type sendMsg struct {
-	I           string           `json:"id"`
-	AffinityKey *string          `json:"key"`
-	V           string           `json:"version"`
-	R           string           `json:"resource"`
-	A           string           `json:"action"`
-	T           time.Time        `json:"time"`
-	P           any              `json:"payload"`
+	I           string            `json:"id"`
+	AffinityKey *string           `json:"key"`
+	V           string            `json:"version"`
+	R           string            `json:"resource"`
+	A           string            `json:"action"`
+	T           time.Time         `json:"time"`
+	P           any               `json:"payload"`
 	UserID      fp.Option[string] `json:"user_id"`
 }
 
-func (h sendMsg) Version() string        { return h.V }
-func (h sendMsg) Resource() string       { return h.R }
-func (h sendMsg) Action() string         { return h.A }
-func (h sendMsg) Payload() any           { return h.P }
-func (h sendMsg) Key() *string           { return h.AffinityKey }
-func (h sendMsg) ID() string             { return h.I }
+func (h sendMsg) Version() string         { return h.V }
+func (h sendMsg) Resource() string        { return h.R }
+func (h sendMsg) Action() string          { return h.A }
+func (h sendMsg) Payload() any            { return h.P }
+func (h sendMsg) Key() *string            { return h.AffinityKey }
+func (h sendMsg) ID() string              { return h.I }
 func (h sendMsg) User() fp.Option[string] { return h.UserID }
 
 func (h sendMsg) String() string {

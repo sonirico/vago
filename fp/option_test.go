@@ -534,18 +534,22 @@ func TestOption_UnmarshalJSON(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			var opt Option[int]
 			err := opt.UnmarshalJSON([]byte(tt.json))
-			
+
 			if (err != nil) != tt.wantErr {
 				t.Errorf("expected error: %v, got: %v", tt.wantErr, err)
 			}
-			
+
 			if !tt.wantErr {
 				if opt.IsSome() != tt.expected.IsSome() {
 					t.Errorf("expected IsSome: %v, got: %v", tt.expected.IsSome(), opt.IsSome())
 				}
 				if opt.IsSome() {
 					if opt.UnwrapUnsafe() != tt.expected.UnwrapUnsafe() {
-						t.Errorf("expected value: %v, got: %v", tt.expected.UnwrapUnsafe(), opt.UnwrapUnsafe())
+						t.Errorf(
+							"expected value: %v, got: %v",
+							tt.expected.UnwrapUnsafe(),
+							opt.UnwrapUnsafe(),
+						)
 					}
 				}
 			}

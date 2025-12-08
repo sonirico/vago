@@ -41,5 +41,3 @@ func TestIsSet(t *testing.T) {
 		})
 	}
 }
-
-

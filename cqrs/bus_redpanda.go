@@ -16,7 +16,7 @@ import (
 )
 
 type (
-	opts struct {
+	busOpts struct {
 		startUpPing bool
 
 		consumerConf    *rp.ConsumerConfig
@@ -41,7 +41,7 @@ type (
 		p rp.Producer
 		c rp.Consumer
 
-		opts opts
+		opts busOpts
 	}
 
 	EventRedpandaBus struct {
@@ -249,28 +249,35 @@ func (b RedpandaBus) close() {
 	}
 }
 
+// isRecoverableError checks if an error is recoverable (can be ignored or retried)
+func isRecoverableError(err error) bool {
+	return errors.Is(err, kgo.ErrClientClosed) || errors.Is(err, kgo.ErrAborting)
+}
+
+// isNonRecoverableError checks if an error is non-recoverable and should be wrapped
+func isNonRecoverableError(err error) bool {
+	var (
+		errFirstReadEOF *kgo.ErrFirstReadEOF
+		errGroupSession *kgo.ErrGroupSession
+	)
+	return errors.As(err, &errFirstReadEOF) || errors.As(err, &errGroupSession) ||
+		errors.Is(err, kgo.ErrMaxBuffered)
+}
+
 func (b RedpandaBus) parseSubscribeError(err error) error {
 	if err == nil {
 		return nil
 	}
 
-	var (
-		errFirstReadEOF = &kgo.ErrFirstReadEOF{}
-		errGroupSession = &kgo.ErrGroupSession{}
-	)
-
-	switch {
-	case errors.Is(kgo.ErrClientClosed, err):
-	case errors.Is(kgo.ErrAborting, err):
-	case errors.As(err, &errFirstReadEOF):
-		return fmt.Errorf("%w: %v", ErrSubscribeNonRecoverable, err)
-	case errors.As(err, &errGroupSession):
-		return fmt.Errorf("%w: %v", ErrSubscribeNonRecoverable, err)
-	default:
-		return fmt.Errorf("unknown error: %w", err)
+	if isRecoverableError(err) {
+		return nil
 	}
 
-	return nil
+	if isNonRecoverableError(err) {
+		return fmt.Errorf("%w: %v", ErrSubscribeNonRecoverable, err)
+	}
+
+	return fmt.Errorf("unknown error: %w", err)
 }
 
 func (b RedpandaBus) parsePublishError(err error) error {
@@ -278,22 +285,15 @@ func (b RedpandaBus) parsePublishError(err error) error {
 		return nil
 	}
 
-	var (
-		errFirstReadEOF = kgo.ErrFirstReadEOF{}
-	)
-
-	switch {
-	case errors.Is(kgo.ErrMaxBuffered, err):
-		return fmt.Errorf("%w: %v", ErrSubscribeNonRecoverable, err)
-	case errors.Is(kgo.ErrClientClosed, err):
-	case errors.Is(kgo.ErrAborting, err):
-	case errors.As(err, &errFirstReadEOF):
-		return fmt.Errorf("%w: %v", ErrSubscribeNonRecoverable, err)
-	default:
-		return fmt.Errorf("unknown error: %w", err)
+	if isRecoverableError(err) {
+		return nil
 	}
 
-	return nil
+	if isNonRecoverableError(err) {
+		return fmt.Errorf("%w: %v", ErrSubscribeNonRecoverable, err)
+	}
+
+	return fmt.Errorf("unknown error: %w", err)
 }
 
 func BusWithConsumerConfig(c *rp.ConsumerConfig) optslib.Configurator[RedpandaBus] {

@@ -506,7 +506,7 @@ func (c *Container) logError(
 		Time     time.Time    `json:"time"`
 		Kind     string       `json:"kind"`
 		Side     any          `json:"side"`
-		Payload  RedpandaMsg     `json:"payload"`
+		Payload  RedpandaMsg  `json:"payload"`
 		Handler  *handlerInfo `json:"handler,omitempty"`
 		Err      error        `json:"error"`
 		ErrStack string       `json:"error_stack"`

@@ -25,12 +25,12 @@ const (
 
 //easyjson:json
 type recvMsg struct {
-	I      string           `json:"id"`
-	V      string           `json:"version"`
-	R      string           `json:"resource"`
-	A      string           `json:"action"`
-	T      time.Time        `json:"time"`
-	P      json.RawMessage  `json:"payload"`
+	I      string            `json:"id"`
+	V      string            `json:"version"`
+	R      string            `json:"resource"`
+	A      string            `json:"action"`
+	T      time.Time         `json:"time"`
+	P      json.RawMessage   `json:"payload"`
 	UserID fp.Option[string] `json:"user_id"`
 
 	recordKey       []byte
