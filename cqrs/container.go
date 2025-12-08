@@ -15,6 +15,7 @@ import (
 	"github.com/sonirico/vago/cond"
 	"github.com/sonirico/vago/ent"
 	"github.com/sonirico/vago/fp"
+	optslib "github.com/sonirico/vago/opts"
 	"github.com/sonirico/vago/zero"
 
 	maps "github.com/sonirico/stadio/ds/map"
@@ -40,7 +41,7 @@ type Container struct {
 	closeOnce sync.Once
 }
 
-func NewContainer(log lol.Logger, opts ...Configurator[Container]) *Container {
+func NewContainer(log lol.Logger, opts ...optslib.Configurator[Container]) *Container {
 	container := &Container{
 		log:          log,
 		commandBuses: maps.NewConcurrent[string, CommandBus](maps.NewNative[string, CommandBus]()),
@@ -48,9 +49,7 @@ func NewContainer(log lol.Logger, opts ...Configurator[Container]) *Container {
 		closeC:       make(chan error),
 	}
 
-	for _, opt := range opts {
-		opt.Apply(container)
-	}
+	optslib.ApplyAll(container, opts...)
 
 	if !container.errorCaptureDisabled {
 		var err error

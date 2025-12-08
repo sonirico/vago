@@ -1,31 +1,33 @@
 package cqrs
 
-func ContainerMustProcessOrFail() Configurator[Container] {
-	return configureFn[Container](func(c *Container) {
+import "github.com/sonirico/vago/opts"
+
+func ContainerMustProcessOrFail() opts.Configurator[Container] {
+	return opts.Fn[Container](func(c *Container) {
 		c.mustProcessOrFail = true
 	})
 }
 
-func ContainerWarnUnprocessed() Configurator[Container] {
-	return configureFn[Container](func(c *Container) {
+func ContainerWarnUnprocessed() opts.Configurator[Container] {
+	return opts.Fn[Container](func(c *Container) {
 		c.warnUnprocessed = true
 	})
 }
 
-func ContainerMustRestartOnError() Configurator[Container] {
-	return configureFn[Container](func(c *Container) {
+func ContainerMustRestartOnError() opts.Configurator[Container] {
+	return opts.Fn[Container](func(c *Container) {
 		c.restartOnError = true
 	})
 }
 
-func ContainerDisableErrorCapture() Configurator[Container] {
-	return configureFn[Container](func(c *Container) {
+func ContainerDisableErrorCapture() opts.Configurator[Container] {
+	return opts.Fn[Container](func(c *Container) {
 		c.errorCaptureDisabled = true
 	})
 }
 
-func ContainerDisableAPM() Configurator[Container] {
-	return configureFn[Container](func(c *Container) {
+func ContainerDisableAPM() opts.Configurator[Container] {
+	return opts.Fn[Container](func(c *Container) {
 		c.apmDisabled = true
 	})
 }

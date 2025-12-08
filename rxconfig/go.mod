@@ -13,12 +13,12 @@ require (
 	github.com/mailru/easyjson v0.9.1
 	github.com/pkg/errors v0.9.1
 	github.com/sonirico/vago/codec v0.0.0-00010101000000-000000000000
-	github.com/sonirico/vago/lol v0.0.0-00010101000000-000000000000
+	github.com/sonirico/vago/lol v0.0.0-20251207192038-45d83c821566
 )
 
 require (
 	github.com/armon/go-radix v1.0.0 // indirect
-	github.com/cespare/xxhash/v2 v2.1.2 // indirect
+	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/elastic/go-sysinfo v1.15.4 // indirect
 	github.com/elastic/go-windows v1.0.2 // indirect

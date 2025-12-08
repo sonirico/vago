@@ -4,7 +4,12 @@ toolchain go1.24.2
 
 use (
 	.
+	./cluster
+	./codec
+	./cqrs
 	./db
 	./lol
 	./num
+	./rp
+	./rxconfig
 )

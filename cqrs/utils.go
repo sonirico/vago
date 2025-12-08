@@ -22,15 +22,3 @@ func partitionKey(x message) []byte {
 
 	return []byte(k)
 }
-
-type (
-	Configurator[T any] interface {
-		Apply(*T)
-	}
-
-	configureFn[T any] func(*T)
-)
-
-func (fn configureFn[T]) Apply(x *T) {
-	fn(x)
-}

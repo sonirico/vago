@@ -11,6 +11,7 @@ import (
 	"github.com/twmb/franz-go/pkg/kgo"
 
 	"github.com/sonirico/vago/lol"
+	optslib "github.com/sonirico/vago/opts"
 	"github.com/sonirico/vago/rp"
 )
 
@@ -116,7 +117,7 @@ func newBus(
 	id string,
 	topic string,
 	log lol.Logger,
-	opts ...Configurator[RedpandaBus],
+	opts ...optslib.Configurator[RedpandaBus],
 ) (*RedpandaBus, error) {
 	bus := &RedpandaBus{
 		idx:    id,
@@ -124,9 +125,7 @@ func newBus(
 		log:    log.WithFields(lol.Fields{"bus_id": id, "topic": topic}),
 	}
 
-	for _, opt := range opts {
-		opt.Apply(bus)
-	}
+	optslib.ApplyAll(bus, opts...)
 
 	var err error
 
@@ -172,7 +171,7 @@ func NewCommandBus(
 	id string,
 	topic string,
 	log lol.Logger,
-	opts ...Configurator[RedpandaBus],
+	opts ...optslib.Configurator[RedpandaBus],
 ) (*CommandRedpandaBus, error) {
 	bus, err := newBus(id, topic, log, opts...)
 	if err != nil {
@@ -191,7 +190,7 @@ func NewEventBus(
 	id string,
 	topic string,
 	log lol.Logger,
-	opts ...Configurator[RedpandaBus],
+	opts ...optslib.Configurator[RedpandaBus],
 ) (*EventRedpandaBus, error) {
 	bus, err := newBus(id, topic, log, opts...)
 	if err != nil {
@@ -297,44 +296,44 @@ func (b RedpandaBus) parsePublishError(err error) error {
 	return nil
 }
 
-func BusWithConsumerConfig(c *rp.ConsumerConfig) Configurator[RedpandaBus] {
-	return configureFn[RedpandaBus](func(bus *RedpandaBus) {
+func BusWithConsumerConfig(c *rp.ConsumerConfig) optslib.Configurator[RedpandaBus] {
+	return optslib.Fn[RedpandaBus](func(bus *RedpandaBus) {
 		bus.opts.consumerConf = c
 	})
 }
 
-func BusWithProducerConfig(c *rp.ProducerConfig) Configurator[RedpandaBus] {
-	return configureFn[RedpandaBus](func(bus *RedpandaBus) {
+func BusWithProducerConfig(c *rp.ProducerConfig) optslib.Configurator[RedpandaBus] {
+	return optslib.Fn[RedpandaBus](func(bus *RedpandaBus) {
 		bus.opts.producerConf = c
 	})
 }
 
-func BusWithTopic(topic string) Configurator[RedpandaBus] {
-	return configureFn[RedpandaBus](func(bus *RedpandaBus) {
+func BusWithTopic(topic string) optslib.Configurator[RedpandaBus] {
+	return optslib.Fn[RedpandaBus](func(bus *RedpandaBus) {
 		bus.mtopic = topic
 	})
 }
 
-func BusWithCodec(codec Codec) Configurator[RedpandaBus] {
-	return configureFn[RedpandaBus](func(bus *RedpandaBus) {
+func BusWithCodec(codec Codec) optslib.Configurator[RedpandaBus] {
+	return optslib.Fn[RedpandaBus](func(bus *RedpandaBus) {
 		bus.mcodec = codec
 	})
 }
 
-func BusWithJsonCodec() Configurator[RedpandaBus] {
-	return configureFn[RedpandaBus](func(bus *RedpandaBus) {
+func BusWithJsonCodec() optslib.Configurator[RedpandaBus] {
+	return optslib.Fn[RedpandaBus](func(bus *RedpandaBus) {
 		bus.mcodec = NewJson()
 	})
 }
 
-func BusWithDisabledStartupPing() Configurator[RedpandaBus] {
-	return configureFn[RedpandaBus](func(bus *RedpandaBus) {
+func BusWithDisabledStartupPing() optslib.Configurator[RedpandaBus] {
+	return optslib.Fn[RedpandaBus](func(bus *RedpandaBus) {
 		bus.opts.startUpPing = false
 	})
 }
 
-func BusWithProducerFlushTimeout(d time.Duration) Configurator[RedpandaBus] {
-	return configureFn[RedpandaBus](func(bus *RedpandaBus) {
+func BusWithProducerFlushTimeout(d time.Duration) optslib.Configurator[RedpandaBus] {
+	return optslib.Fn[RedpandaBus](func(bus *RedpandaBus) {
 		bus.opts.producerConf.FlushTimeout = d
 	})
 }

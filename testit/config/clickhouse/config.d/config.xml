@@ -1,0 +1,46 @@
+<clickhouse>
+     <!-- Listen wildcard address to allow accepting connections from other containers and host network. -->
+     <!-- from docker_related_config.xml-->
+    <listen_host>::</listen_host>
+    <listen_host>0.0.0.0</listen_host>
+    <listen_try>1</listen_try>
+
+    <macros>
+        <cluster>test_integration</cluster>
+        <shard>01</shard>
+        <replica>clickhouse01</replica>
+    </macros> 
+    <interserver_http_host>clickhouse01</interserver_http_host>
+    <interserver_http_port>9009</interserver_http_port>
+        <remote_servers>
+        <!-- Test only shard config for testing distributed storage -->
+        <test_integration>
+            <shard>
+                <replica>
+                    <host>clickhouse01</host>
+                    <port>9000</port>
+                </replica>
+            </shard>
+        </test_integration>
+     </remote_servers>
+    <keeper_server>
+        <tcp_port>9181</tcp_port>
+        <server_id>1</server_id>
+        <log_storage_path>/var/lib/clickhouse/coordination/log</log_storage_path>
+        <snapshot_storage_path>/var/lib/clickhouse/coordination/snapshots</snapshot_storage_path>
+
+        <coordination_settings>
+            <operation_timeout_ms>10000</operation_timeout_ms>
+            <session_timeout_ms>30000</session_timeout_ms>
+            <raft_logs_level>warning</raft_logs_level>
+        </coordination_settings>
+
+        <raft_configuration>
+            <server>
+                <id>1</id>
+                <hostname>clickhouse01</hostname>
+                <port>9234</port>
+            </server>
+        </raft_configuration>
+    </keeper_server>
+</clickhouse>

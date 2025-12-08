@@ -29,15 +29,182 @@ This project leverages Go workspaces to provide **isolated dependencies** for ea
 
 ## <a name="table-of-contents"></a>Table of Contents
 
+- [🔀 Cond](#cond) - 6 functions
 - [🗃️ Db](#db) - 6 functions
 - [🪾 Ent](#ent) - 18 functions
 - [🪄 Fp](#fp) - 15 functions
-- [📝 Lol](#lol) - 4 functions
+- [📋 Lol](#lol) - 4 functions
 - [🗝️ Maps](#maps) - 12 functions
 - [🔢 Num](#num) - 14 functions
+- [👉 Ptr](#ptr) - 2 functions
 - [⛓️ Slices](#slices) - 14 functions
 - [🌊 Streams](#streams) - 26 functions
 - [🔞 Zero](#zero) - 2 functions
+
+## <a name="cond"></a>🔀 Cond
+
+Generic conditional operators and ternary expressions with type safety.
+
+### Functions
+
+- [If](#cond-if)
+- [IfFunc](#cond-iffunc)
+- [IfPtr](#cond-ifptr)
+- [If_false](#cond-if_false)
+- [If_integers](#cond-if_integers)
+- [OrDefault](#cond-ordefault)
+
+#### cond If
+
+Example demonstrates basic usage of If with strings
+
+
+<details><summary>Code</summary>
+
+```go
+func ExampleIf() {
+	result := If(true, "yes", "no")
+	fmt.Println(result)
+	// Output: yes
+}
+```
+
+</details>
+
+
+[⬆️ Back to Top](#table-of-contents)
+
+---
+
+#### cond IfFunc
+
+Example demonstrates lazy evaluation with IfFunc
+
+
+<details><summary>Code</summary>
+
+```go
+func ExampleIfFunc() {
+	// This avoids expensive computation if not needed
+	result := IfFunc(true,
+		func() string { return "computed true" },
+		func() string { return "expensive computation" },
+	)
+	fmt.Println(result)
+	// Output: computed true
+}
+```
+
+</details>
+
+
+[⬆️ Back to Top](#table-of-contents)
+
+---
+
+#### cond IfPtr
+
+Example demonstrates IfPtr with pointers
+
+
+<details><summary>Code</summary>
+
+```go
+func ExampleIfPtr() {
+	valueA := "option A"
+	valueB := "option B"
+
+	result := IfPtr(true, &valueA, &valueB)
+	fmt.Println(*result)
+	// Output: option A
+}
+```
+
+</details>
+
+
+[⬆️ Back to Top](#table-of-contents)
+
+---
+
+#### cond If_false
+
+Example demonstrates If with different condition
+
+
+<details><summary>Code</summary>
+
+```go
+func ExampleIf_false() {
+	result := If(false, "yes", "no")
+	fmt.Println(result)
+	// Output: no
+}
+```
+
+</details>
+
+
+[⬆️ Back to Top](#table-of-contents)
+
+---
+
+#### cond If_integers
+
+Example demonstrates If with integers
+
+
+<details><summary>Code</summary>
+
+```go
+func ExampleIf_integers() {
+	age := 25
+	category := If(age >= 18, "adult", "minor")
+	fmt.Println(category)
+	// Output: adult
+}
+```
+
+</details>
+
+
+[⬆️ Back to Top](#table-of-contents)
+
+---
+
+#### cond OrDefault
+
+Example demonstrates OrDefault
+
+
+<details><summary>Code</summary>
+
+```go
+func ExampleOrDefault() {
+	// Get value if condition is true, otherwise zero value
+	result := OrDefault(true, "has value")
+	fmt.Println(result)
+
+	result = OrDefault(false, "has value")
+	fmt.Println(result)
+	// Output:
+	// has value
+	//
+}
+```
+
+</details>
+
+
+[⬆️ Back to Top](#table-of-contents)
+
+---
+
+
+[⬆️ Back to Top](#table-of-contents)
+
+
+<br/>
 
 ## <a name="db"></a>🗃️ Db
 
@@ -896,7 +1063,7 @@ func ExampleStrOrPanic() {
 
 ## <a name="fp"></a>🪄 Fp
 
-Functional programming utilities including Option and Result types.
+Functional programming utilities including Option and Result types with JSON marshaling support.
 
 ### Functions
 
@@ -1190,25 +1357,25 @@ func ExampleOption_Match() {
 	invalidUser := getValue(-1)
 
 	result1 := validUser.Match(
-		func(user string) Option[string] {
-			return Some("Found: " + user)
+		func(user string) string {
+			return "Found: " + user
 		},
-		func() Option[string] {
-			return Some("No user found")
+		func() string {
+			return "No user found"
 		},
 	)
 
 	result2 := invalidUser.Match(
-		func(user string) Option[string] {
-			return Some("Found: " + user)
+		func(user string) string {
+			return "Found: " + user
 		},
-		func() Option[string] {
-			return Some("No user found")
+		func() string {
+			return "No user found"
 		},
 	)
 
-	fmt.Printf("Valid user: %s\n", result1.UnwrapOr(""))
-	fmt.Printf("Invalid user: %s\n", result2.UnwrapOr(""))
+	fmt.Printf("Valid user: %s\n", result1)
+	fmt.Printf("Invalid user: %s\n", result2)
 
 	// Output:
 	// Valid user: Found: User_42
@@ -1449,7 +1616,7 @@ func ExampleSome() {
 
 <br/>
 
-## <a name="lol"></a>📝 Lol
+## <a name="lol"></a>📋 Lol
 
 Package lol (lots of logs) provides a unified logging interface with multiple backends.
 
@@ -2677,6 +2844,81 @@ func ExampleNewDecFromString() {
 	// Price: 123.456
 	// Is set: true
 	// Invalid string error: true
+}
+```
+
+</details>
+
+
+[⬆️ Back to Top](#table-of-contents)
+
+---
+
+
+[⬆️ Back to Top](#table-of-contents)
+
+
+<br/>
+
+## <a name="ptr"></a>👉 Ptr
+
+Package ptr provides pointer utility functions for Go.
+
+
+### Functions
+
+- [Ptr](#ptr-ptr)
+- [Ptr_struct](#ptr-ptr_struct)
+
+#### ptr Ptr
+
+ExamplePtr demonstrates creating a pointer to a value.
+
+
+<details><summary>Code</summary>
+
+```go
+func ExamplePtr() {
+	// Get pointer to a literal
+	name := Ptr("Alice")
+	age := Ptr(30)
+
+	fmt.Println(*name, *age)
+	// Output:
+	// Alice 30
+}
+```
+
+</details>
+
+
+[⬆️ Back to Top](#table-of-contents)
+
+---
+
+#### ptr Ptr_struct
+
+ExamplePtr_struct demonstrates creating a pointer to a struct.
+
+
+<details><summary>Code</summary>
+
+```go
+func ExamplePtr_struct() {
+	type Config struct {
+		Host string
+		Port int
+	}
+
+	// Get pointer to struct literal
+	config := Ptr(Config{
+		Host: "localhost",
+		Port: 8080,
+	})
+
+	fmt.Println(config.Host, config.Port)
+	// Output:
+	// localhost 8080
 }
 ```
 
@@ -4232,7 +4474,7 @@ func ExampleWriteAll() {
 
 ## <a name="zero"></a>🔞 Zero
 
-Zero-value utilities and string manipulation functions.
+Zero-value utilities and byte-to-string conversion functions.
 
 ### Functions
 

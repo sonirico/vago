@@ -49,27 +49,39 @@ This project leverages Go workspaces to provide **isolated dependencies** for ea
 `
 
 var moduleEmojis = map[string]string{
+	"clock":   "⏰",
+	"codec":   "🔄",
+	"cond":    "🔀",
 	"ent":     "🪾",
 	"fp":      "🪄",
 	"maps":    "🗝️",
+	"opts":    "⚙️",
+	"ptr":     "👉",
 	"slices":  "⛓️",
 	"streams": "🌊",
-	"lol":     "📝",
+	"str":     "📝",
+	"lol":     "📋",
 	"num":     "🔢",
 	"db":      "🗃️",
 	"zero":    "🔞",
 }
 
 var moduleDescriptions = map[string]string{
+	"clock":   "Time abstraction utilities with Clock interface for testability and MockClock for deterministic testing.",
+	"codec":   "Encoding and decoding utilities with support for JSON, MessagePack, and Gob formats.",
+	"cond":    "Generic conditional operators and ternary expressions with type safety.",
 	"ent":     "Environment variable management utilities with type-safe retrieval and validation.",
 	"streams": "Powerful data streaming and processing utilities with fluent API for functional programming patterns.",
 	"slices":  "Comprehensive slice manipulation utilities with functional programming patterns.",
 	"maps":    "Map manipulation and transformation utilities.",
-	"fp":      "Functional programming utilities including Option and Result types.",
+	"fp":      "Functional programming utilities including Option and Result types with JSON marshaling support.",
 	"lol":     "Structured logging utilities with multiple backends and APM integration.",
 	"num":     "Numeric utilities including high-precision decimal operations.",
 	"db":      "Database utilities and adapters for PostgreSQL, MongoDB, Redis, and ClickHouse.\n\n**Note:** This module always appears in the documentation, even if only interface or example tests are present, to ensure discoverability.",
-	"zero":    "Zero-value utilities and string manipulation functions.",
+	"opts":    "Functional options pattern implementation with Configurator interface and generic support.",
+	"ptr":     "Pointer utilities for creating pointers to values in a single expression.",
+	"str":     "String utility functions for common string operations and checks.",
+	"zero":    "Zero-value utilities and byte-to-string conversion functions.",
 }
 
 type (
@@ -333,7 +345,7 @@ func extractSourceWithComments(
 // readme generates the complete README.md file for the vago project.
 func readme() {
 	modules := []string{
-		"ent", "slices", "maps", "fp", "streams", "lol", "num", "db", "zero",
+		"clock", "codec", "cond", "ent", "fp", "maps", "opts", "ptr", "slices", "streams", "str", "lol", "num", "db", "zero",
 	}
 
 	// Open README.md for writing (truncate if exists)
