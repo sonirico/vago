@@ -1,0 +1,14 @@
+inpackage-suffix: true
+mockname: "{{.InterfaceName}}"
+filename: "mock_{{ snakecase .InterfaceName}}.go"
+packages:
+  github.com/sonirico/vago/cqrs:
+    config:
+      dir: "./"
+      mockname: "Mock{{.InterfaceName}}"
+      inpackage: true
+    interfaces:
+      EventBus:
+      CommandBus:
+      ContainerOperator:
+      
