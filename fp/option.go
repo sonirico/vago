@@ -2,6 +2,11 @@
 // It implements monadic types like Option and Result for more expressive error handling.
 package fp
 
+import (
+	"bytes"
+	"encoding/json"
+)
+
 type (
 	// Option represents an optional value: either Some value or None.
 	// It's a type that encapsulates an optional value, avoiding the need for nil checks.
@@ -55,6 +60,25 @@ func (o Option[T]) UnwrapOrDefault() T {
 	}
 	var res T
 	return res
+}
+
+// Match allows pattern matching on the Option.
+// If the option is Some, calls handleSome with the contained value,
+// otherwise calls handleNone.
+func (o Option[T]) Match(handleSome func(T) T, handleNone func() T) T {
+	if o.isSome {
+		return handleSome(o.value)
+	}
+	return handleNone()
+}
+
+// MatchAny allows pattern matching on the Option with any types.
+// If the option is Some, returns whenSome, otherwise returns whenNone.
+func (o Option[T]) MatchAny(whenSome, whenNone any) any {
+	if o.isSome {
+		return whenSome
+	}
+	return whenNone
 }
 
 // UnwrapUnsafe returns the contained value or panics.
@@ -134,15 +158,32 @@ func (o Option[T]) OkOrElse(fn func() error) Result[T] {
 	return Err[T](fn())
 }
 
-// Match allows pattern matching on the Option.
-// If the option is Some, calls handleSome with the contained value,
-// otherwise calls handleNone.
-func (o Option[T]) Match(handleSome func(T) Option[T], handleNone func() Option[T]) Option[T] {
-	if o.isSome {
-		return handleSome(o.value)
+// MarshalJSON implements json.Marshaler for Option[T].
+// If the option is None, it marshals to null.
+// If the option is Some, it marshals the contained value.
+func (o Option[T]) MarshalJSON() ([]byte, error) {
+	if !o.isSome {
+		return []byte("null"), nil
 	}
+	return json.Marshal(o.value)
+}
 
-	return handleNone()
+var jsonNull = []byte("null")
+
+// UnmarshalJSON implements json.Unmarshaler for Option[T].
+// If the JSON is null, it creates a None option.
+// Otherwise, it unmarshals the value into Some.
+func (o *Option[T]) UnmarshalJSON(data []byte) error {
+	if bytes.Equal(data, jsonNull) {
+		*o = None[T]()
+		return nil
+	}
+	var value T
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*o = Some(value)
+	return nil
 }
 
 // Some creates a new Option in the Some state with the given value.
@@ -183,6 +224,13 @@ func OptionFromPtr[T any](x *T) Option[T] {
 func OptionFromZero[T comparable](x T) Option[T] {
 	var zero T
 	if x == zero {
+		return None[T]()
+	}
+	return Some(x)
+}
+
+func OptionFromTupleErr[T any](x T, err error) Option[T] {
+	if err != nil {
 		return None[T]()
 	}
 	return Some(x)

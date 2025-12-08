@@ -1,6 +1,7 @@
 package fp
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -228,18 +229,18 @@ func TestOption_Match(t *testing.T) {
 	none := None[string]()
 
 	value := some.Match(
-		func(x string) Option[string] { return Some(x + "S") },
-		func() Option[string] { return Some("NADA") },
-	).UnwrapUnsafe()
+		func(x string) string { return x + "S" },
+		func() string { return "NADA" },
+	)
 
 	if value != "TOMBOLAS" {
 		t.Errorf("unexpected result , want TOMBOLAS, have %s", value)
 	}
 
 	value = none.Match(
-		func(x string) Option[string] { return Some(x + "S") },
-		func() Option[string] { return Some("test") },
-	).UnwrapUnsafe()
+		func(x string) string { return x + "S" },
+		func() string { return "test" },
+	)
 
 	if value != "test" {
 		t.Errorf("unexpected result, want test, have %s", value)
@@ -365,25 +366,25 @@ func ExampleOption_Match() {
 	invalidUser := getValue(-1)
 
 	result1 := validUser.Match(
-		func(user string) Option[string] {
-			return Some("Found: " + user)
+		func(user string) string {
+			return "Found: " + user
 		},
-		func() Option[string] {
-			return Some("No user found")
+		func() string {
+			return "No user found"
 		},
 	)
 
 	result2 := invalidUser.Match(
-		func(user string) Option[string] {
-			return Some("Found: " + user)
+		func(user string) string {
+			return "Found: " + user
 		},
-		func() Option[string] {
-			return Some("No user found")
+		func() string {
+			return "No user found"
 		},
 	)
 
-	fmt.Printf("Valid user: %s\n", result1.UnwrapOr(""))
-	fmt.Printf("Invalid user: %s\n", result2.UnwrapOr(""))
+	fmt.Printf("Valid user: %s\n", result1)
+	fmt.Printf("Invalid user: %s\n", result2)
 
 	// Output:
 	// Valid user: Found: User_42
@@ -469,4 +470,125 @@ func ExampleOptionFromPtr() {
 	// Output:
 	// From pointer: hello
 	// From nil: empty
+}
+
+func TestOption_MarshalJSON(t *testing.T) {
+	tests := []struct {
+		name     string
+		option   Option[int]
+		expected string
+	}{
+		{
+			name:     "Some value",
+			option:   Some(42),
+			expected: "42",
+		},
+		{
+			name:     "None",
+			option:   None[int](),
+			expected: "null",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			data, err := tt.option.MarshalJSON()
+			if err != nil {
+				t.Fatalf("unexpected error: %v", err)
+			}
+			if string(data) != tt.expected {
+				t.Errorf("expected %s, got %s", tt.expected, string(data))
+			}
+		})
+	}
+}
+
+func TestOption_UnmarshalJSON(t *testing.T) {
+	tests := []struct {
+		name     string
+		json     string
+		expected Option[int]
+		wantErr  bool
+	}{
+		{
+			name:     "Valid value",
+			json:     "42",
+			expected: Some(42),
+			wantErr:  false,
+		},
+		{
+			name:     "Null value",
+			json:     "null",
+			expected: None[int](),
+			wantErr:  false,
+		},
+		{
+			name:     "Invalid JSON",
+			json:     "invalid",
+			expected: None[int](),
+			wantErr:  true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var opt Option[int]
+			err := opt.UnmarshalJSON([]byte(tt.json))
+			
+			if (err != nil) != tt.wantErr {
+				t.Errorf("expected error: %v, got: %v", tt.wantErr, err)
+			}
+			
+			if !tt.wantErr {
+				if opt.IsSome() != tt.expected.IsSome() {
+					t.Errorf("expected IsSome: %v, got: %v", tt.expected.IsSome(), opt.IsSome())
+				}
+				if opt.IsSome() {
+					if opt.UnwrapUnsafe() != tt.expected.UnwrapUnsafe() {
+						t.Errorf("expected value: %v, got: %v", tt.expected.UnwrapUnsafe(), opt.UnwrapUnsafe())
+					}
+				}
+			}
+		})
+	}
+}
+
+func TestOption_JSON_Roundtrip(t *testing.T) {
+	type testStruct struct {
+		Name  Option[string] `json:"name"`
+		Age   Option[int]    `json:"age"`
+		Email Option[string] `json:"email"`
+	}
+
+	original := testStruct{
+		Name:  Some("John"),
+		Age:   Some(30),
+		Email: None[string](),
+	}
+
+	data, err := json.Marshal(original)
+	if err != nil {
+		t.Fatalf("unexpected marshal error: %v", err)
+	}
+
+	expectedJSON := `{"name":"John","age":30,"email":null}`
+	if string(data) != expectedJSON {
+		t.Errorf("expected JSON: %s, got: %s", expectedJSON, string(data))
+	}
+
+	var decoded testStruct
+	err = json.Unmarshal(data, &decoded)
+	if err != nil {
+		t.Fatalf("unexpected unmarshal error: %v", err)
+	}
+
+	if !decoded.Name.IsSome() || decoded.Name.UnwrapUnsafe() != "John" {
+		t.Error("Name field not correctly decoded")
+	}
+	if !decoded.Age.IsSome() || decoded.Age.UnwrapUnsafe() != 30 {
+		t.Error("Age field not correctly decoded")
+	}
+	if decoded.Email.IsSome() {
+		t.Error("Email field should be None")
+	}
 }
