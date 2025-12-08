@@ -2,14 +2,6 @@ module github.com/sonirico/vago/cqrs
 
 go 1.25.5
 
-replace github.com/sonirico/vago => ../
-
-replace github.com/sonirico/vago/lol => ../lol
-
-replace github.com/sonirico/vago/rp => ../rp
-
-replace github.com/sonirico/vago/codec => ../codec
-
 require (
 	github.com/google/uuid v1.6.0
 	github.com/mailru/easyjson v0.9.1
@@ -46,3 +38,11 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	howett.net/plist v1.0.1 // indirect
 )
+
+replace github.com/sonirico/vago => ../
+
+replace github.com/sonirico/vago/lol => ../lol
+
+replace github.com/sonirico/vago/rp => ../rp
+
+replace github.com/sonirico/vago/codec => ../codec

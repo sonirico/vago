@@ -2,10 +2,6 @@ module github.com/sonirico/vago/rxconfig
 
 go 1.25.5
 
-replace github.com/sonirico/vago => ../
-
-replace github.com/sonirico/vago/lol => ../lol
-
 replace github.com/sonirico/vago/codec => ../codec
 
 require (
@@ -35,3 +31,7 @@ require (
 	golang.org/x/sys v0.39.0 // indirect
 	howett.net/plist v1.0.1 // indirect
 )
+
+replace github.com/sonirico/vago => ../
+
+replace github.com/sonirico/vago/lol => ../lol

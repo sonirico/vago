@@ -2,8 +2,6 @@ module github.com/sonirico/vago
 
 go 1.25.3
 
-toolchain go1.23.9
-
 require github.com/stretchr/testify v1.11.1
 
 require (

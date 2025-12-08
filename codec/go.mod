@@ -10,3 +10,7 @@ require (
 	github.com/stretchr/testify v1.11.1 // indirect
 	github.com/vmihailenco/tagparser/v2 v2.0.0 // indirect
 )
+
+replace github.com/sonirico/vago => ../
+
+replace github.com/sonirico/vago/lol => ../lol
