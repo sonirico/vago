@@ -90,6 +90,7 @@ func NewClickhouseResourceWithOpts(options ...ClickhouseResourceOpt) *Resource {
 		RunOptions: runOpts,
 
 		HostConfig: &docker.HostConfig{
+			PublishAllPorts: true, // Use random host ports to avoid conflicts
 			Mounts: []docker.HostMount{
 				{
 					Type:   "tmpfs",
