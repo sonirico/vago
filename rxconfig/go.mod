@@ -28,6 +28,7 @@ require (
 	go.elastic.co/apm/module/apmzerolog/v2 v2.7.2 // indirect
 	go.elastic.co/apm/v2 v2.7.2 // indirect
 	go.elastic.co/fastjson v1.5.1 // indirect
+	golang.org/x/net v0.47.0 // indirect
 	golang.org/x/sys v0.39.0 // indirect
 	howett.net/plist v1.0.1 // indirect
 )
