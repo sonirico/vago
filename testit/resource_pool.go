@@ -121,6 +121,7 @@ func (s *Pool) run(
 				return
 			}
 			config.Mounts = append(config.Mounts, host.Mounts...)
+			config.PublishAllPorts = host.PublishAllPorts
 		})
 	if err != nil {
 		return
