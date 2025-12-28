@@ -2,11 +2,10 @@ package testit
 
 import (
 	"fmt"
-	"os"
-	"strings"
 
 	"github.com/ory/dockertest/v3"
 	"github.com/sonirico/vago/db"
+	"github.com/sonirico/vago/opts"
 
 	ch "github.com/ClickHouse/clickhouse-go/v2"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
@@ -14,21 +13,77 @@ import (
 	"github.com/sonirico/vago/lol"
 )
 
-func NewClickhouseResource(migrationsPath string, logger lol.Logger, envFunc SetEnvFunc) *Resource {
-	pwd, _ := os.Getwd()
+// ClickhouseResourceConfig holds configuration for ClickHouse test resource.
+type ClickhouseResourceConfig struct {
+	MigrationsPath string
+	ConfigVolume   string // Optional: path to config.d to mount
+	Tag            string
+	Logger         lol.Logger
+	SetEnvFunc     SetEnvFunc
+}
 
-	volume := fmt.Sprintf(
-		"%sbrock/it/internal/resources/clickhouse/config.d:/etc/clickhouse-server/config.d",
-		pwd[0:strings.Index(pwd, "brock")])
+// ClickhouseResourceOpt configures a ClickHouse resource.
+type ClickhouseResourceOpt = opts.Configurator[ClickhouseResourceConfig]
+
+// WithChConfigVolume sets a custom config volume to mount.
+func WithChConfigVolume(path string) ClickhouseResourceOpt {
+	return opts.Fn[ClickhouseResourceConfig](func(c *ClickhouseResourceConfig) {
+		c.ConfigVolume = path
+	})
+}
+
+// WithChTag sets the ClickHouse image tag.
+func WithChTag(tag string) ClickhouseResourceOpt {
+	return opts.Fn[ClickhouseResourceConfig](func(c *ClickhouseResourceConfig) {
+		c.Tag = tag
+	})
+}
+
+// WithChMigrations sets the migrations path.
+func WithChMigrations(path string) ClickhouseResourceOpt {
+	return opts.Fn[ClickhouseResourceConfig](func(c *ClickhouseResourceConfig) {
+		c.MigrationsPath = path
+	})
+}
+
+// WithChResourceLogger sets the logger.
+func WithChResourceLogger(log lol.Logger) ClickhouseResourceOpt {
+	return opts.Fn[ClickhouseResourceConfig](func(c *ClickhouseResourceConfig) {
+		c.Logger = log
+	})
+}
+
+// WithChSetEnvFunc sets the environment setup function.
+func WithChSetEnvFunc(fn SetEnvFunc) ClickhouseResourceOpt {
+	return opts.Fn[ClickhouseResourceConfig](func(c *ClickhouseResourceConfig) {
+		c.SetEnvFunc = fn
+	})
+}
+
+// NewClickhouseResourceWithOpts creates a ClickHouse resource with options.
+func NewClickhouseResourceWithOpts(options ...ClickhouseResourceOpt) *Resource {
+	cfg := ClickhouseResourceConfig{
+		Tag:    "24.12-alpine",
+		Logger: lol.ZeroDiscardLogger,
+		SetEnvFunc: func(dockerhost string, resource *dockertest.Resource) {
+		},
+	}
+	opts.ApplyAll(&cfg, options...)
+
+	runOpts := &dockertest.RunOptions{
+		ExposedPorts: []string{"9000", "9009", "8123"},
+		Repository:   "clickhouse/clickhouse-server",
+		Tag:          cfg.Tag,
+		Hostname:     "clickhouse01",
+	}
+
+	// Only mount config volume if specified
+	if cfg.ConfigVolume != "" {
+		runOpts.Mounts = []string{cfg.ConfigVolume + ":/etc/clickhouse-server/config.d"}
+	}
 
 	return &Resource{
-		RunOptions: &dockertest.RunOptions{
-			Mounts:       []string{volume},
-			ExposedPorts: []string{"9000", "9009", "8123"},
-			Repository:   "clickhouse/clickhouse-server",
-			Tag:          "24.12-alpine",
-			Hostname:     "clickhouse01", //Do not change, referenced in clickhouse config.xml file
-		},
+		RunOptions: runOpts,
 
 		HostConfig: &docker.HostConfig{
 			Mounts: []docker.HostMount{
@@ -46,35 +101,42 @@ func NewClickhouseResource(migrationsPath string, logger lol.Logger, envFunc Set
 			databaseUrl := fmt.Sprintf("tcp://%s:%s", dockerhost, resource.GetPort("9000/tcp"))
 
 			return func() error {
-				opts, err := ch.ParseDSN(databaseUrl)
-
+				chOpts, err := ch.ParseDSN(databaseUrl)
 				if err != nil {
 					return err
 				}
 
-				db := ch.OpenDB(opts)
-
-				if err != nil {
-					return err
-				}
-				defer db.Close()
-				return db.Ping()
+				conn := ch.OpenDB(chOpts)
+				defer conn.Close()
+				return conn.Ping()
 			}
 		},
 
 		MigrateFunc: func(dockerhost string, resource *dockertest.Resource) error {
-			log := logger.WithField("database", "clickhouse")
-
-			url := fmt.Sprintf("tcp://%s:%s", dockerhost, resource.GetPort("9000/tcp"))
-
-			cfg := db.MigrationsConfig{
-				Url:            url,
-				MigrationsPath: migrationsPath,
+			if cfg.MigrationsPath == "" {
+				return nil // Skip migrations if not configured
 			}
 
-			return db.LaunchClickhouse(cfg, "up", log)
+			log := cfg.Logger.WithField("database", "clickhouse")
+			url := fmt.Sprintf("tcp://%s:%s", dockerhost, resource.GetPort("9000/tcp"))
+
+			migCfg := db.MigrationsConfig{
+				Url:            url,
+				MigrationsPath: cfg.MigrationsPath,
+			}
+
+			return db.LaunchClickhouse(migCfg, "up", log)
 		},
 
-		SetEnvFunc: envFunc,
+		SetEnvFunc: cfg.SetEnvFunc,
 	}
+}
+
+// NewClickhouseResource creates a ClickHouse resource (legacy API, kept for compatibility).
+func NewClickhouseResource(migrationsPath string, logger lol.Logger, envFunc SetEnvFunc) *Resource {
+	return NewClickhouseResourceWithOpts(
+		WithChMigrations(migrationsPath),
+		WithChResourceLogger(logger),
+		WithChSetEnvFunc(envFunc),
+	)
 }
