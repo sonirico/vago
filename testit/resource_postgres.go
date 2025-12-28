@@ -40,6 +40,7 @@ func NewPostgresResource(
 			ExposedPorts: []string{"5432/tcp"},
 		},
 		HostConfig: &docker.HostConfig{
+			PublishAllPorts: true,
 			Mounts: []docker.HostMount{
 				{
 					Type:   "tmpfs",

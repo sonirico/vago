@@ -71,7 +71,7 @@ func NewClickhouseResourceWithOpts(options ...ClickhouseResourceOpt) *Resource {
 	opts.ApplyAll(&cfg, options...)
 
 	runOpts := &dockertest.RunOptions{
-		ExposedPorts: []string{"9000", "9009", "8123"},
+		ExposedPorts: []string{"9000/tcp", "9009/tcp", "8123/tcp"},
 		Repository:   "clickhouse/clickhouse-server",
 		Tag:          cfg.Tag,
 		Hostname:     "clickhouse01",
