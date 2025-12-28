@@ -75,6 +75,10 @@ func NewClickhouseResourceWithOpts(options ...ClickhouseResourceOpt) *Resource {
 		Repository:   "clickhouse/clickhouse-server",
 		Tag:          cfg.Tag,
 		Hostname:     "clickhouse01",
+		Env: []string{
+			"CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT=1",
+			"CLICKHOUSE_PASSWORD=", // Empty password for default user
+		},
 	}
 
 	// Only mount config volume if specified
