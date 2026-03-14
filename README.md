@@ -247,21 +247,21 @@ Example:
 	    "github.com/sonirico/vago/lol"
 	)
 
-	Setup a logger and a database handler (e.g., pgx)
+	// Setup a logger and a database handler (e.g., pgx)
 	logger := lol.NewLogger()
 	handler, _ := db.OpenPgxConn(logger, "postgres://user:pass@localhost/db", false)
 	executor := db.NewExecutor(logger, handler)
 
-	Run a transactional operation: either all operations succeed, or none are applied
+	// Run a transactional operation: either all operations succeed, or none are applied
 	err := executor.DoWithTx(ctx, func(ctx db.Context) error {
-	    Multiple DB operations in a transaction
+	    // Multiple DB operations in a transaction
 	    if _, err := ctx.Querier().ExecContext(ctx, "INSERT INTO users (name) VALUES ($1)", "alice"); err != nil {
 	        return err
 	    }
 	    if _, err := ctx.Querier().ExecContext(ctx, "INSERT INTO accounts (user) VALUES ($1)", "alice"); err != nil {
 	        return err
 	    }
-	    If any error is returned, all changes are rolled back
+	    // If any error is returned, all changes are rolled back
 	    return nil
 	})
 
