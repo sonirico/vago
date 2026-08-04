@@ -2,6 +2,7 @@ package streams
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -98,7 +99,7 @@ func TestPipeJSONEachRowTransform_WriteTo(t *testing.T) {
 			buffer := new(bytes.Buffer)
 			transform := JSONEachRowTransform(tt.stream)
 
-			written, err := transform.WriteTo(buffer)
+			written, err := transform.WriteTo(context.Background(), buffer)
 
 			if tt.expectedError != nil {
 				assert.Error(t, err)
@@ -118,7 +119,7 @@ func TestPipeJSONEachRowTransform_WriteToFile(t *testing.T) {
 		{ID: 2, Name: "Bob", Email: "bob@example.com"},
 	}, nil)
 
-	_, err := PipeJSONEachRow(stream, io.Discard)
+	_, err := PipeJSONEachRow(context.Background(), stream, io.Discard)
 	assert.NoError(t, err)
 }
 
@@ -141,7 +142,7 @@ func ExampleJSONEachRowTransform() {
 
 	// Transform to JSON lines format and write to stdout
 	transform := JSONEachRowTransform(stream)
-	transform.WriteTo(os.Stdout)
+	transform.WriteTo(context.Background(), os.Stdout)
 
 	// Output:
 	// {"timestamp":"2025-06-28T10:00:00Z","level":"INFO","message":"Application started"}
@@ -167,7 +168,7 @@ func ExamplePipeJSONEachRow() {
 	stream := MemReader(metrics, nil)
 
 	// Use PipeJSONEachRow to write to stdout
-	bytesWritten, err := PipeJSONEachRow(stream, os.Stdout)
+	bytesWritten, err := PipeJSONEachRow(context.Background(), stream, os.Stdout)
 	if err != nil {
 		fmt.Printf("Error: %v\n", err)
 		return

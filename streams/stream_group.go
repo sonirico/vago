@@ -1,6 +1,7 @@
 package streams
 
 import (
+	"context"
 	"io"
 	"iter"
 )
@@ -28,7 +29,7 @@ func Group[T any, K comparable](inner ReadStream[T], keyFunc func(T) K) ReadStre
 	}
 }
 
-func (s *GroupStream[T, K]) Next() bool {
+func (s *GroupStream[T, K]) Next(ctx context.Context) bool {
 	if s.done {
 		return false
 	}
@@ -37,7 +38,7 @@ func (s *GroupStream[T, K]) Next() bool {
 	s.buffer = make([]T, 0)
 
 	// If we don't have a next item, we're done
-	if !s.hasNext && !s.inner.Next() {
+	if !s.hasNext && !s.inner.Next(ctx) {
 		if err := s.inner.Err(); err != nil {
 			s.err = err
 		}
@@ -63,7 +64,7 @@ func (s *GroupStream[T, K]) Next() bool {
 	s.currentKey = groupKey
 
 	// Collect all consecutive items with the same key
-	for s.inner.Next() {
+	for s.inner.Next(ctx) {
 		item := s.inner.Data()
 		itemKey := s.keyFunc(item)
 
@@ -98,8 +99,8 @@ func (s *GroupStream[T, K]) Close() error {
 	return s.inner.Close()
 }
 
-func (s *GroupStream[T, K]) Iter() iter.Seq[[]T] {
-	return Iter(s)
+func (s *GroupStream[T, K]) Iter(ctx context.Context) iter.Seq[[]T] {
+	return Iter(ctx, s)
 }
 
 // GroupFactory creates a factory for GroupStream instances.

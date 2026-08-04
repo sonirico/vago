@@ -1,16 +1,17 @@
 package streams
 
 import (
+	"context"
 	"iter"
 	"slices"
 )
 
 // Iter converts a ReadStream into an iter.Seq.
-func Iter[T any](stream ReadStream[T]) iter.Seq[T] {
+func Iter[T any](ctx context.Context, stream ReadStream[T]) iter.Seq[T] {
 	return func(yield func(T) bool) {
 		defer stream.Close()
 
-		for stream.Next() {
+		for stream.Next(ctx) {
 			if !yield(stream.Data()) {
 				break
 			}
@@ -19,11 +20,11 @@ func Iter[T any](stream ReadStream[T]) iter.Seq[T] {
 }
 
 // Iter2 converts a ReadStream into an iter.Seq2, yielding both data and error.
-func Iter2[T any](stream ReadStream[T]) iter.Seq2[T, error] {
+func Iter2[T any](ctx context.Context, stream ReadStream[T]) iter.Seq2[T, error] {
 	return func(yield func(T, error) bool) {
 		defer stream.Close()
 
-		for stream.Next() {
+		for stream.Next(ctx) {
 			if !yield(stream.Data(), nil) {
 				break
 			}

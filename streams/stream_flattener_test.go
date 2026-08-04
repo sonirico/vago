@@ -1,6 +1,7 @@
 package streams
 
 import (
+	"context"
 	"fmt"
 	"testing"
 
@@ -68,7 +69,7 @@ func TestFlattenerStream(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			stream := Flatten[int](tt.inner)
-			result, err := Consume(stream)
+			result, err := Consume(context.Background(), stream)
 
 			assert.ErrorIsf(
 				t,
@@ -93,7 +94,7 @@ func ExampleFlatten() {
 	flattened := Flatten(stream)
 
 	// Collect the results
-	result, _ := Consume(flattened)
+	result, _ := Consume(context.Background(), flattened)
 	fmt.Println(result)
 	// Output: [1 2 3 4 5 6 7 8 9]
 }

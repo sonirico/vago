@@ -1,16 +1,23 @@
 package streams
 
 import (
+	"context"
 	"fmt"
 	"testing"
+	"time"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestStreamChannel(t *testing.T) {
-	tests := []struct {
+	type testCase struct {
 		name     string
 		input    []int
 		expected []int
-	}{
+	}
+
+	tests := []testCase{
 		{
 			name:     "empty channel",
 			input:    []int{},
@@ -30,40 +37,55 @@ func TestStreamChannel(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			// Prepare a channel and push input data
+			t.Parallel()
+
 			ch := make(chan int, len(tc.input))
 			for _, v := range tc.input {
 				ch <- v
 			}
 			close(ch)
 
-			// Create a new stream from the channel
 			stream := Channel[int](ch)
 
 			var actual []int
-			for stream.Next() {
+			for stream.Next(context.Background()) {
 				actual = append(actual, stream.Data())
-				if err := stream.Err(); err != nil {
-					t.Fatalf("unexpected error: %v", err)
-				}
+				require.NoError(t, stream.Err())
 			}
 
-			// Verify that the actual read elements match the expected elements
-			if len(actual) != len(tc.expected) {
-				t.Fatalf("expected %d elements, got %d", len(tc.expected), len(actual))
+			if len(tc.expected) == 0 {
+				assert.Empty(t, actual)
+			} else {
+				assert.Equal(t, tc.expected, actual)
 			}
-			for i, v := range tc.expected {
-				if actual[i] != v {
-					t.Errorf("expected element %d to be %d, got %d", i, v, actual[i])
-				}
-			}
-
-			// Check Err is still nil at the end
-			if stream.Err() != nil {
-				t.Errorf("expected Err() to be nil at the end, got %v", stream.Err())
-			}
+			assert.NoError(t, stream.Err())
 		})
 	}
+}
+
+func TestStreamChannel_NextUnblocksOnContextCancellation(t *testing.T) {
+	t.Parallel()
+
+	ch := make(chan int)
+	stream := Channel[int](ch)
+
+	ctx, cancel := context.WithCancel(context.Background())
+
+	done := make(chan bool, 1)
+	go func() {
+		done <- stream.Next(ctx)
+	}()
+
+	cancel()
+
+	select {
+	case ok := <-done:
+		assert.False(t, ok, "Next should return false once ctx is cancelled")
+	case <-time.After(2 * time.Second):
+		t.Fatal("Next did not unblock after context cancellation")
+	}
+
+	assert.ErrorIs(t, stream.Err(), context.Canceled)
 }
 
 func ExampleChannel() {
@@ -78,7 +100,7 @@ func ExampleChannel() {
 	stream := Channel[int](ch)
 
 	// Process all values from the channel
-	for stream.Next() {
+	for stream.Next(context.Background()) {
 		fmt.Println(stream.Data())
 	}
 	// Output:

@@ -1,5 +1,7 @@
 package streams
 
+import "context"
+
 // MemoryWriteStream is a WriteStream implementation that collects items in memory
 type MemoryWriteStream[T any] struct {
 	items []T
@@ -7,7 +9,7 @@ type MemoryWriteStream[T any] struct {
 }
 
 // Write adds an item to the stream and returns 1 (one item written)
-func (w *MemoryWriteStream[T]) Write(item T) (int64, error) {
+func (w *MemoryWriteStream[T]) Write(ctx context.Context, item T) (int64, error) {
 	if w.err != nil {
 		return 0, w.err
 	}
@@ -16,7 +18,7 @@ func (w *MemoryWriteStream[T]) Write(item T) (int64, error) {
 }
 
 // Flush is a no-op for memory streams since items are immediately available
-func (w *MemoryWriteStream[T]) Flush() error {
+func (w *MemoryWriteStream[T]) Flush(ctx context.Context) error {
 	return w.err
 }
 

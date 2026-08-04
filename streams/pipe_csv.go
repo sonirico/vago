@@ -1,6 +1,7 @@
 package streams
 
 import (
+	"context"
 	"encoding/csv"
 	"fmt"
 	"io"
@@ -31,7 +32,7 @@ type TransformCSV[T csvMarshaler] struct {
 // Returned written result means the actual number of rows written, and not the
 // total bytes. Inner csv writer does not provide that information and it's
 // inefficient to do it here.
-func (p *TransformCSV[T]) WriteTo(w io.Writer) (written int64, err error) {
+func (p *TransformCSV[T]) WriteTo(ctx context.Context, w io.Writer) (written int64, err error) {
 	var (
 		headerWritten bool
 	)
@@ -40,7 +41,7 @@ func (p *TransformCSV[T]) WriteTo(w io.Writer) (written int64, err error) {
 	writer.Comma = p.separator
 	defer writer.Flush()
 
-	for p.stream.Next() {
+	for p.stream.Next(ctx) {
 		if err = p.stream.Err(); err != nil {
 			if !errors.Is(err, io.EOF) {
 				err = fmt.Errorf("stream err: %w", err)
@@ -93,7 +94,12 @@ func CSVTransform[T csvMarshaler](stream ReadStream[T], separator rune) Transfor
 	}
 }
 
-// PipeJSONEachRow writes the JSON representation of each row in the stream to the provided writer.
-func PipeCSV[T csvMarshaler](stream ReadStream[T], w io.Writer, writeSep rune) (int64, error) {
-	return CSVTransform(stream, writeSep).WriteTo(w)
+// PipeCSV writes the CSV representation of each row in the stream to the provided writer.
+func PipeCSV[T csvMarshaler](
+	ctx context.Context,
+	stream ReadStream[T],
+	w io.Writer,
+	writeSep rune,
+) (int64, error) {
+	return CSVTransform(stream, writeSep).WriteTo(ctx, w)
 }

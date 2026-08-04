@@ -1,6 +1,7 @@
 package streams
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"io"
@@ -47,7 +48,7 @@ func TestConsume(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			result, err := Consume(tc.stream)
+			result, err := Consume(context.Background(), tc.stream)
 
 			assert.Len(t, result, len(tc.expected), "Result does not match expected output")
 			if len(tc.expected) > 0 {
@@ -78,7 +79,7 @@ func TestStreamPatterns(t *testing.T) {
 		dst := MemWriter[string]()
 
 		// Simple pipe: read -> write
-		bytesWritten, err := Pipe(src, dst)
+		bytesWritten, err := Pipe(context.Background(), src, dst)
 		if err != nil {
 			t.Fatalf("Pipe failed: %v", err)
 		}
@@ -105,7 +106,7 @@ func TestStreamPatterns(t *testing.T) {
 
 		// Write to destination
 		dst := MemWriter[string]()
-		bytesWritten, err := Pipe(mapped, dst)
+		bytesWritten, err := Pipe(context.Background(), mapped, dst)
 		if err != nil {
 			t.Fatalf("Chained pipe failed: %v", err)
 		}
@@ -142,7 +143,7 @@ func TestStreamPatterns(t *testing.T) {
 		dst3 := MemWriter[int]()
 
 		// Multicast: read -> multiple writes
-		bytesWritten, err := Multicast(src, dst1, dst2, dst3)
+		bytesWritten, err := Multicast(context.Background(), src, dst1, dst2, dst3)
 		if err != nil {
 			t.Fatalf("Multicast failed: %v", err)
 		}
@@ -214,7 +215,7 @@ func TestRealWorldExample(t *testing.T) {
 	alertSystem := MemWriter[string]()
 
 	// Process: read -> filter -> map -> Multicast to multiple writes
-	bytesWritten, err := Multicast(mapped, allUsers, alertSystem)
+	bytesWritten, err := Multicast(context.Background(), mapped, allUsers, alertSystem)
 	if err != nil {
 		t.Fatalf("Real world example failed: %v", err)
 	}
@@ -255,19 +256,19 @@ func TestConsumeErrSkip(t *testing.T) {
 		stream := MemReader([]int{1, 2, 3, 4, 5}, nil)
 
 		// Consume all data (no errors in this case)
-		result := ConsumeErrSkip(stream)
+		result := ConsumeErrSkip(context.Background(), stream)
 		assert.Equal(t, []int{1, 2, 3, 4, 5}, result, "Should consume all data")
 	})
 
 	t.Run("Empty stream", func(t *testing.T) {
 		stream := MemReader([]int{}, nil)
-		result := ConsumeErrSkip(stream)
+		result := ConsumeErrSkip(context.Background(), stream)
 		assert.Empty(t, result, "Should return empty slice for empty stream")
 	})
 
 	t.Run("Stream with error", func(t *testing.T) {
 		stream := MemReader([]int{1, 2, 3}, errors.New("stream error"))
-		result := ConsumeErrSkip(stream)
+		result := ConsumeErrSkip(context.Background(), stream)
 		// Should return empty slice when stream has error
 		assert.Empty(t, result, "Should return empty result when stream has error")
 	})
@@ -278,7 +279,7 @@ func TestWriteSeq(t *testing.T) {
 		stream := MemWriter[int]()
 		items := []int{1, 2, 3, 4, 5}
 
-		bytesWritten, err := WriteSeq(stream, slices.Values(items))
+		bytesWritten, err := WriteSeq(context.Background(), stream, slices.Values(items))
 		assert.NoError(t, err, "Should write sequence without error")
 		assert.Positive(t, bytesWritten, "Should write positive bytes")
 
@@ -290,7 +291,7 @@ func TestWriteSeq(t *testing.T) {
 		stream := MemWriter[string]()
 		items := []string{}
 
-		bytesWritten, err := WriteSeq(stream, slices.Values(items))
+		bytesWritten, err := WriteSeq(context.Background(), stream, slices.Values(items))
 		assert.NoError(t, err, "Should handle empty sequence")
 		assert.Zero(t, bytesWritten, "Should write zero bytes for empty sequence")
 
@@ -303,7 +304,7 @@ func TestWriteSeq(t *testing.T) {
 		stream.SetError(errors.New("write error"))
 		items := []int{1, 2, 3}
 
-		bytesWritten, err := WriteSeq(stream, slices.Values(items))
+		bytesWritten, err := WriteSeq(context.Background(), stream, slices.Values(items))
 		assert.Error(t, err, "Should return error on write failure")
 		assert.Zero(t, bytesWritten, "Should return zero bytes on error")
 		assert.Contains(t, err.Error(), "write error", "Should contain write error message")
@@ -319,7 +320,7 @@ func TestWriteSeqKeys(t *testing.T) {
 			"cherry": 3,
 		}
 
-		bytesWritten, err := WriteSeqKeys(stream, maps.All(data))
+		bytesWritten, err := WriteSeqKeys(context.Background(), stream, maps.All(data))
 		assert.NoError(t, err, "Should write keys without error")
 		assert.Positive(t, bytesWritten, "Should write positive bytes")
 
@@ -342,7 +343,7 @@ func TestWriteSeqValues(t *testing.T) {
 			"cherry": 3,
 		}
 
-		bytesWritten, err := WriteSeqValues(stream, maps.All(data))
+		bytesWritten, err := WriteSeqValues(context.Background(), stream, maps.All(data))
 		assert.NoError(t, err, "Should write values without error")
 		assert.Positive(t, bytesWritten, "Should write positive bytes")
 
@@ -361,7 +362,7 @@ func TestPipeErrorHandling(t *testing.T) {
 		src := MemReader([]int{1, 2}, errors.New("source error"))
 		dst := MemWriter[int]()
 
-		bytesWritten, err := Pipe(src, dst)
+		bytesWritten, err := Pipe(context.Background(), src, dst)
 		assert.Error(t, err, "Should return error from source")
 		assert.Contains(t, err.Error(), "read error", "Should contain read error message")
 		assert.Zero(t, bytesWritten, "Should return zero bytes on error")
@@ -372,7 +373,7 @@ func TestPipeErrorHandling(t *testing.T) {
 		dst := MemWriter[int]()
 		dst.SetError(errors.New("write error"))
 
-		bytesWritten, err := Pipe(src, dst)
+		bytesWritten, err := Pipe(context.Background(), src, dst)
 		assert.Error(t, err, "Should return error from destination")
 		assert.Contains(t, err.Error(), "write error", "Should contain write error message")
 		assert.Zero(t, bytesWritten, "Should return zero bytes on error")
@@ -382,7 +383,7 @@ func TestPipeErrorHandling(t *testing.T) {
 		src := MemReader([]int{1, 2, 3, 4, 5}, nil)
 		dst := MemWriter[int]()
 
-		bytesWritten, err := Pipe(src, dst)
+		bytesWritten, err := Pipe(context.Background(), src, dst)
 		assert.NoError(t, err, "Should pipe successfully")
 		assert.Positive(t, bytesWritten, "Should write positive bytes")
 
@@ -395,7 +396,7 @@ func TestMulticastErrorHandling(t *testing.T) {
 	t.Run("No destinations", func(t *testing.T) {
 		src := MemReader([]int{1, 2, 3}, nil)
 
-		bytesWritten, err := Multicast(src)
+		bytesWritten, err := Multicast(context.Background(), src)
 		assert.NoError(t, err, "Should handle no destinations")
 		assert.Empty(t, bytesWritten, "Should return empty bytes slice")
 	})
@@ -405,7 +406,7 @@ func TestMulticastErrorHandling(t *testing.T) {
 		dst1 := MemWriter[int]()
 		dst2 := MemWriter[int]()
 
-		bytesWritten, err := Multicast(src, dst1, dst2)
+		bytesWritten, err := Multicast(context.Background(), src, dst1, dst2)
 		assert.Error(t, err, "Should return error from source")
 		assert.Contains(t, err.Error(), "read error", "Should contain read error message")
 		assert.Len(t, bytesWritten, 2, "Should return bytes array for all destinations")
@@ -417,7 +418,7 @@ func TestMulticastErrorHandling(t *testing.T) {
 		dst2 := MemWriter[int]()
 		dst2.SetError(errors.New("write error"))
 
-		bytesWritten, err := Multicast(src, dst1, dst2)
+		bytesWritten, err := Multicast(context.Background(), src, dst1, dst2)
 		assert.Error(t, err, "Should return error from destination")
 		assert.Contains(
 			t,
@@ -434,7 +435,7 @@ func TestMulticastErrorHandling(t *testing.T) {
 		dst2 := MemWriter[int]()
 		dst3 := MemWriter[int]()
 
-		bytesWritten, err := Multicast(src, dst1, dst2, dst3)
+		bytesWritten, err := Multicast(context.Background(), src, dst1, dst2, dst3)
 		assert.NoError(t, err, "Should Multicast successfully")
 		assert.Len(t, bytesWritten, 3, "Should return bytes written for each destination")
 
@@ -466,7 +467,7 @@ func ExamplePipe() {
 	dest := MemWriter[string]()
 
 	// Pipe data from source to destination
-	bytesWritten, _ := Pipe(source, dest)
+	bytesWritten, _ := Pipe(context.Background(), source, dest)
 
 	fmt.Printf("Items written: %d\n", bytesWritten)
 	fmt.Printf("Items: %v\n", dest.Items())
@@ -486,7 +487,7 @@ func ExampleMulticast() {
 	dest2 := MemWriter[string]()
 
 	// Multicast the stream to both destinations
-	counts, err := Multicast(source, dest1, dest2)
+	counts, err := Multicast(context.Background(), source, dest1, dest2)
 	if err != nil {
 		fmt.Printf("Error: %v\n", err)
 		return
@@ -532,7 +533,7 @@ func ExampleConsumeErrSkip() {
 	})
 
 	// Consume all valid numbers, skipping errors
-	numbers := ConsumeErrSkip(filterStream)
+	numbers := ConsumeErrSkip(context.Background(), filterStream)
 
 	fmt.Printf("Valid numbers: %v\n", numbers)
 
@@ -549,7 +550,7 @@ func ExampleWriteAll() {
 	writer := MemWriter[string]()
 
 	// Write all data
-	bytesWritten, err := WriteAll(writer, data)
+	bytesWritten, err := WriteAll(context.Background(), writer, data)
 	if err != nil {
 		fmt.Printf("Error: %v\n", err)
 		return
@@ -567,9 +568,9 @@ type simpleTransform struct {
 	stream ReadStream[[]byte]
 }
 
-func (t *simpleTransform) WriteTo(w io.Writer) (int64, error) {
+func (t *simpleTransform) WriteTo(ctx context.Context, w io.Writer) (int64, error) {
 	var total int64
-	for t.stream.Next() {
+	for t.stream.Next(ctx) {
 		data := t.stream.Data()
 		n, err := w.Write(data)
 		if err != nil {
@@ -586,7 +587,7 @@ func ExampleConsume() {
 	stream := MemReader(data, nil)
 
 	// Consume all items from the stream
-	items, err := Consume(stream)
+	items, err := Consume(context.Background(), stream)
 	if err != nil {
 		fmt.Printf("Error: %v\n", err)
 		return
@@ -602,7 +603,7 @@ func ExampleReadAll() {
 	stream := MemReader(words, nil)
 
 	// Read all items (alias for Consume)
-	items, err := ReadAll(stream)
+	items, err := ReadAll(context.Background(), stream)
 	if err != nil {
 		fmt.Printf("Error: %v\n", err)
 		return
@@ -620,7 +621,7 @@ func ExampleWriteSeq() {
 	words := []string{"hello", "world", "from", "iterator"}
 
 	// Write all items from the iterator
-	bytesWritten, err := WriteSeq(dst, slices.Values(words))
+	bytesWritten, err := WriteSeq(context.Background(), dst, slices.Values(words))
 	if err != nil {
 		fmt.Printf("Error: %v\n", err)
 		return

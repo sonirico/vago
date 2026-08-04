@@ -1,6 +1,7 @@
 package streams
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"strings"
@@ -33,7 +34,7 @@ func TestNewJSONEachRowStream(t *testing.T) {
 	}
 	i := 0
 
-	for s.Next() {
+	for s.Next(context.Background()) {
 		if err := s.Err(); err != nil {
 			t.Fatalf("unexpected err %v", err)
 		}
@@ -63,7 +64,7 @@ func ExampleJSON() {
 	jsonStream := JSON[Person](io.NopCloser(reader))
 
 	// Collect the results
-	result, _ := Consume(jsonStream)
+	result, _ := Consume(context.Background(), jsonStream)
 	for _, person := range result {
 		fmt.Printf("Person: %s, Age: %d\n", person.Name, person.Age)
 	}

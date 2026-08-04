@@ -2,6 +2,7 @@ package streams
 
 import (
 	"bytes"
+	"context"
 	"errors"
 	"fmt"
 	"io"
@@ -110,7 +111,7 @@ func TestPipeCSVTransform_WriteTo(t *testing.T) {
 			buffer := new(bytes.Buffer)
 			transform := CSVTransform(tt.stream, tt.separator)
 
-			written, err := transform.WriteTo(buffer)
+			written, err := transform.WriteTo(context.Background(), buffer)
 
 			if tt.expectedError != nil {
 				assert.Error(t, err)
@@ -130,7 +131,7 @@ func TestPipeCSVTransform_WriteToFile(t *testing.T) {
 		{ID: 2, Name: "Bob", Email: "bob@example.com"},
 	}, nil)
 
-	_, err := CSVTransform(stream, CSVSeparatorTab).WriteTo(os.Stdout)
+	_, err := CSVTransform(stream, CSVSeparatorTab).WriteTo(context.Background(), os.Stdout)
 	assert.NoError(t, err)
 }
 
@@ -166,7 +167,7 @@ func ExampleCSVTransform() {
 
 	// Transform to CSV with comma separator
 	transform := CSVTransform(stream, CSVSeparatorComma)
-	transform.WriteTo(os.Stdout)
+	transform.WriteTo(context.Background(), os.Stdout)
 
 	// Output:
 	// ID,Name,Department,Salary
@@ -201,7 +202,7 @@ func ExampleCSVTransform_tabSeparated() {
 
 	// Transform to CSV with tab separator
 	transform := CSVTransform(stream, CSVSeparatorTab)
-	transform.WriteTo(os.Stdout)
+	transform.WriteTo(context.Background(), os.Stdout)
 
 	// Output:
 	// SKU	Product Name	Price
@@ -220,7 +221,7 @@ func ExamplePipeCSV() {
 	stream := MemReader(employees, nil)
 
 	// Use PipeCSV to write directly to stdout with comma separator
-	rowsWritten, err := PipeCSV(stream, os.Stdout, CSVSeparatorComma)
+	rowsWritten, err := PipeCSV(context.Background(), stream, os.Stdout, CSVSeparatorComma)
 	if err != nil {
 		fmt.Printf("Error: %v\n", err)
 		return

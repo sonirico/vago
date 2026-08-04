@@ -2,6 +2,7 @@ package streams
 
 import (
 	"bufio"
+	"context"
 	"fmt"
 	"io"
 	"iter"
@@ -90,7 +91,7 @@ func newStreamCSV[T any](r io.ReadCloser, sep string) *CSVStream[T] {
 	return stream
 }
 
-func (s *CSVStream[T]) Next() bool {
+func (s *CSVStream[T]) Next(ctx context.Context) bool {
 	if s.buf.Scan() {
 		data := strings.Split(s.buf.Text(), s.sep)
 		value, err := s.parseFunc(data)
@@ -116,10 +117,10 @@ func (s *CSVStream[T]) Close() error {
 	return s.reader.Close()
 }
 
-func (s *CSVStream[T]) Iter() iter.Seq[T] {
-	return Iter(s)
+func (s *CSVStream[T]) Iter(ctx context.Context) iter.Seq[T] {
+	return Iter(ctx, s)
 }
 
-func (s *CSVStream[T]) Iter2() iter.Seq2[T, error] {
-	return Iter2(s)
+func (s *CSVStream[T]) Iter2(ctx context.Context) iter.Seq2[T, error] {
+	return Iter2(ctx, s)
 }

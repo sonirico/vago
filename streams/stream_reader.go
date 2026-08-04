@@ -2,6 +2,7 @@ package streams
 
 import (
 	"bufio"
+	"context"
 	"io"
 )
 
@@ -16,7 +17,7 @@ type ReaderStream struct {
 }
 
 // Next reads the next chunk of data from the reader
-func (r *ReaderStream) Next() bool {
+func (r *ReaderStream) Next(ctx context.Context) bool {
 	if r.closed || r.err != nil {
 		return false
 	}

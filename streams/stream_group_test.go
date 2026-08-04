@@ -1,6 +1,7 @@
 package streams
 
 import (
+	"context"
 	"fmt"
 	"testing"
 
@@ -20,27 +21,27 @@ func TestGroupStream(t *testing.T) {
 		// Act & Assert
 
 		// First group: ["a", "a"]
-		require.True(t, GroupStream.Next())
+		require.True(t, GroupStream.Next(context.Background()))
 		assert.Equal(t, []string{"a", "a"}, GroupStream.Data())
 		assert.NoError(t, GroupStream.Err())
 
 		// Second group: ["b", "b", "b"]
-		require.True(t, GroupStream.Next())
+		require.True(t, GroupStream.Next(context.Background()))
 		assert.Equal(t, []string{"b", "b", "b"}, GroupStream.Data())
 		assert.NoError(t, GroupStream.Err())
 
 		// Third group: ["a"] (different from first group because not consecutive)
-		require.True(t, GroupStream.Next())
+		require.True(t, GroupStream.Next(context.Background()))
 		assert.Equal(t, []string{"a"}, GroupStream.Data())
 		assert.NoError(t, GroupStream.Err())
 
 		// Fourth group: ["c"]
-		require.True(t, GroupStream.Next())
+		require.True(t, GroupStream.Next(context.Background()))
 		assert.Equal(t, []string{"c"}, GroupStream.Data())
 		assert.NoError(t, GroupStream.Err())
 
 		// No more groups
-		assert.False(t, GroupStream.Next())
+		assert.False(t, GroupStream.Next(context.Background()))
 		assert.NoError(t, GroupStream.Err())
 
 		// Cleanup
@@ -71,7 +72,7 @@ func TestGroupStream(t *testing.T) {
 		// Act & Assert
 
 		// First group: people aged 25
-		require.True(t, GroupStream.Next())
+		require.True(t, GroupStream.Next(context.Background()))
 		group1 := GroupStream.Data()
 		assert.Len(t, group1, 3)
 		assert.Equal(t, 25, group1[0].Age)
@@ -80,7 +81,7 @@ func TestGroupStream(t *testing.T) {
 		assert.NoError(t, GroupStream.Err())
 
 		// Second group: people aged 30
-		require.True(t, GroupStream.Next())
+		require.True(t, GroupStream.Next(context.Background()))
 		group2 := GroupStream.Data()
 		assert.Len(t, group2, 2)
 		assert.Equal(t, 30, group2[0].Age)
@@ -88,7 +89,7 @@ func TestGroupStream(t *testing.T) {
 		assert.NoError(t, GroupStream.Err())
 
 		// Third group: Frank aged 25 (separate group)
-		require.True(t, GroupStream.Next())
+		require.True(t, GroupStream.Next(context.Background()))
 		group3 := GroupStream.Data()
 		assert.Len(t, group3, 1)
 		assert.Equal(t, 25, group3[0].Age)
@@ -96,7 +97,7 @@ func TestGroupStream(t *testing.T) {
 		assert.NoError(t, GroupStream.Err())
 
 		// No more groups
-		assert.False(t, GroupStream.Next())
+		assert.False(t, GroupStream.Next(context.Background()))
 		assert.NoError(t, GroupStream.Err())
 
 		// Cleanup
@@ -110,7 +111,7 @@ func TestGroupStream(t *testing.T) {
 		GroupStream := Group(memStream, func(s string) string { return s })
 
 		// Act & Assert
-		assert.False(t, GroupStream.Next())
+		assert.False(t, GroupStream.Next(context.Background()))
 		assert.NoError(t, GroupStream.Err())
 		assert.NoError(t, GroupStream.Close())
 	})
@@ -122,11 +123,11 @@ func TestGroupStream(t *testing.T) {
 		GroupStream := Group(memStream, func(s string) string { return s })
 
 		// Act & Assert
-		require.True(t, GroupStream.Next())
+		require.True(t, GroupStream.Next(context.Background()))
 		assert.Equal(t, []string{"single"}, GroupStream.Data())
 		assert.NoError(t, GroupStream.Err())
 
-		assert.False(t, GroupStream.Next())
+		assert.False(t, GroupStream.Next(context.Background()))
 		assert.NoError(t, GroupStream.Err())
 		assert.NoError(t, GroupStream.Close())
 	})
@@ -139,7 +140,7 @@ func TestGroupStream(t *testing.T) {
 
 		// Act
 		var groups [][]int
-		for group := range Iter(GroupStream) {
+		for group := range Iter(context.Background(), GroupStream) {
 			groups = append(groups, group)
 		}
 
@@ -163,7 +164,7 @@ func TestGroupStream(t *testing.T) {
 		})
 
 		// Act
-		groups, err := Consume(GroupStream)
+		groups, err := Consume(context.Background(), GroupStream)
 
 		// Assert
 		require.NoError(t, err)
@@ -189,7 +190,7 @@ func ExampleGroup() {
 	})
 
 	// Collect the results
-	result, _ := Consume(Grouped)
+	result, _ := Consume(context.Background(), Grouped)
 	for _, group := range result {
 		fmt.Printf("Group: %v\n", group)
 	}

@@ -3491,7 +3491,7 @@ func ExampleBatch() {
 	batchStream := Batch(stream, 3)
 
 	// Collect the results
-	result, _ := Consume(batchStream)
+	result, _ := Consume(context.Background(), batchStream)
 	for i, batch := range result {
 		fmt.Printf("Batch %d: %v\n", i+1, batch)
 	}
@@ -3530,7 +3530,7 @@ func ExampleCSV() {
 	)
 
 	// Collect the results
-	result, _ := Consume(csvStream)
+	result, _ := Consume(context.Background(), csvStream)
 	for i, row := range result {
 		fmt.Printf("Row %d: %v\n", i+1, row)
 	}
@@ -3568,7 +3568,7 @@ func ExampleCSVTransform() {
 
 	// Transform to CSV with comma separator
 	transform := CSVTransform(stream, CSVSeparatorComma)
-	transform.WriteTo(os.Stdout)
+	transform.WriteTo(context.Background(), os.Stdout)
 
 	// Output:
 	// ID,Name,Department,Salary
@@ -3605,7 +3605,7 @@ func ExampleCSVTransform_tabSeparated() {
 
 	// Transform to CSV with tab separator
 	transform := CSVTransform(stream, CSVSeparatorTab)
-	transform.WriteTo(os.Stdout)
+	transform.WriteTo(context.Background(), os.Stdout)
 
 	// Output:
 	// SKU	Product Name	Price
@@ -3657,7 +3657,7 @@ func ExampleConsumeErrSkip() {
 	})
 
 	// Consume all valid numbers, skipping errors
-	numbers := ConsumeErrSkip(filterStream)
+	numbers := ConsumeErrSkip(context.Background(), filterStream)
 
 	fmt.Printf("Valid numbers: %v\n", numbers)
 
@@ -3697,7 +3697,7 @@ func ExampleDB() {
 	})
 
 	// Iterate through the stream
-	for stream.Next() {
+	for stream.Next(context.Background()) {
 		user := stream.Data()
 		fmt.Printf("User ID: %d, Name: %s\n", user.ID, user.Name)
 	}
@@ -3740,7 +3740,7 @@ func ExampleFilter() {
 	})
 
 	// Collect the results
-	result, _ := Consume(evenStream)
+	result, _ := Consume(context.Background(), evenStream)
 	fmt.Println(result)
 	// Output: [2 4 6 8 10]
 }
@@ -3775,7 +3775,7 @@ func ExampleFilterMap() {
 	})
 
 	// Collect the results
-	result, _ := Consume(evenStrings)
+	result, _ := Consume(context.Background(), evenStrings)
 	fmt.Println(result)
 	// Output: [2 4 6 8 10]
 }
@@ -3805,7 +3805,7 @@ func ExampleFlatten() {
 	flattened := Flatten(stream)
 
 	// Collect the results
-	result, _ := Consume(flattened)
+	result, _ := Consume(context.Background(), flattened)
 	fmt.Println(result)
 	// Output: [1 2 3 4 5 6 7 8 9]
 }
@@ -3837,7 +3837,7 @@ func ExampleGroup() {
 	})
 
 	// Collect the results
-	result, _ := Consume(Grouped)
+	result, _ := Consume(context.Background(), Grouped)
 	for _, group := range result {
 		fmt.Printf("Group: %v\n", group)
 	}
@@ -3880,7 +3880,7 @@ func ExampleJSON() {
 		jsonStream := JSON[Person](io.NopCloser(reader))
 
 		// Collect the results
-		result, _ := Consume(jsonStream)
+		result, _ := Consume(context.Background(), jsonStream)
 		for _, person := range result {
 			fmt.Printf("Person: %s, Age: %d\n", person.Name, person.Age)
 		}
@@ -3924,7 +3924,7 @@ func ExampleJSONEachRowTransform() {
 
 	// Transform to JSON lines format and write to stdout
 	transform := JSONEachRowTransform(stream)
-	transform.WriteTo(os.Stdout)
+	transform.WriteTo(context.Background(), os.Stdout)
 
 	// Output:
 	// {"timestamp":"2025-06-28T10:00:00Z","level":"INFO","message":"Application started"}
@@ -3965,7 +3965,7 @@ func ExampleJSONTransform() {
 
 	// Transform to JSON and write to stdout
 	transform := JSONTransform(stream)
-	transform.WriteTo(os.Stdout)
+	transform.WriteTo(context.Background(), os.Stdout)
 
 	// Output:
 	// [{"id":1,"name":"Alice"},{"id":2,"name":"Bob"},{"id":3,"name":"Charlie"}]
@@ -3996,7 +3996,7 @@ func ExampleLines() {
 	lineStream := Lines(reader)
 
 	// Collect the results
-	result, _ := Consume(lineStream)
+	result, _ := Consume(context.Background(), lineStream)
 	fmt.Println(result)
 	// Output: [line1 line2 line3]
 }
@@ -4028,7 +4028,7 @@ func ExampleMap() {
 	})
 
 	// Collect the results
-	result, _ := Consume(stringStream)
+	result, _ := Consume(context.Background(), stringStream)
 	fmt.Println(result)
 	// Output: [number_1 number_2 number_3 number_4 number_5]
 }
@@ -4056,7 +4056,7 @@ func ExampleMemWriter() {
 	// Write some items
 	items := []string{"hello", "world", "from", "memory"}
 	for _, item := range items {
-		writer.Write(item)
+		writer.Write(context.Background(), item)
 	}
 
 	// Get all items
@@ -4095,7 +4095,7 @@ func ExampleMulticast() {
 	dest2 := MemWriter[string]()
 
 	// Multicast the stream to both destinations
-	counts, err := Multicast(source, dest1, dest2)
+	counts, err := Multicast(context.Background(), source, dest1, dest2)
 	if err != nil {
 		fmt.Printf("Error: %v\n", err)
 		return
@@ -4138,7 +4138,7 @@ func ExamplePipe() {
 	dest := MemWriter[string]()
 
 	// Pipe data from source to destination
-	bytesWritten, _ := Pipe(source, dest)
+	bytesWritten, _ := Pipe(context.Background(), source, dest)
 
 	fmt.Printf("Items written: %d\n", bytesWritten)
 	fmt.Printf("Items: %v\n", dest.Items())
@@ -4172,7 +4172,7 @@ func ExamplePipeCSV() {
 	stream := MemReader(employees, nil)
 
 	// Use PipeCSV to write directly to stdout with comma separator
-	rowsWritten, err := PipeCSV(stream, os.Stdout, CSVSeparatorComma)
+	rowsWritten, err := PipeCSV(context.Background(), stream, os.Stdout, CSVSeparatorComma)
 	if err != nil {
 		fmt.Printf("Error: %v\n", err)
 		return
@@ -4218,7 +4218,7 @@ func ExamplePipeJSON() {
 	stream := MemReader(products, nil)
 
 	// Use PipeJSON to write directly to stdout
-	bytesWritten, err := PipeJSON(stream, os.Stdout)
+	bytesWritten, err := PipeJSON(context.Background(), stream, os.Stdout)
 	if err != nil {
 		fmt.Printf("Error: %v\n", err)
 		return
@@ -4263,7 +4263,7 @@ func ExamplePipeJSONEachRow() {
 	stream := MemReader(metrics, nil)
 
 	// Use PipeJSONEachRow to write to stdout
-	bytesWritten, err := PipeJSONEachRow(stream, os.Stdout)
+	bytesWritten, err := PipeJSONEachRow(context.Background(), stream, os.Stdout)
 	if err != nil {
 		fmt.Printf("Error: %v\n", err)
 		return
@@ -4303,7 +4303,7 @@ func ExampleReader() {
 
 	// Read all chunks
 	var chunks []string
-	for stream.Next() {
+	for stream.Next(context.Background()) {
 		chunks = append(chunks, string(stream.Data()))
 	}
 
@@ -4336,7 +4336,7 @@ func ExampleReduce() {
 	lines := Lines(reader)
 
 	// Convert strings to numbers and sum them
-	sum, _ := Reduce(Map(lines, func(s string) int {
+	sum, _ := Reduce(context.Background(), Map(lines, func(s string) int {
 		n, _ := strconv.Atoi(s)
 		return n
 	}), func(acc, n int) int {
@@ -4371,7 +4371,7 @@ func ExampleReduceMap() {
 	stream := Lines(reader)
 
 	// Count occurrences of each word
-	counts, _ := ReduceMap(stream, func(acc map[string]int, word string) map[string]int {
+	counts, _ := ReduceMap(context.Background(), stream, func(acc map[string]int, word string) map[string]int {
 		acc[word]++
 		return acc
 	})
@@ -4408,7 +4408,7 @@ func ExampleReduceSlice() {
 	stream := Lines(reader)
 
 	// Collect only words longer than 3 characters
-	longWords, _ := ReduceSlice(stream, func(acc []string, word string) []string {
+	longWords, _ := ReduceSlice(context.Background(), stream, func(acc []string, word string) []string {
 		if len(word) > 3 {
 			return append(acc, word)
 		}
@@ -4445,7 +4445,7 @@ func ExampleWriteAll() {
 	writer := MemWriter[string]()
 
 	// Write all data
-	bytesWritten, err := WriteAll(writer, data)
+	bytesWritten, err := WriteAll(context.Background(), writer, data)
 	if err != nil {
 		fmt.Printf("Error: %v\n", err)
 		return

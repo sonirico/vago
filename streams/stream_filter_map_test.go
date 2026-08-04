@@ -1,6 +1,7 @@
 package streams
 
 import (
+	"context"
 	"fmt"
 	"strconv"
 	"testing"
@@ -24,7 +25,7 @@ func TestFilterMapStream(t *testing.T) {
 	}
 	filtered := FilterMap(source, evenFilterMap)
 
-	result, err := Consume(filtered)
+	result, err := Consume(context.Background(), filtered)
 	if err != nil {
 		t.Fatalf("Failed to consume filtered stream: %v", err)
 	}
@@ -50,7 +51,7 @@ func TestFilterMapOptStream(t *testing.T) {
 	}
 	filtered := FilterMapOpt(source, evenFilterMap)
 
-	result, err := Consume(filtered)
+	result, err := Consume(context.Background(), filtered)
 	if err != nil {
 		t.Fatalf("Failed to consume filtered stream: %v", err)
 	}
@@ -76,7 +77,7 @@ func TestFilterMapOptStreamEmpty(t *testing.T) {
 	}
 	filtered := FilterMapOpt(source, evenFilterMap)
 
-	result, err := Consume(filtered)
+	result, err := Consume(context.Background(), filtered)
 	if err != nil {
 		t.Fatalf("Failed to consume filtered stream: %v", err)
 	}
@@ -99,7 +100,7 @@ func ExampleFilterMap() {
 	})
 
 	// Collect the results
-	result, _ := Consume(evenStrings)
+	result, _ := Consume(context.Background(), evenStrings)
 	fmt.Println(result)
 	// Output: [2 4 6 8 10]
 }

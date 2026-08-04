@@ -1,10 +1,14 @@
 package streams
 
-import "iter"
+import (
+	"context"
+	"iter"
+)
 
 type StreamChannel[T any] struct {
 	ch      <-chan T
 	current T
+	err     error
 }
 
 func Channel[T any](ch <-chan T) ReadStream[T] {
@@ -13,10 +17,15 @@ func Channel[T any](ch <-chan T) ReadStream[T] {
 	}
 }
 
-func (s *StreamChannel[T]) Next() bool {
-	var ok bool
-	s.current, ok = <-s.ch
-	return ok
+func (s *StreamChannel[T]) Next(ctx context.Context) bool {
+	select {
+	case <-ctx.Done():
+		s.err = ctx.Err()
+		return false
+	case v, ok := <-s.ch:
+		s.current = v
+		return ok
+	}
 }
 
 func (s *StreamChannel[T]) Data() T {
@@ -24,15 +33,15 @@ func (s *StreamChannel[T]) Data() T {
 }
 
 func (s *StreamChannel[T]) Err() error {
-	return nil
+	return s.err
 }
 
 func (s *StreamChannel[T]) Close() error {
 	return nil
 }
 
-func (s *StreamChannel[T]) Iter() iter.Seq[T] {
-	return Iter(s)
+func (s *StreamChannel[T]) Iter(ctx context.Context) iter.Seq[T] {
+	return Iter(ctx, s)
 }
 
 var _ ReadStream[any] = new(StreamChannel[any])

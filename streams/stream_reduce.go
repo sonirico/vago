@@ -1,6 +1,7 @@
 package streams
 
 import (
+	"context"
 	"errors"
 	"io"
 )
@@ -9,12 +10,13 @@ import (
 // The function takes the current map and an item from the stream, returning a new map.
 // It returns the final accumulated map or an error if the stream encounters one.
 func Reduce[T, R any](
+	ctx context.Context,
 	s ReadStream[T],
 	fn func(R, T) R,
 	initial R,
 ) (R, error) {
 	res := initial
-	for s.Next() {
+	for s.Next(ctx) {
 		if err := s.Err(); err != nil {
 			var x R
 			return x, err
@@ -35,10 +37,12 @@ func Reduce[T, R any](
 // The function takes the current slice and an item from the stream, returning a new slice.
 // It returns the final accumulated slice or an error if the stream encounters one.
 func ReduceSlice[T any](
+	ctx context.Context,
 	s ReadStream[T],
 	fn func([]T, T) []T,
 ) ([]T, error) {
 	return Reduce(
+		ctx,
 		s,
 		func(acc []T, item T) []T {
 			acc = fn(acc, item)
@@ -52,10 +56,12 @@ func ReduceSlice[T any](
 // The function takes the current map and an item from the stream, returning a new map.
 // It returns the final accumulated map or an error if the stream encounters one.
 func ReduceMap[T any, K comparable, V any](
+	ctx context.Context,
 	s ReadStream[T],
 	fn func(map[K]V, T) map[K]V,
 ) (map[K]V, error) {
 	return Reduce(
+		ctx,
 		s,
 		func(acc map[K]V, item T) map[K]V {
 			acc = fn(acc, item)

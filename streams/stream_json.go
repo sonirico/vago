@@ -1,6 +1,7 @@
 package streams
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -17,7 +18,7 @@ type JSONEachRowStream[T any] struct {
 	err error
 }
 
-func (s *JSONEachRowStream[T]) Next() bool {
+func (s *JSONEachRowStream[T]) Next(ctx context.Context) bool {
 	s.err = s.decoder.Decode(&s.current)
 
 	if s.err != nil {
@@ -43,12 +44,12 @@ func (s *JSONEachRowStream[T]) Close() error {
 	return s.r.Close()
 }
 
-func (s *JSONEachRowStream[T]) Iter() iter.Seq[T] {
-	return Iter(s)
+func (s *JSONEachRowStream[T]) Iter(ctx context.Context) iter.Seq[T] {
+	return Iter(ctx, s)
 }
 
-func (s *JSONEachRowStream[T]) Iter2() iter.Seq2[T, error] {
-	return Iter2(s)
+func (s *JSONEachRowStream[T]) Iter2(ctx context.Context) iter.Seq2[T, error] {
+	return Iter2(ctx, s)
 }
 
 // JSON creates a new JSONEachRowStream that reads from the provided io.ReadCloser.
