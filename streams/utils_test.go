@@ -279,7 +279,7 @@ func TestWriteSeq(t *testing.T) {
 		stream := MemWriter[int]()
 		items := []int{1, 2, 3, 4, 5}
 
-		bytesWritten, err := WriteSeq(stream, slices.Values(items))
+		bytesWritten, err := WriteSeq(context.Background(), stream, slices.Values(items))
 		assert.NoError(t, err, "Should write sequence without error")
 		assert.Positive(t, bytesWritten, "Should write positive bytes")
 
@@ -291,7 +291,7 @@ func TestWriteSeq(t *testing.T) {
 		stream := MemWriter[string]()
 		items := []string{}
 
-		bytesWritten, err := WriteSeq(stream, slices.Values(items))
+		bytesWritten, err := WriteSeq(context.Background(), stream, slices.Values(items))
 		assert.NoError(t, err, "Should handle empty sequence")
 		assert.Zero(t, bytesWritten, "Should write zero bytes for empty sequence")
 
@@ -304,7 +304,7 @@ func TestWriteSeq(t *testing.T) {
 		stream.SetError(errors.New("write error"))
 		items := []int{1, 2, 3}
 
-		bytesWritten, err := WriteSeq(stream, slices.Values(items))
+		bytesWritten, err := WriteSeq(context.Background(), stream, slices.Values(items))
 		assert.Error(t, err, "Should return error on write failure")
 		assert.Zero(t, bytesWritten, "Should return zero bytes on error")
 		assert.Contains(t, err.Error(), "write error", "Should contain write error message")
@@ -320,7 +320,7 @@ func TestWriteSeqKeys(t *testing.T) {
 			"cherry": 3,
 		}
 
-		bytesWritten, err := WriteSeqKeys(stream, maps.All(data))
+		bytesWritten, err := WriteSeqKeys(context.Background(), stream, maps.All(data))
 		assert.NoError(t, err, "Should write keys without error")
 		assert.Positive(t, bytesWritten, "Should write positive bytes")
 
@@ -343,7 +343,7 @@ func TestWriteSeqValues(t *testing.T) {
 			"cherry": 3,
 		}
 
-		bytesWritten, err := WriteSeqValues(stream, maps.All(data))
+		bytesWritten, err := WriteSeqValues(context.Background(), stream, maps.All(data))
 		assert.NoError(t, err, "Should write values without error")
 		assert.Positive(t, bytesWritten, "Should write positive bytes")
 
@@ -550,7 +550,7 @@ func ExampleWriteAll() {
 	writer := MemWriter[string]()
 
 	// Write all data
-	bytesWritten, err := WriteAll(writer, data)
+	bytesWritten, err := WriteAll(context.Background(), writer, data)
 	if err != nil {
 		fmt.Printf("Error: %v\n", err)
 		return
@@ -621,7 +621,7 @@ func ExampleWriteSeq() {
 	words := []string{"hello", "world", "from", "iterator"}
 
 	// Write all items from the iterator
-	bytesWritten, err := WriteSeq(dst, slices.Values(words))
+	bytesWritten, err := WriteSeq(context.Background(), dst, slices.Values(words))
 	if err != nil {
 		fmt.Printf("Error: %v\n", err)
 		return

@@ -19,7 +19,7 @@ func TestMemoryWriteStream(t *testing.T) {
 	var totalBytes int64
 
 	for _, item := range items {
-		n, err := stream.Write(item)
+		n, err := stream.Write(context.Background(), item)
 		require.NoError(t, err, "Should write item %s without error", item)
 		assert.Positive(t, n, "Should write positive bytes for %s", item)
 		totalBytes += n
@@ -34,7 +34,7 @@ func TestMemoryWriteStream(t *testing.T) {
 	}
 
 	// Test Flush and Close
-	assert.NoError(t, stream.Flush(), "Flush should not return error")
+	assert.NoError(t, stream.Flush(context.Background()), "Flush should not return error")
 	assert.NoError(t, stream.Close(), "Close should not return error")
 
 	// Test error state
@@ -45,7 +45,7 @@ func TestMemoryWriteStreamWithError(t *testing.T) {
 	stream := MemWriter[int]()
 
 	// Write some items first
-	_, err := stream.Write(1)
+	_, err := stream.Write(context.Background(), 1)
 	require.NoError(t, err, "Should write first item without error")
 
 	// Set an error
@@ -53,7 +53,7 @@ func TestMemoryWriteStreamWithError(t *testing.T) {
 	stream.SetError(testErr)
 
 	// Try to write after error - should return the error
-	_, err = stream.Write(2)
+	_, err = stream.Write(context.Background(), 2)
 	assert.Error(t, err, "Should return error when writing after SetError")
 
 	// Check error state
@@ -73,7 +73,7 @@ func TestWriterStream(t *testing.T) {
 
 	var totalBytes int64
 	for _, data := range testData {
-		n, err := stream.Write(data)
+		n, err := stream.Write(context.Background(), data)
 		require.NoError(t, err, "Should write data without error")
 		assert.Equal(t, int64(len(data)), n, "Should write correct number of bytes")
 		totalBytes += n
@@ -84,7 +84,7 @@ func TestWriterStream(t *testing.T) {
 	assert.Equal(t, expected, buf.String(), "Buffer should contain expected content")
 
 	// Test Flush and Close
-	assert.NoError(t, stream.Flush(), "Flush should not return error for bytes.Buffer")
+	assert.NoError(t, stream.Flush(context.Background()), "Flush should not return error for bytes.Buffer")
 	assert.NoError(t, stream.Close(), "Close should not return error for bytes.Buffer")
 
 	// Test error state
@@ -110,7 +110,7 @@ func TestWriteAll(t *testing.T) {
 	stream := MemWriter[int]()
 	items := []int{1, 2, 3, 4, 5}
 
-	bytesWritten, err := WriteAll(stream, items)
+	bytesWritten, err := WriteAll(context.Background(), stream, items)
 	require.NoError(t, err, "WriteAll should succeed")
 	assert.Positive(t, bytesWritten, "Should write positive bytes")
 
@@ -152,7 +152,7 @@ func ExampleMemWriter() {
 	// Write some items
 	items := []string{"hello", "world", "from", "memory"}
 	for _, item := range items {
-		writer.Write(item)
+		writer.Write(context.Background(), item)
 	}
 
 	// Get all items

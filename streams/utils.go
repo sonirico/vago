@@ -61,17 +61,17 @@ func ReadAll[T any](ctx context.Context, stream ReadStream[T]) ([]T, error) {
 
 // WriteAll writes all items from a slice to a WriteStream
 // Returns the total number of bytes written and any error
-func WriteAll[T any](stream WriteStream[T], items []T) (int64, error) {
-	return WriteSeq(stream, slices.Values(items))
+func WriteAll[T any](ctx context.Context, stream WriteStream[T], items []T) (int64, error) {
+	return WriteSeq(ctx, stream, slices.Values(items))
 }
 
 // WriteSeq writes all items from an iter.Seq to a WriteStream
 // Returns the total number of bytes written and any error
-func WriteSeq[T any](stream WriteStream[T], items iter.Seq[T]) (int64, error) {
+func WriteSeq[T any](ctx context.Context, stream WriteStream[T], items iter.Seq[T]) (int64, error) {
 	bytesWritten := int64(0)
 
 	for v := range items {
-		n, err := stream.Write(v)
+		n, err := stream.Write(ctx, v)
 		if err != nil {
 			return 0, fmt.Errorf("write error: %w", err)
 		}
@@ -80,7 +80,7 @@ func WriteSeq[T any](stream WriteStream[T], items iter.Seq[T]) (int64, error) {
 		}
 		bytesWritten += n
 	}
-	if err := stream.Flush(); err != nil {
+	if err := stream.Flush(ctx); err != nil {
 		return 0, fmt.Errorf("flush error: %w", err)
 	}
 	return bytesWritten, nil
@@ -88,14 +88,22 @@ func WriteSeq[T any](stream WriteStream[T], items iter.Seq[T]) (int64, error) {
 
 // WriteSeqKeys writes all keys from an iter.Seq2 to a WriteStream
 // Returns the total number of bytes written and any error
-func WriteSeqKeys[K, V any](stream WriteStream[K], items iter.Seq2[K, V]) (int64, error) {
-	return WriteSeq(stream, SeqKeys(items))
+func WriteSeqKeys[K, V any](
+	ctx context.Context,
+	stream WriteStream[K],
+	items iter.Seq2[K, V],
+) (int64, error) {
+	return WriteSeq(ctx, stream, SeqKeys(items))
 }
 
 // WriteSeqValues writes all values from an iter.Seq2 to a WriteStream
 // Returns the total number of bytes written and any error
-func WriteSeqValues[K, V any](stream WriteStream[V], items iter.Seq2[K, V]) (int64, error) {
-	return WriteSeq(stream, SeqValues(items))
+func WriteSeqValues[K, V any](
+	ctx context.Context,
+	stream WriteStream[V],
+	items iter.Seq2[K, V],
+) (int64, error) {
+	return WriteSeq(ctx, stream, SeqValues(items))
 }
 
 // Pipe copies all items from a ReadStream to a WriteStream
@@ -111,14 +119,14 @@ func Pipe[T any](ctx context.Context, src ReadStream[T], dst WriteStream[T]) (in
 			return totalBytes, fmt.Errorf("read error: %w", err)
 		}
 
-		n, err := dst.Write(src.Data())
+		n, err := dst.Write(ctx, src.Data())
 		if err != nil {
 			return totalBytes, fmt.Errorf("write error: %w", err)
 		}
 		totalBytes += n
 	}
 
-	if err := dst.Flush(); err != nil {
+	if err := dst.Flush(ctx); err != nil {
 		return totalBytes, fmt.Errorf("flush error: %w", err)
 	}
 
@@ -148,7 +156,7 @@ func Multicast[T any](
 
 		data := src.Data()
 		for i, dst := range destinations {
-			n, err := dst.Write(data)
+			n, err := dst.Write(ctx, data)
 			if err != nil {
 				return bytesWritten, fmt.Errorf("write error to destination %d: %w", i, err)
 			}
@@ -157,7 +165,7 @@ func Multicast[T any](
 	}
 
 	for i, dst := range destinations {
-		if err := dst.Flush(); err != nil {
+		if err := dst.Flush(ctx); err != nil {
 			return bytesWritten, fmt.Errorf("flush error for destination %d: %w", i, err)
 		}
 	}

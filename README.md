@@ -4056,7 +4056,7 @@ func ExampleMemWriter() {
 	// Write some items
 	items := []string{"hello", "world", "from", "memory"}
 	for _, item := range items {
-		writer.Write(item)
+		writer.Write(context.Background(), item)
 	}
 
 	// Get all items
@@ -4445,7 +4445,7 @@ func ExampleWriteAll() {
 	writer := MemWriter[string]()
 
 	// Write all data
-	bytesWritten, err := WriteAll(writer, data)
+	bytesWritten, err := WriteAll(context.Background(), writer, data)
 	if err != nil {
 		fmt.Printf("Error: %v\n", err)
 		return

@@ -1,6 +1,7 @@
 package streams
 
 import (
+	"context"
 	"io"
 )
 
@@ -12,7 +13,7 @@ type WriterStream struct {
 }
 
 // Write writes data to the underlying io.Writer and returns bytes written
-func (w *WriterStream) Write(data []byte) (int64, error) {
+func (w *WriterStream) Write(ctx context.Context, data []byte) (int64, error) {
 	if w.err != nil {
 		return 0, w.err
 	}
@@ -25,7 +26,7 @@ func (w *WriterStream) Write(data []byte) (int64, error) {
 }
 
 // Flush attempts to flush the writer if it implements io.Flusher
-func (w *WriterStream) Flush() error {
+func (w *WriterStream) Flush(ctx context.Context) error {
 	if w.err != nil {
 		return w.err
 	}

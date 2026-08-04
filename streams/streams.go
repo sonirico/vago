@@ -15,8 +15,8 @@ type (
 	}
 
 	WriteStream[T any] interface {
-		Write(T) (int64, error)
-		Flush() error
+		Write(ctx context.Context, t T) (int64, error)
+		Flush(ctx context.Context) error
 		Err() error
 		Close() error
 	}

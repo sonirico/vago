@@ -8,7 +8,7 @@ require (
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/golang-migrate/migrate/v4 v4.19.1
 	github.com/jackc/pgx/v5 v5.7.6
-	github.com/sonirico/vago v0.12.0
+	github.com/sonirico/vago v0.9.0
 	github.com/sonirico/vago/lol v0.0.0-20251207192038-45d83c821566
 	github.com/stretchr/testify v1.11.1
 	go.elastic.co/apm/module/apmgoredisv8/v2 v2.7.2
