@@ -1,6 +1,9 @@
 package streams
 
-import "iter"
+import (
+	"context"
+	"iter"
+)
 
 type (
 	MapperStreamErr[T, V any] struct {
@@ -11,8 +14,8 @@ type (
 	}
 )
 
-func (s *MapperStreamErr[T, V]) Next() bool {
-	if !s.inner.Next() {
+func (s *MapperStreamErr[T, V]) Next(ctx context.Context) bool {
+	if !s.inner.Next(ctx) {
 		return false
 	}
 
@@ -35,12 +38,12 @@ func (s *MapperStreamErr[T, V]) Close() error {
 	return s.inner.Close()
 }
 
-func (s *MapperStreamErr[T, V]) Iter() iter.Seq[V] {
-	return Iter(s)
+func (s *MapperStreamErr[T, V]) Iter(ctx context.Context) iter.Seq[V] {
+	return Iter(ctx, s)
 }
 
-func (s *MapperStreamErr[T, V]) Iter2() iter.Seq2[V, error] {
-	return Iter2(s)
+func (s *MapperStreamErr[T, V]) Iter2(ctx context.Context) iter.Seq2[V, error] {
+	return Iter2(ctx, s)
 }
 
 func MapErr[T, V any](inner ReadStream[T], mapper func(T) (V, error)) ReadStream[V] {

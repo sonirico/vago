@@ -1,6 +1,7 @@
 package streams
 
 import (
+	"context"
 	"fmt"
 	"strings"
 	"testing"
@@ -57,7 +58,7 @@ func TestLines(t *testing.T) {
 			stream := Lines(reader)
 
 			var result []string
-			for stream.Next() {
+			for stream.Next(context.Background()) {
 				result = append(result, stream.Data())
 			}
 
@@ -72,13 +73,13 @@ func TestLinesClose(t *testing.T) {
 	stream := Lines(reader)
 
 	// Read first line
-	assert.True(t, stream.Next(), "expected to read first line")
+	assert.True(t, stream.Next(context.Background()), "expected to read first line")
 
 	// Close the stream
 	assert.NoError(t, stream.Close(), "unexpected error closing stream")
 
 	// Try to read next line (should fail)
-	assert.False(t, stream.Next(), "expected stream to be closed")
+	assert.False(t, stream.Next(context.Background()), "expected stream to be closed")
 }
 
 // ExampleLines demonstrates reading lines from a string.
@@ -91,7 +92,7 @@ func ExampleLines() {
 	lineStream := Lines(reader)
 
 	// Collect the results
-	result, _ := Consume(lineStream)
+	result, _ := Consume(context.Background(), lineStream)
 	fmt.Println(result)
 	// Output: [line1 line2 line3]
 }

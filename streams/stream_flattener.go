@@ -1,6 +1,7 @@
 package streams
 
 import (
+	"context"
 	"io"
 	"iter"
 )
@@ -14,14 +15,14 @@ type (
 	}
 )
 
-func (s *FlattenerStream[T]) Next() bool {
+func (s *FlattenerStream[T]) Next(ctx context.Context) bool {
 	if len(s.data) == 0 || s.cursor == len(s.data)-1 {
-		if s.next = s.inner.Next(); s.next {
+		if s.next = s.inner.Next(ctx); s.next {
 			s.data = s.inner.Data()
 			s.cursor = 0
 
 			if len(s.data) == 0 {
-				return s.Next()
+				return s.Next(ctx)
 			}
 		} else {
 			s.data = s.data[:0]
@@ -49,12 +50,12 @@ func (s *FlattenerStream[T]) Close() error {
 	return s.inner.Close()
 }
 
-func (s *FlattenerStream[T]) Iter() iter.Seq[T] {
-	return Iter(s)
+func (s *FlattenerStream[T]) Iter(ctx context.Context) iter.Seq[T] {
+	return Iter(ctx, s)
 }
 
-func (s *FlattenerStream[T]) Iter2() iter.Seq2[T, error] {
-	return Iter2(s)
+func (s *FlattenerStream[T]) Iter2(ctx context.Context) iter.Seq2[T, error] {
+	return Iter2(ctx, s)
 }
 
 // Flatten creates a new ReadStream that flattens slices from the inner stream.

@@ -1,6 +1,7 @@
 package streams
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -14,8 +15,11 @@ type (
 	}
 )
 
-func (p *TransformJSONEachRow[T]) WriteTo(w io.Writer) (written int64, err error) {
-	for p.stream.Next() {
+func (p *TransformJSONEachRow[T]) WriteTo(
+	ctx context.Context,
+	w io.Writer,
+) (written int64, err error) {
+	for p.stream.Next(ctx) {
 		if err = p.stream.Err(); err != nil {
 			if !errors.Is(err, io.EOF) {
 				err = fmt.Errorf("stream err: %w", err)
@@ -76,6 +80,10 @@ func JSONEachRowTransform[T any](stream ReadStream[T]) Transform[T] {
 }
 
 // PipeJSONEachRow writes the JSON representation of each row in the stream to the provided writer.
-func PipeJSONEachRow[T any](stream ReadStream[T], w io.Writer) (int64, error) {
-	return JSONEachRowTransform(stream).WriteTo(w)
+func PipeJSONEachRow[T any](
+	ctx context.Context,
+	stream ReadStream[T],
+	w io.Writer,
+) (int64, error) {
+	return JSONEachRowTransform(stream).WriteTo(ctx, w)
 }

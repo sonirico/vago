@@ -1,6 +1,7 @@
 package streams
 
 import (
+	"context"
 	"fmt"
 	"testing"
 
@@ -19,7 +20,7 @@ func ExampleMap() {
 	})
 
 	// Collect the results
-	result, _ := Consume(stringStream)
+	result, _ := Consume(context.Background(), stringStream)
 	fmt.Println(result)
 	// Output: [number_1 number_2 number_3 number_4 number_5]
 }
@@ -34,7 +35,7 @@ func TestMapperStream(t *testing.T) {
 		return fmt.Sprintf("item_%d", n)
 	})
 
-	result, err := Consume(mapped)
+	result, err := Consume(context.Background(), mapped)
 	assert.NoError(t, err)
 
 	expected := []string{"item_1", "item_2", "item_3", "item_4", "item_5"}

@@ -1,6 +1,7 @@
 package streams
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"strconv"
@@ -61,7 +62,7 @@ func TestReduce(t *testing.T) {
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
 			stream := MemReader(tc.data, nil)
-			result, err := Reduce(stream, tc.fn, tc.initial)
+			result, err := Reduce(context.Background(), stream, tc.fn, tc.initial)
 
 			if tc.wantErr {
 				assert.Error(t, err)
@@ -75,7 +76,7 @@ func TestReduce(t *testing.T) {
 
 func TestReduceWithError(t *testing.T) {
 	stream := MemReader([]int{1, 2, 3}, errors.New("stream error"))
-	_, err := Reduce(stream, func(acc, n int) int { return acc + n }, 0)
+	_, err := Reduce(context.Background(), stream, func(acc, n int) int { return acc + n }, 0)
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "stream error")
 }
@@ -128,7 +129,7 @@ func TestReduceSlice(t *testing.T) {
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
 			stream := MemReader(tc.data, nil)
-			result, err := ReduceSlice(stream, tc.fn)
+			result, err := ReduceSlice(context.Background(), stream, tc.fn)
 
 			if tc.wantErr {
 				assert.Error(t, err)
@@ -142,7 +143,7 @@ func TestReduceSlice(t *testing.T) {
 
 func TestReduceSliceWithError(t *testing.T) {
 	stream := MemReader([]string{"a", "b"}, errors.New("slice error"))
-	_, err := ReduceSlice(stream, func(acc []string, item string) []string {
+	_, err := ReduceSlice(context.Background(), stream, func(acc []string, item string) []string {
 		return append(acc, item)
 	})
 	assert.Error(t, err)
@@ -204,7 +205,7 @@ func TestReduceMap(t *testing.T) {
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
 			stream := MemReader(tc.data, nil)
-			result, err := ReduceMap(stream, tc.fn)
+			result, err := ReduceMap(context.Background(), stream, tc.fn)
 
 			if tc.wantErr {
 				assert.Error(t, err)
@@ -218,7 +219,7 @@ func TestReduceMap(t *testing.T) {
 
 func TestReduceMapWithError(t *testing.T) {
 	stream := MemReader([]string{"a", "b"}, errors.New("map error"))
-	_, err := ReduceMap(stream, func(acc map[string]int, word string) map[string]int {
+	_, err := ReduceMap(context.Background(), stream, func(acc map[string]int, word string) map[string]int {
 		acc[word]++
 		return acc
 	})
@@ -233,7 +234,7 @@ func ExampleReduce() {
 	lines := Lines(reader)
 
 	// Convert strings to numbers and sum them
-	sum, _ := Reduce(Map(lines, func(s string) int {
+	sum, _ := Reduce(context.Background(), Map(lines, func(s string) int {
 		n, _ := strconv.Atoi(s)
 		return n
 	}), func(acc, n int) int {
@@ -253,7 +254,7 @@ func ExampleReduceSlice() {
 	stream := Lines(reader)
 
 	// Collect only words longer than 3 characters
-	longWords, _ := ReduceSlice(stream, func(acc []string, word string) []string {
+	longWords, _ := ReduceSlice(context.Background(), stream, func(acc []string, word string) []string {
 		if len(word) > 3 {
 			return append(acc, word)
 		}
@@ -273,7 +274,7 @@ func ExampleReduceMap() {
 	stream := Lines(reader)
 
 	// Count occurrences of each word
-	counts, _ := ReduceMap(stream, func(acc map[string]int, word string) map[string]int {
+	counts, _ := ReduceMap(context.Background(), stream, func(acc map[string]int, word string) map[string]int {
 		acc[word]++
 		return acc
 	})

@@ -1,6 +1,7 @@
 package streams
 
 import (
+	"context"
 	"fmt"
 	"testing"
 
@@ -86,7 +87,7 @@ func TestBatchStream(t *testing.T) {
 
 			gotBatches := make([][]int, 0)
 
-			for batch.Next() {
+			for batch.Next(context.Background()) {
 				gotBatch := batch.Data()
 				// make a copy to avoid aliasing issues in subsequent loops
 				gotBatches = append(gotBatches, gotBatch)
@@ -109,7 +110,7 @@ func ExampleBatch() {
 	batchStream := Batch(stream, 3)
 
 	// Collect the results
-	result, _ := Consume(batchStream)
+	result, _ := Consume(context.Background(), batchStream)
 	for i, batch := range result {
 		fmt.Printf("Batch %d: %v\n", i+1, batch)
 	}

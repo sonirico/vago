@@ -1,6 +1,7 @@
 package streams
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"log"
@@ -155,7 +156,7 @@ func TestStream_Next(t *testing.T) {
 
 			// Test Next() behavior
 			for i := 0; i < len(tt.expectNext); i++ {
-				next := stream.Next()
+				next := stream.Next(context.Background())
 				actualNext = append(actualNext, next)
 
 				if next {
@@ -214,7 +215,7 @@ func TestStream_Err_NoError(t *testing.T) {
 
 	assert.NoError(t, stream.Err(), "Err() should return nil initially")
 
-	stream.Next()
+	stream.Next(context.Background())
 	assert.NoError(t, stream.Err(), "Err() should return nil after successful scan")
 }
 
@@ -263,7 +264,7 @@ func TestStream_DifferentTypes(t *testing.T) {
 			stream := DB(tt.rows, tt.scanFn)
 
 			var results []Product
-			for stream.Next() {
+			for stream.Next(context.Background()) {
 				results = append(results, stream.Data())
 			}
 
@@ -289,7 +290,7 @@ func TestStream_ReadStreamInterface(t *testing.T) {
 	require.NotNil(t, readStream, "Stream should implement ReadStream interface")
 
 	// Test interface methods
-	assert.True(t, readStream.Next())
+	assert.True(t, readStream.Next(context.Background()))
 	assert.Equal(t, User{ID: 1, Name: "Alice"}, readStream.Data())
 	assert.NoError(t, readStream.Err())
 	assert.NoError(t, readStream.Close())
@@ -332,7 +333,7 @@ func ExampleDB() {
 	})
 
 	// Iterate through the stream
-	for stream.Next() {
+	for stream.Next(context.Background()) {
 		user := stream.Data()
 		fmt.Printf("User ID: %d, Name: %s\n", user.ID, user.Name)
 	}

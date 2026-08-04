@@ -1,12 +1,14 @@
 package streams
 
+import "context"
+
 type MemoryStream[T any] struct {
 	items  []T
 	cursor int
 	error  error
 }
 
-func (s *MemoryStream[T]) Next() bool {
+func (s *MemoryStream[T]) Next(ctx context.Context) bool {
 	s.cursor++
 
 	return s.cursor < len(s.items)

@@ -1,6 +1,7 @@
 package streams
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"strings"
@@ -41,7 +42,7 @@ nombre3,apellido3, ,
 	}
 	i := 0
 
-	for s.Next() {
+	for s.Next(context.Background()) {
 		if err := s.Err(); err != nil {
 			t.Fatalf("unexpected err %v", err)
 		}
@@ -77,7 +78,7 @@ a,b,c
 	}
 	i := 0
 
-	for s.Next() {
+	for s.Next(context.Background()) {
 		if err := s.Err(); err != nil {
 			t.Fatalf("unexpected err %v", err)
 		}
@@ -101,7 +102,7 @@ func ExampleCSV() {
 	)
 
 	// Collect the results
-	result, _ := Consume(csvStream)
+	result, _ := Consume(context.Background(), csvStream)
 	for i, row := range result {
 		fmt.Printf("Row %d: %v\n", i+1, row)
 	}

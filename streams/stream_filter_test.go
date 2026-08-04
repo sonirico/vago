@@ -1,6 +1,7 @@
 package streams
 
 import (
+	"context"
 	"fmt"
 	"testing"
 )
@@ -14,7 +15,7 @@ func TestFilterStream(t *testing.T) {
 	evenFilter := func(n int) bool { return n%2 == 0 }
 	filtered := Filter(source, evenFilter)
 
-	result, err := Consume(filtered)
+	result, err := Consume(context.Background(), filtered)
 	if err != nil {
 		t.Fatalf("Failed to consume filtered stream: %v", err)
 	}
@@ -40,7 +41,7 @@ func TestFilterStreamStrings(t *testing.T) {
 	lengthFilter := func(s string) bool { return len(s) > 4 }
 	filtered := Filter(source, lengthFilter)
 
-	result, err := Consume(filtered)
+	result, err := Consume(context.Background(), filtered)
 	if err != nil {
 		t.Fatalf("Failed to consume filtered stream: %v", err)
 	}
@@ -66,7 +67,7 @@ func TestFilterStreamEmpty(t *testing.T) {
 	evenFilter := func(n int) bool { return n%2 == 0 }
 	filtered := Filter(source, evenFilter)
 
-	result, err := Consume(filtered)
+	result, err := Consume(context.Background(), filtered)
 	if err != nil {
 		t.Fatalf("Failed to consume filtered stream: %v", err)
 	}
@@ -85,7 +86,7 @@ func TestFilterStreamAll(t *testing.T) {
 	evenFilter := func(n int) bool { return n%2 == 0 }
 	filtered := Filter(source, evenFilter)
 
-	result, err := Consume(filtered)
+	result, err := Consume(context.Background(), filtered)
 	if err != nil {
 		t.Fatalf("Failed to consume filtered stream: %v", err)
 	}
@@ -114,7 +115,7 @@ func TestFilterStreamChaining(t *testing.T) {
 	doubler := func(n int) int { return n * 2 }
 	mapped := Map(filtered, doubler)
 
-	result, err := Consume(mapped)
+	result, err := Consume(context.Background(), mapped)
 	if err != nil {
 		t.Fatalf("Failed to consume chained stream: %v", err)
 	}
@@ -146,7 +147,7 @@ func TestFilterStreamIterator(t *testing.T) {
 	filtered := Filter(source, oddFilter).(*FilterStream[int])
 
 	var result []int
-	for value := range filtered.Iter() {
+	for value := range filtered.Iter(context.Background()) {
 		result = append(result, value)
 	}
 
@@ -174,7 +175,7 @@ func ExampleFilter() {
 	})
 
 	// Collect the results
-	result, _ := Consume(evenStream)
+	result, _ := Consume(context.Background(), evenStream)
 	fmt.Println(result)
 	// Output: [2 4 6 8 10]
 }

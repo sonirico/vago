@@ -1,6 +1,7 @@
 package streams
 
 import (
+	"context"
 	"iter"
 
 	"github.com/sonirico/vago/fp"
@@ -15,8 +16,8 @@ type (
 	}
 )
 
-func (s *FilterMapStream[T, R]) Next() bool {
-	for s.inner.Next() {
+func (s *FilterMapStream[T, R]) Next(ctx context.Context) bool {
+	for s.inner.Next(ctx) {
 		data := s.inner.Data()
 		if x, ok := s.predicate(data); ok {
 			s.current = x
@@ -44,8 +45,8 @@ func (s *FilterMapStream[T, R]) Close() error {
 	return s.inner.Close()
 }
 
-func (s *FilterMapStream[T, R]) Iter() iter.Seq[R] {
-	return Iter(s)
+func (s *FilterMapStream[T, R]) Iter(ctx context.Context) iter.Seq[R] {
+	return Iter(ctx, s)
 }
 
 // FilterMap creates a new ReadStream that filters elements from the inner stream

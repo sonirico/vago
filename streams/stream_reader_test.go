@@ -2,6 +2,7 @@ package streams
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"io"
 	"strings"
@@ -18,7 +19,7 @@ func TestReaderStream(t *testing.T) {
 	stream := Reader(reader)
 
 	var result [][]byte
-	for stream.Next() {
+	for stream.Next(context.Background()) {
 		result = append(result, stream.Data())
 	}
 
@@ -43,7 +44,7 @@ func TestReaderStreamNoTrailingNewline(t *testing.T) {
 	reader := strings.NewReader(testData)
 	stream := Reader(reader)
 
-	result, err := Consume(stream)
+	result, err := Consume(context.Background(), stream)
 	require.NoError(t, err, "Should consume stream without error")
 
 	// Should have 3 chunks
@@ -60,7 +61,7 @@ func TestReaderStreamEmpty(t *testing.T) {
 	reader := strings.NewReader("")
 	stream := Reader(reader)
 
-	result, err := Consume(stream)
+	result, err := Consume(context.Background(), stream)
 	require.NoError(t, err, "Should consume empty stream without error")
 	assert.Empty(t, result, "Should have empty result")
 }
@@ -72,13 +73,13 @@ func TestReaderStreamClose(t *testing.T) {
 	stream := Reader(reader)
 
 	// Read first line
-	assert.True(t, stream.Next(), "Should read first line")
+	assert.True(t, stream.Next(context.Background()), "Should read first line")
 
 	// Close the stream
 	require.NoError(t, stream.Close(), "Should close stream without error")
 
 	// Try to read more - should not work
-	assert.False(t, stream.Next(), "Should not read after closing")
+	assert.False(t, stream.Next(context.Background()), "Should not read after closing")
 }
 
 func TestLineReaderStream(t *testing.T) {
@@ -88,7 +89,7 @@ func TestLineReaderStream(t *testing.T) {
 	stream := Lines(reader)
 
 	var result []string
-	for stream.Next() {
+	for stream.Next(context.Background()) {
 		result = append(result, stream.Data())
 	}
 
@@ -113,7 +114,7 @@ func TestLineReaderStreamWindowsLineEndings(t *testing.T) {
 	reader := strings.NewReader(testData)
 	stream := Lines(reader)
 
-	result, err := Consume(stream)
+	result, err := Consume(context.Background(), stream)
 	require.NoError(t, err, "Should consume stream without error")
 
 	expected := []string{"hello", "world", "test"}
@@ -130,7 +131,7 @@ func TestLineReaderStreamNoTrailingNewline(t *testing.T) {
 	reader := strings.NewReader(testData)
 	stream := Lines(reader)
 
-	result, err := Consume(stream)
+	result, err := Consume(context.Background(), stream)
 	require.NoError(t, err, "Should consume stream without error")
 
 	expected := []string{"hello", "world", "test"}
@@ -146,7 +147,7 @@ func TestLineReaderStreamEmpty(t *testing.T) {
 	reader := strings.NewReader("")
 	stream := Lines(reader)
 
-	result, err := Consume(stream)
+	result, err := Consume(context.Background(), stream)
 	require.NoError(t, err, "Should consume empty stream without error")
 	assert.Empty(t, result, "Should have empty result")
 }
@@ -167,7 +168,7 @@ func TestReaderStreamWithWriteStream(t *testing.T) {
 	writeStream := MemWriter[[]byte]()
 
 	// Connect them
-	bytesWritten, err := Pipe(readStream, writeStream)
+	bytesWritten, err := Pipe(context.Background(), readStream, writeStream)
 	require.NoError(t, err, "Should connect streams without error")
 	assert.Equal(t, int64(3), bytesWritten, "Should write 3 items")
 
@@ -192,7 +193,7 @@ func TestLineReaderStreamWithFilter(t *testing.T) {
 		return len(line) > 4
 	})
 
-	result, err := Consume(filtered)
+	result, err := Consume(context.Background(), filtered)
 	require.NoError(t, err, "Should consume filtered stream without error")
 
 	expected := []string{"hello", "world", "filter", "stream"}
@@ -213,7 +214,7 @@ func TestReaderStreamLargeData(t *testing.T) {
 	}
 
 	stream := Lines(&buf)
-	result, err := Consume(stream)
+	result, err := Consume(context.Background(), stream)
 	require.NoError(t, err, "Should consume large stream without error")
 	assert.Len(t, result, 1000, "Should have 1000 lines")
 
@@ -228,11 +229,11 @@ func TestReaderStreamErrorHandling(t *testing.T) {
 	stream := Reader(reader)
 
 	// Should read some data before failing
-	assert.True(t, stream.Next(), "Should read first chunk")
-	assert.True(t, stream.Next(), "Should read second chunk")
+	assert.True(t, stream.Next(context.Background()), "Should read first chunk")
+	assert.True(t, stream.Next(context.Background()), "Should read second chunk")
 
 	// Third read should fail
-	assert.False(t, stream.Next(), "Should fail on third read")
+	assert.False(t, stream.Next(context.Background()), "Should fail on third read")
 	assert.Error(t, stream.Err(), "Should have error after failure")
 }
 
@@ -242,10 +243,10 @@ func TestLineReaderStreamErrorHandling(t *testing.T) {
 	stream := Lines(reader)
 
 	// First read should work
-	assert.True(t, stream.Next(), "Should read first line")
+	assert.True(t, stream.Next(context.Background()), "Should read first line")
 
 	// Second read should fail
-	assert.False(t, stream.Next(), "Should fail on second read")
+	assert.False(t, stream.Next(context.Background()), "Should fail on second read")
 	assert.Error(t, stream.Err(), "Should have error after failure")
 }
 
@@ -277,7 +278,7 @@ func TestReaderStreamChaining(t *testing.T) {
 	})
 
 	// Collect results
-	result, err := Consume(mapped)
+	result, err := Consume(context.Background(), mapped)
 	require.NoError(t, err, "Should process chain without error")
 
 	expected := []string{"APPLE", "BANANA", "CHERRY", "ELDERBERRY"}
@@ -296,7 +297,7 @@ func TestReaderStreamWithMulticast(t *testing.T) {
 	writer3 := MemWriter[[]byte]()
 
 	// Multicast to all writers
-	bytesWritten, err := Multicast(readStream, writer1, writer2, writer3)
+	bytesWritten, err := Multicast(context.Background(), readStream, writer1, writer2, writer3)
 	require.NoError(t, err, "Should Multicast without error")
 
 	// All should have written the same amount
@@ -328,7 +329,7 @@ func ExampleReader() {
 
 	// Read all chunks
 	var chunks []string
-	for stream.Next() {
+	for stream.Next(context.Background()) {
 		chunks = append(chunks, string(stream.Data()))
 	}
 

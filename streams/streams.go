@@ -1,11 +1,14 @@
 // Package streams provides interfaces and types for reading and writing streams of data.
 package streams
 
-import "io"
+import (
+	"context"
+	"io"
+)
 
 type (
 	ReadStream[T any] interface {
-		Next() bool
+		Next(ctx context.Context) bool
 		Data() T
 		Err() error
 		Close() error

@@ -2,6 +2,7 @@ package streams
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -98,7 +99,7 @@ func TestPipeJSONTransform_WriteTo(t *testing.T) {
 			buffer := new(bytes.Buffer)
 			transform := JSONTransform(tt.stream)
 
-			written, err := transform.WriteTo(buffer)
+			written, err := transform.WriteTo(context.Background(), buffer)
 
 			if tt.expectedError != nil {
 				assert.Error(t, err)
@@ -118,7 +119,7 @@ func TestPipeJSONTransform_WriteToFile(t *testing.T) {
 		{ID: 2, Name: "Bob", Email: "bob@example.com"},
 	}, nil)
 
-	_, err := JSONTransform(stream).WriteTo(os.Stdout)
+	_, err := JSONTransform(stream).WriteTo(context.Background(), os.Stdout)
 	assert.NoError(t, err)
 }
 
@@ -140,7 +141,7 @@ func ExampleJSONTransform() {
 
 	// Transform to JSON and write to stdout
 	transform := JSONTransform(stream)
-	transform.WriteTo(os.Stdout)
+	transform.WriteTo(context.Background(), os.Stdout)
 
 	// Output:
 	// [{"id":1,"name":"Alice"},{"id":2,"name":"Bob"},{"id":3,"name":"Charlie"}]
@@ -163,7 +164,7 @@ func ExamplePipeJSON() {
 	stream := MemReader(products, nil)
 
 	// Use PipeJSON to write directly to stdout
-	bytesWritten, err := PipeJSON(stream, os.Stdout)
+	bytesWritten, err := PipeJSON(context.Background(), stream, os.Stdout)
 	if err != nil {
 		fmt.Printf("Error: %v\n", err)
 		return

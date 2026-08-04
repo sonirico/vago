@@ -1,6 +1,7 @@
 package streams
 
 import (
+	"context"
 	"io"
 	"iter"
 )
@@ -24,7 +25,7 @@ func Batch[T any](inner ReadStream[T], batchSize int) ReadStream[[]T] {
 	}
 }
 
-func (s *BatchStream[T]) Next() bool {
+func (s *BatchStream[T]) Next(ctx context.Context) bool {
 	if s.done {
 		return false
 	}
@@ -33,7 +34,7 @@ func (s *BatchStream[T]) Next() bool {
 	s.buffer = make([]T, 0, s.batchSize)
 
 	for len(s.buffer) < s.batchSize {
-		if !s.inner.Next() {
+		if !s.inner.Next(ctx) {
 			// If the inner stream ended due to an error, capture it.
 			if err := s.inner.Err(); err != nil {
 				s.err = err
@@ -64,8 +65,8 @@ func (s *BatchStream[T]) Close() error {
 	return s.inner.Close()
 }
 
-func (s *BatchStream[T]) Iter() iter.Seq[[]T] {
-	return Iter(s)
+func (s *BatchStream[T]) Iter(ctx context.Context) iter.Seq[[]T] {
+	return Iter(ctx, s)
 }
 
 func BatchFactory[T any](

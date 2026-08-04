@@ -1,6 +1,7 @@
 package streams
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -14,7 +15,7 @@ type (
 	}
 )
 
-func (p *TransformJSON[T]) WriteTo(w io.Writer) (written int64, err error) {
+func (p *TransformJSON[T]) WriteTo(ctx context.Context, w io.Writer) (written int64, err error) {
 	n, err := w.Write([]byte("["))
 	if err != nil {
 		return int64(n), err
@@ -24,7 +25,7 @@ func (p *TransformJSON[T]) WriteTo(w io.Writer) (written int64, err error) {
 
 	writeComma := false
 
-	for p.stream.Next() {
+	for p.stream.Next(ctx) {
 		if err = p.stream.Err(); err != nil {
 			if !errors.Is(err, io.EOF) {
 				err = fmt.Errorf("stream err: %w", err)
@@ -88,6 +89,6 @@ func JSONTransform[T any](r ReadStream[T]) Transform[T] {
 }
 
 // PipeJSON writes the JSON representation of each item in the stream to the provided writer.
-func PipeJSON[T any](stream ReadStream[T], w io.Writer) (int64, error) {
-	return JSONTransform(stream).WriteTo(w)
+func PipeJSON[T any](ctx context.Context, stream ReadStream[T], w io.Writer) (int64, error) {
+	return JSONTransform(stream).WriteTo(ctx, w)
 }

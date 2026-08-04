@@ -1,6 +1,7 @@
 package streams
 
 import (
+	"context"
 	"io"
 	"iter"
 )
@@ -14,8 +15,8 @@ type (
 	}
 )
 
-func (s *FilterStream[T]) Next() bool {
-	for s.inner.Next() {
+func (s *FilterStream[T]) Next(ctx context.Context) bool {
+	for s.inner.Next(ctx) {
 		data := s.inner.Data()
 		if s.predicate(data) {
 			s.current = data
@@ -43,8 +44,8 @@ func (s *FilterStream[T]) Close() error {
 	return s.inner.Close()
 }
 
-func (s *FilterStream[T]) Iter() iter.Seq[T] {
-	return Iter(s)
+func (s *FilterStream[T]) Iter(ctx context.Context) iter.Seq[T] {
+	return Iter(ctx, s)
 }
 
 // Filter creates a new ReadStream that filters elements from the inner stream

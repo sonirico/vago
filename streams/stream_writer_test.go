@@ -2,6 +2,7 @@ package streams
 
 import (
 	"bytes"
+	"context"
 	"errors"
 	"fmt"
 	"testing"
@@ -130,7 +131,7 @@ func TestPipeStream(t *testing.T) {
 	dst := MemWriter[string]()
 
 	// Copy from source to destination
-	bytesWritten, err := Pipe(src, dst)
+	bytesWritten, err := Pipe(context.Background(), src, dst)
 	require.NoError(t, err, "Pipe should succeed")
 	assert.Positive(t, bytesWritten, "Should write positive bytes")
 

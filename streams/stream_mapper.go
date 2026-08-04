@@ -1,6 +1,7 @@
 package streams
 
 import (
+	"context"
 	"io"
 	"iter"
 )
@@ -12,8 +13,8 @@ type (
 	}
 )
 
-func (s *MapperStream[T, V]) Next() bool {
-	return s.inner.Next()
+func (s *MapperStream[T, V]) Next(ctx context.Context) bool {
+	return s.inner.Next(ctx)
 }
 
 func (s *MapperStream[T, V]) Data() V {
@@ -28,8 +29,8 @@ func (s *MapperStream[T, V]) Close() error {
 	return s.inner.Close()
 }
 
-func (s *MapperStream[T, V]) Iter() iter.Seq[V] {
-	return Iter(s)
+func (s *MapperStream[T, V]) Iter(ctx context.Context) iter.Seq[V] {
+	return Iter(ctx, s)
 }
 
 // Map creates a new ReadStream that transforms elements from the inner stream

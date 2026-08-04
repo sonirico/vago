@@ -2,6 +2,7 @@ package streams
 
 import (
 	"bufio"
+	"context"
 	"io"
 )
 
@@ -15,7 +16,7 @@ type LineReaderStream struct {
 }
 
 // Next reads the next line from the reader
-func (r *LineReaderStream) Next() bool {
+func (r *LineReaderStream) Next(ctx context.Context) bool {
 	if r.closed || r.err != nil {
 		return false
 	}

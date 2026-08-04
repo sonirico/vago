@@ -1,5 +1,7 @@
 package streams
 
+import "context"
+
 // DBRows is an interface that abstracts database rows operations.
 // It's compatible with sql.Rows and pgx.Rows among others.
 type DBRows interface {
@@ -24,7 +26,7 @@ var _ ReadStream[any] = new(DBStream[any])
 // Next advances the stream to the next row and scans it into the current value.
 // It returns true if there was a next row, false if there are no more rows or an error occurred.
 // The underlying rows are automatically closed when Next returns false.
-func (s *DBStream[T]) Next() bool {
+func (s *DBStream[T]) Next(ctx context.Context) bool {
 	keep := s.rows.Next()
 
 	if keep {
