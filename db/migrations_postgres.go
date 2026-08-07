@@ -14,6 +14,10 @@ import (
 )
 
 func LaunchPostgresql(cfg MigrationsConfig, action string, logger lol.Logger) error {
+	if err := validateMigrationAction(action); err != nil {
+		return err
+	}
+
 	log := logger.WithField("database", "postgresql")
 
 	managementUrl, err := url.Parse(cfg.Url)
@@ -73,6 +77,11 @@ func LaunchPostgresql(cfg MigrationsConfig, action string, logger lol.Logger) er
 		err = m.Up()
 	case string(ActionDown):
 		err = m.Steps(-1)
+	default:
+		return fmt.Errorf(
+			"unknown migration action %q: expected %q or %q",
+			action, ActionUp, ActionDown,
+		)
 	}
 
 	if err != nil {
@@ -103,4 +112,19 @@ func LaunchPostgresql(cfg MigrationsConfig, action string, logger lol.Logger) er
 	}
 
 	return nil
+}
+
+// validateMigrationAction reports an error if action is neither ActionUp nor
+// ActionDown. It runs before any database connection is opened so a bad
+// action never reports success having applied nothing.
+func validateMigrationAction(action string) error {
+	switch action {
+	case string(ActionUp), string(ActionDown):
+		return nil
+	default:
+		return fmt.Errorf(
+			"unknown migration action %q: expected %q or %q",
+			action, ActionUp, ActionDown,
+		)
+	}
 }

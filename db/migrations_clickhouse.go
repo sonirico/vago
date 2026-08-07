@@ -11,6 +11,9 @@ import (
 )
 
 func LaunchClickhouse(cfg MigrationsConfig, action string, logger lol.Logger) error {
+	if err := validateMigrationAction(action); err != nil {
+		return err
+	}
 
 	log := logger.WithField("database", "clickhouse")
 	conn, err := OpenClickhouse(cfg.Url, log)
@@ -36,6 +39,11 @@ func LaunchClickhouse(cfg MigrationsConfig, action string, logger lol.Logger) er
 		err = m.Up()
 	case string(ActionDown):
 		err = m.Steps(-1)
+	default:
+		return fmt.Errorf(
+			"unknown migration action %q: expected %q or %q",
+			action, ActionUp, ActionDown,
+		)
 	}
 
 	if err != nil {

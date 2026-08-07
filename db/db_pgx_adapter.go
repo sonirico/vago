@@ -108,6 +108,11 @@ func (r *pgxRow) Scan(dest ...any) error {
 	return r.row.Scan(dest...)
 }
 
+// Err always returns nil: pgx.Row has no Err method, so there is no
+// pre-scan error to surface here. Unlike the database/sql-backed Row
+// implementations in this package, whose Err() reports a real pre-scan
+// failure, this implementation cannot detect one - use the error returned
+// by Scan instead.
 func (r *pgxRow) Err() error {
 	return nil
 }
