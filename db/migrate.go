@@ -1,5 +1,7 @@
 package db
 
+import "fmt"
+
 type Action string
 type Database string
 
@@ -17,4 +19,19 @@ type MigrationsConfig struct {
 	Url string
 	// Path to folder containing migrations
 	MigrationsPath string
+}
+
+// ValidateMigrationAction reports an error if action is neither ActionUp nor
+// ActionDown. Backend migration runners call it before opening any database
+// connection, so a bad action never reports success having applied nothing.
+func ValidateMigrationAction(action string) error {
+	switch action {
+	case string(ActionUp), string(ActionDown):
+		return nil
+	default:
+		return fmt.Errorf(
+			"unknown migration action %q: expected %q or %q",
+			action, ActionUp, ActionDown,
+		)
+	}
 }

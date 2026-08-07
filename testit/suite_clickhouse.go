@@ -6,6 +6,7 @@ import (
 
 	"github.com/ory/dockertest/v3"
 	"github.com/sonirico/vago/db"
+	"github.com/sonirico/vago/db/clickhouse"
 
 	"github.com/sonirico/vago/lol"
 	"github.com/sonirico/vago/opts"
@@ -110,7 +111,7 @@ func (s *ClickhouseHTTPTestSuite) Setup(
 		logger.Panicln(err)
 	}
 
-	ch, err := db.OpenCH(os.Getenv(s.dsnEnvVar), logger)
+	ch, err := clickhouse.OpenCH(os.Getenv(s.dsnEnvVar), logger)
 	if err != nil {
 		logger.Panicln("cannot connect to clickhouse db", err)
 	}

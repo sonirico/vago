@@ -5,18 +5,18 @@ import (
 	"log"
 	"os"
 
-	"github.com/go-redis/redis/v8"
-	"github.com/sonirico/vago/db"
+	goredis "github.com/go-redis/redis/v8"
+	"github.com/sonirico/vago/db/redis"
 
 	"github.com/sonirico/vago/lol"
 )
 
 type RedisTestSuite struct {
-	DB         *redis.Client
+	DB         *goredis.Client
 	Log        lol.Logger
 	pool       *DockerResourcesPool
 	SetEnvFunc SetEnvFunc
-	Config     db.RedisConfig
+	Config     redis.RedisConfig
 }
 
 func (s *RedisTestSuite) Setup() {
@@ -31,7 +31,7 @@ func (s *RedisTestSuite) Setup() {
 
 	ctx := context.Background()
 
-	client, err := db.OpenRedis(ctx, s.Config)
+	client, err := redis.OpenRedis(ctx, s.Config)
 	if err != nil {
 		log.Panicln("cannot connect to redis", err)
 	}

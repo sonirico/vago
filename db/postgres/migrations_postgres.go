@@ -1,4 +1,4 @@
-package db
+package postgres
 
 import (
 	"fmt"
@@ -8,13 +8,15 @@ import (
 	"errors"
 
 	"github.com/golang-migrate/migrate/v4"
-	"github.com/golang-migrate/migrate/v4/database/postgres"
+	migratepostgres "github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/sonirico/vago/lol"
+
+	"github.com/sonirico/vago/db"
 )
 
-func LaunchPostgresql(cfg MigrationsConfig, action string, logger lol.Logger) error {
-	if err := validateMigrationAction(action); err != nil {
+func LaunchPostgresql(cfg db.MigrationsConfig, action string, logger lol.Logger) error {
+	if err := db.ValidateMigrationAction(action); err != nil {
 		return err
 	}
 
@@ -62,7 +64,7 @@ func LaunchPostgresql(cfg MigrationsConfig, action string, logger lol.Logger) er
 	log.Infoln("Connected to database: ", databaseName)
 
 	// run migrations
-	driver, err := postgres.WithInstance(write, &postgres.Config{})
+	driver, err := migratepostgres.WithInstance(write, &migratepostgres.Config{})
 	if err != nil {
 		return fmt.Errorf("failed to create postgres driver: %w", err)
 	}
@@ -73,14 +75,14 @@ func LaunchPostgresql(cfg MigrationsConfig, action string, logger lol.Logger) er
 	}
 
 	switch action {
-	case string(ActionUp):
+	case string(db.ActionUp):
 		err = m.Up()
-	case string(ActionDown):
+	case string(db.ActionDown):
 		err = m.Steps(-1)
 	default:
 		return fmt.Errorf(
 			"unknown migration action %q: expected %q or %q",
-			action, ActionUp, ActionDown,
+			action, db.ActionUp, db.ActionDown,
 		)
 	}
 
@@ -112,19 +114,4 @@ func LaunchPostgresql(cfg MigrationsConfig, action string, logger lol.Logger) er
 	}
 
 	return nil
-}
-
-// validateMigrationAction reports an error if action is neither ActionUp nor
-// ActionDown. It runs before any database connection is opened so a bad
-// action never reports success having applied nothing.
-func validateMigrationAction(action string) error {
-	switch action {
-	case string(ActionUp), string(ActionDown):
-		return nil
-	default:
-		return fmt.Errorf(
-			"unknown migration action %q: expected %q or %q",
-			action, ActionUp, ActionDown,
-		)
-	}
 }

@@ -6,7 +6,6 @@ import (
 
 	"errors"
 
-	"github.com/sonirico/vago/lol"
 	"github.com/sonirico/vago/slices"
 )
 
@@ -95,7 +94,7 @@ func BulkUpsertSQL(
 
 // BulkUpsert executes a bulk upsert (insert or update on conflict) operation on the database.
 func BulkUpsert(
-	ctx Context, logger lol.Logger, rows BulkableRanger, tableName string,
+	ctx Context, logger Logger, rows BulkableRanger, tableName string,
 	updateOnConflict bool,
 ) (Rows, error) {
 	if rows.Len() < 1 {

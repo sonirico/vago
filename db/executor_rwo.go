@@ -2,19 +2,15 @@ package db
 
 import (
 	"context"
-
-	"github.com/jackc/pgx/v5/pgxpool"
-
-	"github.com/sonirico/vago/lol"
 )
 
 type (
-	executorFactory func(log lol.Logger, handler Handler) Executor
+	executorFactory func(log Logger, handler Handler) Executor
 
 	dbExecutorRWO struct {
 		ro     Handler
 		rw     Handler
-		logger lol.Logger
+		logger Logger
 	}
 
 	ExecutorRWO interface {
@@ -28,37 +24,29 @@ type (
 )
 
 func (ds *dbExecutorRWO) RO() ExecutorRO {
-	return newExecutor(ds.logger.WithField("mode", "ro"), ds.ro)
+	return newExecutor(ds.logger, ds.ro)
 }
 
 func (ds *dbExecutorRWO) RW() ExecutorRW {
-	return newExecutor(ds.logger.WithField("mode", "rw"), ds.rw)
+	return newExecutor(ds.logger, ds.rw)
 }
 
 func (ds *dbExecutorRWO) DoRead(ctx context.Context, fn func(ctx Context) error) error {
-	return newExecutor(ds.logger.WithField("mode", "ro"), ds.ro).Do(ctx, fn)
+	return newExecutor(ds.logger, ds.ro).Do(ctx, fn)
 }
 
 func (ds *dbExecutorRWO) DoWrite(ctx context.Context, fn func(ctx Context) error) error {
-	return newExecutor(ds.logger.WithField("mode", "rw"), ds.rw).Do(ctx, fn)
+	return newExecutor(ds.logger, ds.rw).Do(ctx, fn)
 }
 
 func (ds *dbExecutorRWO) DoTx(ctx context.Context, fn func(ctx Context) error) error {
-	return newExecutor(ds.logger.WithField("mode", "rw"), ds.rw).DoWithTx(ctx, fn)
+	return newExecutor(ds.logger, ds.rw).DoWithTx(ctx, fn)
 }
 
-func NewRWOExecutor(log lol.Logger, ro, rw Handler) ExecutorRWO {
+func NewRWOExecutor(log Logger, ro, rw Handler) ExecutorRWO {
 	return &dbExecutorRWO{
 		ro:     ro,
 		rw:     rw,
-		logger: log,
-	}
-}
-
-func NewRWOExecutorPgx(log lol.Logger, ro, rw *pgxpool.Pool) ExecutorRWO {
-	return &dbExecutorRWO{
-		ro:     newPgxAdapter(ro),
-		rw:     newPgxAdapter(rw),
 		logger: log,
 	}
 }

@@ -1,4 +1,4 @@
-package db
+package postgres
 
 import (
 	"testing"
@@ -6,9 +6,11 @@ import (
 	"github.com/sonirico/vago/lol"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/sonirico/vago/db"
 )
 
-func TestLaunchClickhouse_UnknownAction(t *testing.T) {
+func TestLaunchPostgresql_UnknownAction(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
@@ -26,11 +28,13 @@ func TestLaunchClickhouse_UnknownAction(t *testing.T) {
 			t.Parallel()
 
 			// Arrange: an unreachable URL proves the function never opens a
-			// connection before rejecting the action.
-			cfg := MigrationsConfig{Url: "tcp://unreachable.invalid:1"}
+			// connection before rejecting the action - if it did, this test
+			// would hang or fail with a connection error instead of the
+			// validation error asserted below.
+			cfg := db.MigrationsConfig{Url: "postgres://unreachable.invalid:1/db"}
 
 			// Act
-			err := LaunchClickhouse(cfg, tt.action, lol.ZeroTestLogger)
+			err := LaunchPostgresql(cfg, tt.action, lol.ZeroTestLogger)
 
 			// Assert
 			require.Error(t, err)

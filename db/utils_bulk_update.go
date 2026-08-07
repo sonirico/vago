@@ -6,7 +6,6 @@ import (
 
 	"errors"
 
-	"github.com/sonirico/vago/lol"
 	"github.com/sonirico/vago/slices"
 )
 
@@ -109,7 +108,7 @@ func BulkUpdateSQL(rows BulkUpdatableRanger, tableName string) (string, []any, e
 
 // BulkUpdate executes a bulk update operation on the database.
 func BulkUpdate(
-	ctx Context, logger lol.Logger, rows BulkUpdatableRanger, tableName string,
+	ctx Context, logger Logger, rows BulkUpdatableRanger, tableName string,
 ) (Result, error) {
 	stmt, args, err := BulkUpdateSQL(rows, tableName)
 	if err != nil {

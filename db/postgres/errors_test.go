@@ -1,4 +1,4 @@
-package db
+package postgres
 
 import (
 	"database/sql"
@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -20,6 +21,7 @@ func TestErrIsNoRows(t *testing.T) {
 		{"nil", nil, false},
 		{"other", errors.New("foo"), false},
 		{"sql.ErrNoRows", sql.ErrNoRows, true},
+		{"pgx.ErrNoRows", pgx.ErrNoRows, true},
 	}
 
 	for _, tt := range tests {
@@ -34,8 +36,9 @@ func ExampleErrIsNoRows() {
 		ErrIsNoRows(nil),
 		ErrIsNoRows(errors.New("foo")),
 		ErrIsNoRows(sql.ErrNoRows),
+		ErrIsNoRows(pgx.ErrNoRows),
 	}
 	fmt.Println(results)
 	// Output:
-	// [false false true]
+	// [false false true true]
 }

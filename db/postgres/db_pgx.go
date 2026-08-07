@@ -1,4 +1,4 @@
-package db
+package postgres
 
 import (
 	"context"
@@ -9,6 +9,8 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/sonirico/vago/lol"
 	apmpgx "go.elastic.co/apm/module/apmpgxv5/v2"
+
+	"github.com/sonirico/vago/db"
 )
 
 // PgxConfig holds all configuration options for the database connection.
@@ -140,7 +142,7 @@ func OpenPgxPool(log lol.Logger, uri string, apm bool) (*pgxpool.Pool, error) {
 }
 
 // OpenPgx is an alias for OpenPgxPool with apm instrumented
-func OpenPgx(log lol.Logger, uri string) (Handler, error) {
+func OpenPgx(log lol.Logger, uri string) (db.Handler, error) {
 	pool, err := OpenPgxPool(log, uri, true)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open pgx pool: %w", err)

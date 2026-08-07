@@ -5,6 +5,7 @@ import (
 
 	"github.com/ory/dockertest/v3"
 	"github.com/sonirico/vago/db"
+	"github.com/sonirico/vago/db/postgres"
 
 	"github.com/sonirico/vago/lol"
 	"github.com/sonirico/vago/opts"
@@ -86,7 +87,7 @@ func (s *PostgresTestSuite) Setup(
 		logger.Panicln(err)
 	}
 
-	psql, err := db.OpenPgx(s.Log, os.Getenv("BROCK_POSTGRES_URL"))
+	psql, err := postgres.OpenPgx(s.Log, os.Getenv("BROCK_POSTGRES_URL"))
 	if err != nil {
 		logger.Panicln("cannot connect to postgresql db", err)
 	}
