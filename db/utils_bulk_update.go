@@ -17,17 +17,33 @@ type (
 		BulkUpdateValues() []any
 	}
 
-	bulkUpdate interface {
+	BulkUpdatableRanger interface {
 		Len() int
 		Get(i int) BulkUpdatable
 		Range(func(x BulkUpdatable))
 	}
+
+	BulkUpdateRanger[T BulkUpdatable] []T
 )
+
+func (d BulkUpdateRanger[T]) Len() int {
+	return len(d)
+}
+
+func (d BulkUpdateRanger[T]) Get(i int) BulkUpdatable {
+	return d[i]
+}
+
+func (d BulkUpdateRanger[T]) Range(fn func(x BulkUpdatable)) {
+	for _, m := range d {
+		fn(m)
+	}
+}
 
 // TODO: Make BulkUpdateReturning
 
 // BulkUpdateSQL returns the SQL statement and arguments for a bulk update.
-func BulkUpdateSQL(rows bulkUpdate, tableName string) (string, []any, error) {
+func BulkUpdateSQL(rows BulkUpdatableRanger, tableName string) (string, []any, error) {
 	if rows.Len() < 1 {
 		return "", nil, errors.New("empty rows")
 	}
@@ -93,7 +109,7 @@ func BulkUpdateSQL(rows bulkUpdate, tableName string) (string, []any, error) {
 
 // BulkUpdate executes a bulk update operation on the database.
 func BulkUpdate(
-	ctx Context, logger lol.Logger, rows bulkUpdate, tableName string,
+	ctx Context, logger lol.Logger, rows BulkUpdatableRanger, tableName string,
 ) (Result, error) {
 	stmt, args, err := BulkUpdateSQL(rows, tableName)
 	if err != nil {

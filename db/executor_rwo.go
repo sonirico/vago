@@ -32,7 +32,7 @@ func (ds *dbExecutorRWO) RO() ExecutorRO {
 }
 
 func (ds *dbExecutorRWO) RW() ExecutorRW {
-	return newExecutor(ds.logger.WithField("mode", "rw"), ds.ro)
+	return newExecutor(ds.logger.WithField("mode", "rw"), ds.rw)
 }
 
 func (ds *dbExecutorRWO) DoRead(ctx context.Context, fn func(ctx Context) error) error {
