@@ -11,8 +11,8 @@ replace github.com/sonirico/vago/db => ../
 require (
 	github.com/ClickHouse/clickhouse-go/v2 v2.41.0
 	github.com/golang-migrate/migrate/v4 v4.19.1
-	github.com/sonirico/vago/db v0.0.0-00010101000000-000000000000
-	github.com/sonirico/vago/lol v0.0.0-00010101000000-000000000000
+	github.com/sonirico/vago/db v0.2.0
+	github.com/sonirico/vago/lol v0.1.0
 	github.com/stretchr/testify v1.11.1
 )
 
@@ -39,7 +39,7 @@ require (
 	github.com/rs/zerolog v1.34.0 // indirect
 	github.com/segmentio/asm v1.2.1 // indirect
 	github.com/shopspring/decimal v1.4.0 // indirect
-	github.com/sonirico/vago v0.0.0-00010101000000-000000000000 // indirect
+	github.com/sonirico/vago v0.12.0 // indirect
 	go.elastic.co/apm/module/apmzerolog/v2 v2.7.2 // indirect
 	go.elastic.co/apm/v2 v2.7.2 // indirect
 	go.elastic.co/fastjson v1.5.1 // indirect

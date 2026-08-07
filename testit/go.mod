@@ -20,12 +20,12 @@ require (
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/golang-migrate/migrate/v4 v4.19.1
 	github.com/ory/dockertest/v3 v3.12.0
-	github.com/sonirico/vago v0.8.2
-	github.com/sonirico/vago/db v0.0.0-20251207192038-45d83c821566
-	github.com/sonirico/vago/db/clickhouse v0.0.0-00010101000000-000000000000
-	github.com/sonirico/vago/db/postgres v0.0.0-00010101000000-000000000000
-	github.com/sonirico/vago/db/redis v0.0.0-00010101000000-000000000000
-	github.com/sonirico/vago/lol v0.0.0-20250823171800-46ee1766e546
+	github.com/sonirico/vago v0.12.0
+	github.com/sonirico/vago/db v0.2.0
+	github.com/sonirico/vago/db/clickhouse v0.1.0
+	github.com/sonirico/vago/db/postgres v0.1.0
+	github.com/sonirico/vago/db/redis v0.1.0
+	github.com/sonirico/vago/lol v0.1.0
 	github.com/twmb/franz-go v1.20.5
 	gopkg.in/yaml.v2 v2.4.0
 )

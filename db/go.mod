@@ -8,8 +8,8 @@ replace github.com/sonirico/vago/lol => ../lol
 
 require (
 	github.com/DATA-DOG/go-sqlmock v1.5.2
-	github.com/sonirico/vago v0.0.0-00010101000000-000000000000
-	github.com/sonirico/vago/lol v0.0.0-00010101000000-000000000000
+	github.com/sonirico/vago v0.12.0
+	github.com/sonirico/vago/lol v0.1.0
 	github.com/stretchr/testify v1.11.1
 )
 
