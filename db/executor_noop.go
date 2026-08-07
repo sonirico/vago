@@ -2,13 +2,11 @@ package db
 
 import (
 	"context"
-
-	"github.com/sonirico/vago/lol"
 )
 
 type (
 	NoopExecutor struct {
-		logger lol.Logger
+		logger Logger
 	}
 )
 

@@ -6,6 +6,10 @@ use (
 	./codec
 	./cqrs
 	./db
+	./db/clickhouse
+	./db/mongo
+	./db/postgres
+	./db/redis
 	./lol
 	./num
 	./rp

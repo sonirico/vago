@@ -1,4 +1,4 @@
-package db
+package clickhouse
 
 import (
 	"database/sql"
@@ -6,6 +6,8 @@ import (
 
 	"github.com/ClickHouse/clickhouse-go/v2"
 	"github.com/sonirico/vago/lol"
+
+	"github.com/sonirico/vago/db"
 )
 
 func OpenClickhouse(url string, log lol.Logger) (*sql.DB, error) {
@@ -15,31 +17,31 @@ func OpenClickhouse(url string, log lol.Logger) (*sql.DB, error) {
 		return nil, fmt.Errorf("unable to parse clickhouse DSN: %w", err)
 	}
 
-	db := clickhouse.OpenDB(opts)
+	conn := clickhouse.OpenDB(opts)
 
-	if err = db.Ping(); err != nil {
+	if err = conn.Ping(); err != nil {
 		return nil, fmt.Errorf("failed to ping clickhouse database: %w", err)
 	} else {
 		log.Debug("clickhouse connected")
 	}
 
-	return db, nil
+	return conn, nil
 }
 
-func OpenCH(url string, log lol.Logger) (Handler, error) {
+func OpenCH(url string, log lol.Logger) (db.Handler, error) {
 	opts, err := clickhouse.ParseDSN(url)
 
 	if err != nil {
 		return nil, fmt.Errorf("unable to parse clickhouse DSN: %w", err)
 	}
 
-	db := clickhouse.OpenDB(opts)
+	conn := clickhouse.OpenDB(opts)
 
-	if err = db.Ping(); err != nil {
+	if err = conn.Ping(); err != nil {
 		return nil, fmt.Errorf("failed to ping clickhouse database: %w", err)
 	} else {
 		log.Debug("clickhouse connected")
 	}
 
-	return newSqlAdapter(db), nil
+	return db.NewDatabaseSqlHandler(conn), nil
 }

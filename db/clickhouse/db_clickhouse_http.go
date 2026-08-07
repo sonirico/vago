@@ -1,4 +1,4 @@
-package db
+package clickhouse
 
 import (
 	"context"
@@ -75,6 +75,8 @@ func (r *ClickhouseHttp) request(
 	}
 
 	if resp.StatusCode != expectedStatusCode {
+		defer func() { _ = resp.Body.Close() }()
+
 		msg, err := io.ReadAll(resp.Body)
 		if err != nil {
 			return nil, fmt.Errorf("error reading response body: %w", err)
@@ -88,5 +90,7 @@ func (r *ClickhouseHttp) request(
 		)
 	}
 
+	// resp.Body is intentionally left open here: it is handed to the caller
+	// as the returned io.ReadCloser, which owns closing it.
 	return resp.Body, nil
 }

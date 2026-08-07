@@ -30,7 +30,7 @@ func (m mockBulkUpdate) Range(f func(x BulkUpdatable)) {
 func TestBulkUpdateSQL(t *testing.T) {
 	tests := []struct {
 		name         string
-		rows         bulkUpdate
+		rows         BulkUpdatableRanger
 		tableName    string
 		expectedStmt string
 		expectedArgs []any
@@ -82,6 +82,46 @@ func TestBulkUpdateSQL(t *testing.T) {
 			assert.Equal(t, test.expectedArgs, args)
 		})
 	}
+}
+
+// externalUpdatable mimics a type defined outside the db package, proving that BulkUpdateSQL
+// and BulkUpdate are callable by an external caller without reaching for any unexported type.
+type externalUpdatable struct {
+	id    int
+	value int
+	name  string
+}
+
+func (e externalUpdatable) PK() [2]string { return [2]string{"int", "id"} }
+
+func (e externalUpdatable) BulkUpdateCols() [][2]string {
+	return [][2]string{{"int", "value"}, {"text", "name"}}
+}
+
+func (e externalUpdatable) BulkUpdateValues() []any {
+	return []any{e.id, e.value, e.name}
+}
+
+func TestBulkUpdateRangerExternalConstruction(t *testing.T) {
+	rows := BulkUpdateRanger[externalUpdatable]{
+		{id: 1, value: 100, name: "foo"},
+		{id: 2, value: 200, name: "bar"},
+	}
+
+	stmt, args, err := BulkUpdateSQL(rows, "my_table")
+
+	assert.NoError(t, err)
+	assert.Equal(t, 2, rows.Len())
+	assert.Equal(t,
+		normalizeSQL(`
+			UPDATE my_table
+			SET value = bulk_update_tmp.value::int,name = bulk_update_tmp.name::text
+			FROM (VALUES ($1::int, $2::int, $3::text), ($4::int, $5::int, $6::text)) as bulk_update_tmp(id, value, name)
+			WHERE my_table.id::int = bulk_update_tmp.id::int
+		`),
+		normalizeSQL(stmt),
+	)
+	assert.Equal(t, []any{1, 100, "foo", 2, 200, "bar"}, args)
 }
 
 // ExampleBulkUpdateSQL demonstrates how to use BulkUpdateSQL to generate an SQL statement for bulk updates.

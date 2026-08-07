@@ -1,16 +1,21 @@
-package db
+package clickhouse
 
 import (
 	"errors"
 	"fmt"
 
 	"github.com/golang-migrate/migrate/v4"
-	"github.com/golang-migrate/migrate/v4/database/clickhouse"
+	migrateclickhouse "github.com/golang-migrate/migrate/v4/database/clickhouse"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/sonirico/vago/lol"
+
+	"github.com/sonirico/vago/db"
 )
 
-func LaunchClickhouse(cfg MigrationsConfig, action string, logger lol.Logger) error {
+func LaunchClickhouse(cfg db.MigrationsConfig, action string, logger lol.Logger) error {
+	if err := db.ValidateMigrationAction(action); err != nil {
+		return err
+	}
 
 	log := logger.WithField("database", "clickhouse")
 	conn, err := OpenClickhouse(cfg.Url, log)
@@ -19,7 +24,7 @@ func LaunchClickhouse(cfg MigrationsConfig, action string, logger lol.Logger) er
 		return fmt.Errorf("cannot connect to clickhouse: %w", err)
 	}
 
-	driver, err := clickhouse.WithInstance(conn, &clickhouse.Config{})
+	driver, err := migrateclickhouse.WithInstance(conn, &migrateclickhouse.Config{})
 	if err != nil {
 		return fmt.Errorf("with instance: %w", err)
 	}
@@ -32,10 +37,15 @@ func LaunchClickhouse(cfg MigrationsConfig, action string, logger lol.Logger) er
 	}
 
 	switch action {
-	case string(ActionUp):
+	case string(db.ActionUp):
 		err = m.Up()
-	case string(ActionDown):
+	case string(db.ActionDown):
 		err = m.Steps(-1)
+	default:
+		return fmt.Errorf(
+			"unknown migration action %q: expected %q or %q",
+			action, db.ActionUp, db.ActionDown,
+		)
 	}
 
 	if err != nil {

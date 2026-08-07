@@ -49,3 +49,10 @@ func (s *sqlAdapter) Begin(_ context.Context) (Tx, error) {
 func newSqlAdapter(db *sql.DB) *sqlAdapter {
 	return &sqlAdapter{db: db}
 }
+
+// NewDatabaseSqlHandler adapts a *sql.DB into a Handler. Exported so backend
+// adapters outside this package (e.g. db/clickhouse, which drives ClickHouse
+// through database/sql) can build a Handler without duplicating this adapter.
+func NewDatabaseSqlHandler(db *sql.DB) Handler {
+	return newSqlAdapter(db)
+}

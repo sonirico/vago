@@ -6,15 +6,26 @@ replace github.com/sonirico/vago => ../
 
 replace github.com/sonirico/vago/lol => ../lol
 
+replace github.com/sonirico/vago/db => ../db
+
+replace github.com/sonirico/vago/db/postgres => ../db/postgres
+
+replace github.com/sonirico/vago/db/clickhouse => ../db/clickhouse
+
+replace github.com/sonirico/vago/db/redis => ../db/redis
+
 require (
 	github.com/ClickHouse/clickhouse-go/v2 v2.41.0
 	github.com/gkampitakis/go-snaps v0.5.18
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/golang-migrate/migrate/v4 v4.19.1
 	github.com/ory/dockertest/v3 v3.12.0
-	github.com/sonirico/vago v0.8.2
-	github.com/sonirico/vago/db v0.0.0-20251207192038-45d83c821566
-	github.com/sonirico/vago/lol v0.0.0-20250823171800-46ee1766e546
+	github.com/sonirico/vago v0.12.0
+	github.com/sonirico/vago/db v0.2.0
+	github.com/sonirico/vago/db/clickhouse v0.1.0
+	github.com/sonirico/vago/db/postgres v0.1.0
+	github.com/sonirico/vago/db/redis v0.1.0
+	github.com/sonirico/vago/lol v0.1.0
 	github.com/twmb/franz-go v1.20.5
 	gopkg.in/yaml.v2 v2.4.0
 )
@@ -47,7 +58,6 @@ require (
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/go-viper/mapstructure/v2 v2.4.0 // indirect
 	github.com/goccy/go-yaml v1.19.0 // indirect
-	github.com/golang/snappy v1.0.0 // indirect
 	github.com/google/shlex v0.0.0-20191202100458-e7afc7fbc510 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
@@ -66,7 +76,6 @@ require (
 	github.com/moby/moby/client v0.2.1 // indirect
 	github.com/moby/sys/user v0.4.0 // indirect
 	github.com/moby/term v0.5.2 // indirect
-	github.com/montanaflynn/stats v0.7.1 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/opencontainers/image-spec v1.1.1 // indirect
 	github.com/opencontainers/runc v1.3.0 // indirect
@@ -85,21 +94,15 @@ require (
 	github.com/tidwall/pretty v1.2.1 // indirect
 	github.com/tidwall/sjson v1.2.5 // indirect
 	github.com/twmb/franz-go/pkg/kmsg v1.12.0 // indirect
-	github.com/xdg-go/pbkdf2 v1.0.0 // indirect
-	github.com/xdg-go/scram v1.2.0 // indirect
-	github.com/xdg-go/stringprep v1.0.4 // indirect
 	github.com/xeipuuv/gojsonpointer v0.0.0-20190905194746-02993c407bfb // indirect
 	github.com/xeipuuv/gojsonreference v0.0.0-20180127040603-bd5ef7bd5415 // indirect
 	github.com/xeipuuv/gojsonschema v1.2.0 // indirect
-	github.com/youmark/pkcs8 v0.0.0-20240726163527-a2c0da244d78 // indirect
 	go.elastic.co/apm/module/apmgoredisv8/v2 v2.7.2 // indirect
-	go.elastic.co/apm/module/apmmongo/v2 v2.7.2 // indirect
 	go.elastic.co/apm/module/apmpgxv5/v2 v2.7.2 // indirect
 	go.elastic.co/apm/module/apmsql/v2 v2.7.2 // indirect
 	go.elastic.co/apm/module/apmzerolog/v2 v2.7.2 // indirect
 	go.elastic.co/apm/v2 v2.7.2 // indirect
 	go.elastic.co/fastjson v1.5.1 // indirect
-	go.mongodb.org/mongo-driver v1.17.6 // indirect
 	go.opentelemetry.io/auto/sdk v1.2.1 // indirect
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.63.0 // indirect
 	go.opentelemetry.io/otel v1.38.0 // indirect

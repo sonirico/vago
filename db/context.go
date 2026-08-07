@@ -2,7 +2,6 @@ package db
 
 import (
 	"context"
-	"database/sql"
 )
 
 type (
@@ -62,12 +61,14 @@ func NewRepoContext(ctx context.Context, querier Querier) *RepoContext {
 	return &RepoContext{Context: ctx, querier: querier}
 }
 
-// NewNoopRepoContext creates a new RepoContext with a no-op querier.
+// NewNoopRepoContext creates a new RepoContext whose querier performs no I/O
+// and returns ErrNoopQuerier from every method.
 func NewNoopRepoContext(ctx context.Context) *RepoContext {
-	return &RepoContext{Context: ctx, querier: newSqlAdapter(&sql.DB{})}
+	return &RepoContext{Context: ctx, querier: newNoopQuerier()}
 }
 
-// NewNoopRepoContextTx creates a new RepoContext with a no-op transaction querier.
+// NewNoopRepoContextTx creates a new RepoContext whose querier performs no
+// I/O and returns ErrNoopQuerier from every method.
 func NewNoopRepoContextTx(ctx context.Context) *RepoContext {
-	return &RepoContext{Context: ctx, querier: newSqlTxAdapter(&sql.Tx{})}
+	return &RepoContext{Context: ctx, querier: newNoopQuerier()}
 }

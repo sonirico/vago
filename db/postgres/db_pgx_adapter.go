@@ -1,4 +1,4 @@
-package db
+package postgres
 
 import (
 	"context"
@@ -6,6 +6,8 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
+
+	"github.com/sonirico/vago/db"
 )
 
 type pgxAdapter struct {
@@ -16,33 +18,33 @@ func newPgxAdapter(db *pgxpool.Pool) *pgxAdapter {
 	return &pgxAdapter{db: db}
 }
 
-func (p *pgxAdapter) Exec(query string, args ...any) (Result, error) {
+func (p *pgxAdapter) Exec(query string, args ...any) (db.Result, error) {
 	return p.ExecContext(context.Background(), query, args...)
 }
 
-func (p *pgxAdapter) ExecContext(ctx context.Context, query string, args ...any) (Result, error) {
+func (p *pgxAdapter) ExecContext(ctx context.Context, query string, args ...any) (db.Result, error) {
 	tag, err := p.db.Exec(ctx, query, args...)
 	return &pgxResult{tag}, err
 }
 
-func (p *pgxAdapter) Query(query string, args ...any) (Rows, error) {
+func (p *pgxAdapter) Query(query string, args ...any) (db.Rows, error) {
 	return p.QueryContext(context.Background(), query, args...)
 }
 
-func (p *pgxAdapter) QueryContext(ctx context.Context, query string, args ...any) (Rows, error) {
+func (p *pgxAdapter) QueryContext(ctx context.Context, query string, args ...any) (db.Rows, error) {
 	rows, err := p.db.Query(ctx, query, args...)
 	return &pgxRows{rows}, err
 }
 
-func (p *pgxAdapter) QueryRow(query string, args ...any) Row {
+func (p *pgxAdapter) QueryRow(query string, args ...any) db.Row {
 	return p.QueryRowContext(context.Background(), query, args...)
 }
 
-func (p *pgxAdapter) QueryRowContext(ctx context.Context, query string, args ...any) Row {
+func (p *pgxAdapter) QueryRowContext(ctx context.Context, query string, args ...any) db.Row {
 	return &pgxRow{p.db.QueryRow(ctx, query, args...)}
 }
 
-func (p *pgxAdapter) Begin(ctx context.Context) (Tx, error) {
+func (p *pgxAdapter) Begin(ctx context.Context) (db.Tx, error) {
 	tx, err := p.db.Begin(ctx)
 	if err != nil {
 		return nil, err
@@ -108,6 +110,11 @@ func (r *pgxRow) Scan(dest ...any) error {
 	return r.row.Scan(dest...)
 }
 
+// Err always returns nil: pgx.Row has no Err method, so there is no
+// pre-scan error to surface here. Unlike the database/sql-backed Row
+// implementations in this package, whose Err() reports a real pre-scan
+// failure, this implementation cannot detect one - use the error returned
+// by Scan instead.
 func (r *pgxRow) Err() error {
 	return nil
 }
@@ -117,29 +124,29 @@ type pgxTxAdapter struct {
 	tx pgx.Tx
 }
 
-func (t *pgxTxAdapter) Exec(query string, args ...any) (Result, error) {
+func (t *pgxTxAdapter) Exec(query string, args ...any) (db.Result, error) {
 	return t.ExecContext(context.Background(), query, args...)
 }
 
-func (t *pgxTxAdapter) ExecContext(ctx context.Context, query string, args ...any) (Result, error) {
+func (t *pgxTxAdapter) ExecContext(ctx context.Context, query string, args ...any) (db.Result, error) {
 	tag, err := t.tx.Exec(ctx, query, args...)
 	return &pgxResult{tag}, err
 }
 
-func (t *pgxTxAdapter) Query(query string, args ...any) (Rows, error) {
+func (t *pgxTxAdapter) Query(query string, args ...any) (db.Rows, error) {
 	return t.QueryContext(context.Background(), query, args...)
 }
 
-func (t *pgxTxAdapter) QueryContext(ctx context.Context, query string, args ...any) (Rows, error) {
+func (t *pgxTxAdapter) QueryContext(ctx context.Context, query string, args ...any) (db.Rows, error) {
 	rows, err := t.tx.Query(ctx, query, args...)
 	return &pgxRows{rows}, err
 }
 
-func (t *pgxTxAdapter) QueryRow(query string, args ...any) Row {
+func (t *pgxTxAdapter) QueryRow(query string, args ...any) db.Row {
 	return t.QueryRowContext(context.Background(), query, args...)
 }
 
-func (t *pgxTxAdapter) QueryRowContext(ctx context.Context, query string, args ...any) Row {
+func (t *pgxTxAdapter) QueryRowContext(ctx context.Context, query string, args ...any) db.Row {
 	return &pgxRow{t.tx.QueryRow(ctx, query, args...)}
 }
 

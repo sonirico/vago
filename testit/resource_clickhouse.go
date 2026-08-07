@@ -5,6 +5,7 @@ import (
 
 	"github.com/ory/dockertest/v3"
 	"github.com/sonirico/vago/db"
+	"github.com/sonirico/vago/db/clickhouse"
 	"github.com/sonirico/vago/opts"
 
 	ch "github.com/ClickHouse/clickhouse-go/v2"
@@ -130,7 +131,7 @@ func NewClickhouseResourceWithOpts(options ...ClickhouseResourceOpt) *Resource {
 				MigrationsPath: cfg.MigrationsPath,
 			}
 
-			return db.LaunchClickhouse(migCfg, "up", log)
+			return clickhouse.LaunchClickhouse(migCfg, "up", log)
 		},
 
 		SetEnvFunc: cfg.SetEnvFunc,

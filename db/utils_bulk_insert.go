@@ -5,13 +5,11 @@ import (
 	"strings"
 
 	"errors"
-
-	"github.com/sonirico/vago/lol"
 )
 
 // BulkInsert saves to database the given rows by employing INSERT INTO statements.
 func BulkInsert(
-	ctx Context, logger lol.Logger, rows BulkableRanger, tableName string,
+	ctx Context, logger Logger, rows BulkableRanger, tableName string,
 ) (Rows, error) {
 	stmt, args, err := BulkInsertSQL(rows, tableName)
 	if err != nil {

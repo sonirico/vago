@@ -5,16 +5,12 @@ import (
 	"database/sql"
 
 	"errors"
-
-	"github.com/jackc/pgx/v5/pgxpool"
-
-	"github.com/sonirico/vago/lol"
 )
 
 type (
 	dbExecutor struct {
 		db     Handler
-		logger lol.Logger
+		logger Logger
 	}
 
 	ExecutorRO interface {
@@ -32,29 +28,20 @@ type (
 )
 
 // NewExecutor creates a new Executor using the provided logger and Handler.
-func NewExecutor(log lol.Logger, db Handler) Executor {
+func NewExecutor(log Logger, db Handler) Executor {
 	return newExecutor(log, db)
 }
 
 // NewDatabaseSqlExecutor creates a new Executor for a *sql.DB database.
-func NewDatabaseSqlExecutor(log lol.Logger, db *sql.DB) Executor {
+func NewDatabaseSqlExecutor(log Logger, db *sql.DB) Executor {
 	return newDatabaseSqlExecutor(log, db)
 }
 
-// NewExecutorPgx creates a new Executor for a pgxpool.Pool database.
-func NewExecutorPgx(log lol.Logger, db *pgxpool.Pool) Executor {
-	return newPgxExecutor(log, db)
+func newDatabaseSqlExecutor(log Logger, db *sql.DB) Executor {
+	return newExecutor(log, NewDatabaseSqlHandler(db))
 }
 
-func newDatabaseSqlExecutor(log lol.Logger, db *sql.DB) Executor {
-	return newExecutor(log, newSqlAdapter(db))
-}
-
-func newPgxExecutor(log lol.Logger, db *pgxpool.Pool) Executor {
-	return newExecutor(log, newPgxAdapter(db))
-}
-
-func newExecutor(log lol.Logger, db Handler) Executor {
+func newExecutor(log Logger, db Handler) Executor {
 	return &dbExecutor{
 		db:     db,
 		logger: log,
@@ -81,10 +68,8 @@ func (ds dbExecutor) doWithTx(
 		}
 
 		if rerr := tx.Rollback(ctx); rerr != nil {
-			ds.logger.
-				WithTrace(ctx).
-				Errorf("unable to rollback tx due to '%s', previous error was %s",
-					rerr, err)
+			ds.logger.Errorf("unable to rollback tx due to '%s', previous error was %s",
+				rerr, err)
 			return rerr
 		}
 		return err
