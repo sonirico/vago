@@ -5,12 +5,11 @@ import (
 	"testing"
 
 	"github.com/gkampitakis/go-snaps/snaps"
-	"github.com/sonirico/vago/lol"
 )
 
 func RunSafe(
 	m *testing.M,
-	log lol.Logger,
+	log Logger,
 	pool *DockerResourcesPool,
 ) {
 	var v int

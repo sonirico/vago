@@ -1,4 +1,4 @@
-package testit
+package redis
 
 import (
 	"context"
@@ -6,7 +6,8 @@ import (
 	"os"
 
 	goredis "github.com/go-redis/redis/v8"
-	"github.com/sonirico/vago/db/redis"
+	dbredis "github.com/sonirico/vago/db/redis"
+	"github.com/sonirico/vago/testit"
 
 	"github.com/sonirico/vago/lol"
 )
@@ -14,13 +15,13 @@ import (
 type RedisTestSuite struct {
 	DB         *goredis.Client
 	Log        lol.Logger
-	pool       *DockerResourcesPool
-	SetEnvFunc SetEnvFunc
-	Config     redis.RedisConfig
+	pool       *testit.DockerResourcesPool
+	SetEnvFunc testit.SetEnvFunc
+	Config     dbredis.RedisConfig
 }
 
 func (s *RedisTestSuite) Setup() {
-	s.pool = NewDockerResourcesPool(
+	s.pool = testit.NewDockerResourcesPool(
 		lol.ZeroTestLogger,
 		os.Getenv("DOCKER_HOSTNAME"),
 		NewRedisResource(s.SetEnvFunc),
@@ -31,7 +32,7 @@ func (s *RedisTestSuite) Setup() {
 
 	ctx := context.Background()
 
-	client, err := redis.OpenRedis(ctx, s.Config)
+	client, err := dbredis.OpenRedis(ctx, s.Config)
 	if err != nil {
 		log.Panicln("cannot connect to redis", err)
 	}

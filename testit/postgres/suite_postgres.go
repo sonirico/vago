@@ -1,11 +1,12 @@
-package testit
+package postgres
 
 import (
 	"os"
 
 	"github.com/ory/dockertest/v3"
 	"github.com/sonirico/vago/db"
-	"github.com/sonirico/vago/db/postgres"
+	pgx "github.com/sonirico/vago/db/postgres"
+	"github.com/sonirico/vago/testit"
 
 	"github.com/sonirico/vago/lol"
 	"github.com/sonirico/vago/opts"
@@ -17,13 +18,13 @@ type PostgresTestSuite struct {
 
 	Log lol.Logger
 
-	pool *DockerResourcesPool
+	pool *testit.DockerResourcesPool
 
 	migrationsPath *string
 	fixtures       [][]byte
 
-	MigrateFunc MigrateFunc
-	SetEnvFunc  SetEnvFunc
+	MigrateFunc testit.MigrateFunc
+	SetEnvFunc  testit.SetEnvFunc
 }
 
 func WithPsqlLogger(log lol.Logger) opts.Configurator[PostgresTestSuite] {
@@ -72,7 +73,7 @@ func (s *PostgresTestSuite) Setup(
 		logger = lol.ZeroTestLogger
 	}
 
-	s.pool = NewDockerResourcesPool(
+	s.pool = testit.NewDockerResourcesPool(
 		logger,
 		os.Getenv("DOCKER_HOSTNAME"),
 		NewPostgresResource(
@@ -87,7 +88,7 @@ func (s *PostgresTestSuite) Setup(
 		logger.Panicln(err)
 	}
 
-	psql, err := postgres.OpenPgx(s.Log, os.Getenv("BROCK_POSTGRES_URL"))
+	psql, err := pgx.OpenPgx(s.Log, os.Getenv("BROCK_POSTGRES_URL"))
 	if err != nil {
 		logger.Panicln("cannot connect to postgresql db", err)
 	}

@@ -3,18 +3,16 @@ package testit
 import (
 	"fmt"
 	"log"
-
-	"github.com/sonirico/vago/lol"
 )
 
 type DockerResourcesPool struct {
 	pool      *Pool
 	resources []*Resource
-	logger    lol.Logger
+	logger    Logger
 }
 
 func NewDockerResourcesPool(
-	logger lol.Logger,
+	logger Logger,
 	dockerhost string,
 	res ...*Resource,
 ) *DockerResourcesPool {

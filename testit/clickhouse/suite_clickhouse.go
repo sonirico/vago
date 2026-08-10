@@ -1,4 +1,4 @@
-package testit
+package clickhouse
 
 import (
 	"fmt"
@@ -6,7 +6,8 @@ import (
 
 	"github.com/ory/dockertest/v3"
 	"github.com/sonirico/vago/db"
-	"github.com/sonirico/vago/db/clickhouse"
+	chdb "github.com/sonirico/vago/db/clickhouse"
+	"github.com/sonirico/vago/testit"
 
 	"github.com/sonirico/vago/lol"
 	"github.com/sonirico/vago/opts"
@@ -19,14 +20,14 @@ type ClickhouseHTTPTestSuite struct {
 
 	Log lol.Logger
 
-	pool *DockerResourcesPool
+	pool *testit.DockerResourcesPool
 
 	migrationsPath *string
 	configVolume   *string
 	fixtures       [][]byte
 	dsnEnvVar      string // Environment variable name for DSN (default: CLICKHOUSE_DSN)
 
-	SetEnvFunc SetEnvFunc
+	SetEnvFunc testit.SetEnvFunc
 }
 
 // WithChLogger sets the logger for the suite.
@@ -102,7 +103,7 @@ func (s *ClickhouseHTTPTestSuite) Setup(
 		resourceOpts = append(resourceOpts, WithChConfigVolume(*s.configVolume))
 	}
 
-	s.pool = NewDockerResourcesPool(
+	s.pool = testit.NewDockerResourcesPool(
 		logger,
 		os.Getenv("DOCKER_HOSTNAME"),
 		NewClickhouseResourceWithOpts(resourceOpts...),
@@ -111,7 +112,7 @@ func (s *ClickhouseHTTPTestSuite) Setup(
 		logger.Panicln(err)
 	}
 
-	ch, err := clickhouse.OpenCH(os.Getenv(s.dsnEnvVar), logger)
+	ch, err := chdb.OpenCH(os.Getenv(s.dsnEnvVar), logger)
 	if err != nil {
 		logger.Panicln("cannot connect to clickhouse db", err)
 	}

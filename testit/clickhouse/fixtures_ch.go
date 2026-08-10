@@ -1,4 +1,4 @@
-package testit
+package clickhouse
 
 import (
 	"fmt"

@@ -1,4 +1,4 @@
-package testit
+package postgres
 
 import (
 	"database/sql"
@@ -9,6 +9,7 @@ import (
 	"syscall"
 
 	"github.com/ory/dockertest/v3"
+	"github.com/sonirico/vago/testit"
 
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/ory/dockertest/v3/docker"
@@ -19,14 +20,14 @@ func NewPostgresResource(
 	migrationsPath string,
 	logger lol.Logger,
 	envarURL string,
-	migrateFunc MigrateFunc,
-	envFunc SetEnvFunc,
-) *Resource {
+	migrateFunc testit.MigrateFunc,
+	envFunc testit.SetEnvFunc,
+) *testit.Resource {
 	log := logger.WithField("resource", "postgres")
 	if envarURL == "" {
 		envarURL = "BROCK_POSTGRES_URL"
 	}
-	return &Resource{
+	return &testit.Resource{
 		RunOptions: &dockertest.RunOptions{
 			Repository: "postgres",
 			Tag:        "16.2",
@@ -47,7 +48,7 @@ func NewPostgresResource(
 					Target: "/var/lib/postgresql/data",
 				},
 			}},
-		RetryFunc: func(dockerhost string, resource *dockertest.Resource) retryFunc {
+		RetryFunc: func(dockerhost string, resource *dockertest.Resource) testit.RetryOp {
 			databaseUrl := fmt.Sprintf(
 				"postgres://user_name:secret@%s:%s/dbname?sslmode=disable",
 				dockerhost,
