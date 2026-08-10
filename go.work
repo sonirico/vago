@@ -15,4 +15,8 @@ use (
 	./rp
 	./rxconfig
 	./testit
+	./testit/clickhouse
+	./testit/postgres
+	./testit/redis
+	./testit/redpanda
 )

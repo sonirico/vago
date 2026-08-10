@@ -1,4 +1,4 @@
-package testit
+package redpanda
 
 import (
 	"context"
@@ -11,6 +11,7 @@ import (
 
 	"github.com/ory/dockertest/v3/docker"
 	"github.com/sonirico/vago/lol"
+	"github.com/sonirico/vago/testit"
 	"github.com/twmb/franz-go/pkg/kgo"
 )
 
@@ -37,9 +38,9 @@ func randomAvailablePort(min, max int) int {
 func NewRedpandaResource(
 	dockerhost string,
 	logger lol.Logger,
-	migrateFunc MigrateFunc,
-	envFunc SetEnvFunc,
-) *Resource {
+	migrateFunc testit.MigrateFunc,
+	envFunc testit.SetEnvFunc,
+) *testit.Resource {
 	log := logger.WithFields(lol.Fields{"resource": "redpanda"})
 	max := 10000
 	min := 9000
@@ -47,7 +48,7 @@ func NewRedpandaResource(
 	if dockerhost == "" {
 		dockerhost = "localhost"
 	}
-	return &Resource{
+	return &testit.Resource{
 		RunOptions: &dockertest.RunOptions{
 			Repository: "docker.redpanda.com/redpandadata/redpanda",
 			Tag:        "v24.2.10",
@@ -76,7 +77,7 @@ func NewRedpandaResource(
 				"9092/tcp": {{HostIP: "localhost", HostPort: fmt.Sprintf("%d/tcp", hostPort)}},
 			},
 		},
-		RetryFunc: func(dockerhost string, resource *dockertest.Resource) retryFunc {
+		RetryFunc: func(dockerhost string, resource *dockertest.Resource) testit.RetryOp {
 			url := fmt.Sprintf("%s:%s", dockerhost, resource.GetPort("9092/tcp"))
 			return func() error {
 				log.Printf("Connecting to redpanda url: '%s'", url)

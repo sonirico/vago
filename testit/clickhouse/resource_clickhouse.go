@@ -1,12 +1,13 @@
-package testit
+package clickhouse
 
 import (
 	"fmt"
 
 	"github.com/ory/dockertest/v3"
 	"github.com/sonirico/vago/db"
-	"github.com/sonirico/vago/db/clickhouse"
+	chdb "github.com/sonirico/vago/db/clickhouse"
 	"github.com/sonirico/vago/opts"
+	"github.com/sonirico/vago/testit"
 
 	ch "github.com/ClickHouse/clickhouse-go/v2"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
@@ -20,7 +21,7 @@ type ClickhouseResourceConfig struct {
 	ConfigVolume   string // Optional: path to config.d to mount
 	Tag            string
 	Logger         lol.Logger
-	SetEnvFunc     SetEnvFunc
+	SetEnvFunc     testit.SetEnvFunc
 }
 
 // ClickhouseResourceOpt configures a ClickHouse resource.
@@ -55,14 +56,14 @@ func WithChResourceLogger(log lol.Logger) ClickhouseResourceOpt {
 }
 
 // WithChSetEnvFunc sets the environment setup function.
-func WithChSetEnvFunc(fn SetEnvFunc) ClickhouseResourceOpt {
+func WithChSetEnvFunc(fn testit.SetEnvFunc) ClickhouseResourceOpt {
 	return opts.Fn[ClickhouseResourceConfig](func(c *ClickhouseResourceConfig) {
 		c.SetEnvFunc = fn
 	})
 }
 
 // NewClickhouseResourceWithOpts creates a ClickHouse resource with options.
-func NewClickhouseResourceWithOpts(options ...ClickhouseResourceOpt) *Resource {
+func NewClickhouseResourceWithOpts(options ...ClickhouseResourceOpt) *testit.Resource {
 	cfg := ClickhouseResourceConfig{
 		Tag:    "24.12-alpine",
 		Logger: lol.ZeroDiscardLogger,
@@ -87,7 +88,7 @@ func NewClickhouseResourceWithOpts(options ...ClickhouseResourceOpt) *Resource {
 		runOpts.Mounts = []string{cfg.ConfigVolume + ":/etc/clickhouse-server/config.d"}
 	}
 
-	return &Resource{
+	return &testit.Resource{
 		RunOptions: runOpts,
 
 		HostConfig: &docker.HostConfig{
@@ -103,7 +104,7 @@ func NewClickhouseResourceWithOpts(options ...ClickhouseResourceOpt) *Resource {
 				},
 			}},
 
-		RetryFunc: func(dockerhost string, resource *dockertest.Resource) retryFunc {
+		RetryFunc: func(dockerhost string, resource *dockertest.Resource) testit.RetryOp {
 			databaseUrl := fmt.Sprintf("tcp://%s:%s", dockerhost, resource.GetPort("9000/tcp"))
 
 			return func() error {
@@ -131,7 +132,7 @@ func NewClickhouseResourceWithOpts(options ...ClickhouseResourceOpt) *Resource {
 				MigrationsPath: cfg.MigrationsPath,
 			}
 
-			return clickhouse.LaunchClickhouse(migCfg, "up", log)
+			return chdb.LaunchClickhouse(migCfg, "up", log)
 		},
 
 		SetEnvFunc: cfg.SetEnvFunc,
@@ -139,7 +140,7 @@ func NewClickhouseResourceWithOpts(options ...ClickhouseResourceOpt) *Resource {
 }
 
 // NewClickhouseResource creates a ClickHouse resource (legacy API, kept for compatibility).
-func NewClickhouseResource(migrationsPath string, logger lol.Logger, envFunc SetEnvFunc) *Resource {
+func NewClickhouseResource(migrationsPath string, logger lol.Logger, envFunc testit.SetEnvFunc) *testit.Resource {
 	return NewClickhouseResourceWithOpts(
 		WithChMigrations(migrationsPath),
 		WithChResourceLogger(logger),

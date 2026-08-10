@@ -5,10 +5,8 @@ import (
 	"time"
 
 	"github.com/ory/dockertest/v3"
-	"github.com/sonirico/vago/slices"
 
 	"github.com/ory/dockertest/v3/docker"
-	"github.com/sonirico/vago/lol"
 )
 
 type Pool struct {
@@ -17,11 +15,12 @@ type Pool struct {
 	pool       *dockertest.Pool
 	resource   []*dockertest.Resource
 	network    *docker.Network
-	log        lol.Logger
+	log        Logger
 }
 
 type (
-	RetryFunc   func(dockerhost string, resource *dockertest.Resource) retryFunc
+	RetryOp     func() error
+	RetryFunc   func(dockerhost string, resource *dockertest.Resource) RetryOp
 	MigrateFunc func(dockerhost string, resource *dockertest.Resource) error
 	SetEnvFunc  func(dockerhost string, resource *dockertest.Resource)
 )
@@ -34,7 +33,7 @@ type Resource struct {
 	SetEnvFunc  SetEnvFunc
 }
 
-func NewPool(dockerhost string, log lol.Logger) (res *Pool, err error) {
+func NewPool(dockerhost string, log Logger) (res *Pool, err error) {
 	// uses a sensible default on windows (tcp/http) and linux/osx (socket)
 	pool, err := dockertest.NewPool("")
 	if err != nil {
@@ -85,10 +84,18 @@ func (s *Pool) Down() {
 		}
 	}
 
-	networks, _ := s.pool.Client.ListNetworks()
-	toDelete := slices.Filter(networks, func(network docker.Network) bool {
-		return network.Labels["it_test"] == "true"
-	})
+	networks, err := s.pool.Client.ListNetworks()
+	if err != nil {
+		s.log.Errorf("could not list networks: %s", err)
+		return
+	}
+
+	toDelete := make([]docker.Network, 0, len(networks))
+	for _, network := range networks {
+		if network.Labels["it_test"] == "true" {
+			toDelete = append(toDelete, network)
+		}
+	}
 
 	s.log.Infof("networks to delete: %v", toDelete)
 
@@ -99,9 +106,7 @@ func (s *Pool) Down() {
 	}
 }
 
-type retryFunc func() error
-
-func (s *Pool) Retry(op retryFunc) error {
+func (s *Pool) Retry(op RetryOp) error {
 	s.pool.MaxWait = 120 * time.Second
 	return s.pool.Retry(op)
 }
@@ -127,7 +132,9 @@ func (s *Pool) run(
 		return
 	}
 
-	_ = resource.Expire(uint(s.exp.Seconds()))
+	if err := resource.Expire(uint(s.exp.Seconds())); err != nil {
+		s.log.Errorf("could not set resource expiry: %s", err)
+	}
 	s.resource = append(s.resource, resource)
 	return
 }
