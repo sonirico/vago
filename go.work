@@ -16,6 +16,7 @@ use (
 	./rxconfig
 	./testit
 	./testit/clickhouse
+	./testit/minio
 	./testit/postgres
 	./testit/redis
 	./testit/redpanda
