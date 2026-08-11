@@ -1,8 +1,12 @@
 package redpanda_test
 
 import (
+	"bytes"
 	"context"
+	"fmt"
+	"net/http"
 	"os"
+	"strings"
 	"testing"
 	"time"
 
@@ -67,4 +71,57 @@ func TestRedpandaRoundTrip(t *testing.T) {
 
 	require.Equal(t, produced.Key, got.Key)
 	require.Equal(t, produced.Value, got.Value)
+}
+
+func TestRedpandaBootstrapProperties(t *testing.T) {
+	probe, err := dockertest.NewPool("")
+	if err != nil || probe.Client.Ping() != nil {
+		t.Skipf("docker unavailable: %v", err)
+	}
+
+	var adminAddr string
+	var dtResource *dockertest.Resource
+	res, err := redpanda.NewResource(
+		os.Getenv("DOCKER_HOSTNAME"),
+		redpanda.WithBootstrapProperties(map[string]string{"fetch_reads_debounce_timeout": "11"}),
+		redpanda.WithSetEnvFunc(func(dockerhost string, resource *dockertest.Resource) {
+			adminAddr = redpanda.AdminAddr(dockerhost, resource)
+			dtResource = resource
+		}),
+	)
+	require.NoError(t, err)
+
+	pool := testit.NewDockerResourcesPool(
+		testit.NewNoopLogger(),
+		os.Getenv("DOCKER_HOSTNAME"),
+		res,
+	)
+	require.NoError(t, pool.Up())
+	t.Cleanup(pool.Down)
+	require.NotEmpty(t, adminAddr)
+	require.NotNil(t, dtResource)
+
+	var readyResp *http.Response
+	for i := 0; i < 30; i++ {
+		readyResp, err = http.Get(fmt.Sprintf("http://%s/v1/status/ready", adminAddr))
+		if err == nil && readyResp.StatusCode == http.StatusOK {
+			break
+		}
+		if readyResp != nil {
+			require.NoError(t, readyResp.Body.Close())
+		}
+		time.Sleep(time.Second)
+	}
+	require.NoError(t, err)
+	require.Equal(t, http.StatusOK, readyResp.StatusCode)
+	require.NoError(t, readyResp.Body.Close())
+
+	var out bytes.Buffer
+	exitCode, err := dtResource.Exec(
+		[]string{"rpk", "cluster", "config", "get", "fetch_reads_debounce_timeout"},
+		dockertest.ExecOptions{StdOut: &out, StdErr: &out},
+	)
+	require.NoError(t, err)
+	require.Equal(t, 0, exitCode)
+	require.True(t, strings.Contains(out.String(), "11"), "output: %s", out.String())
 }

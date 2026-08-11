@@ -21,11 +21,12 @@ const (
 
 // Config holds configuration for the Redpanda test resource.
 type Config struct {
-	Repository    string
-	Tag           string
-	Logger        testit.Logger
-	SetEnvFunc    testit.SetEnvFunc
-	ClusterConfig map[string]string
+	Repository          string
+	Tag                 string
+	Logger              testit.Logger
+	SetEnvFunc          testit.SetEnvFunc
+	ClusterConfig       map[string]string
+	BootstrapProperties map[string]string
 }
 
 // Opt configures a Redpanda resource.
@@ -61,6 +62,16 @@ func WithClusterConfig(config map[string]string) Opt {
 	})
 }
 
+// WithBootstrapProperties sets cluster config keys applied as
+// --set redpanda.<key>=<value> flags on redpanda start, for properties that
+// must exist before boot, unlike WithClusterConfig which applies post-boot
+// via rpk.
+func WithBootstrapProperties(props map[string]string) Opt {
+	return opts.Fn[Config](func(c *Config) {
+		c.BootstrapProperties = props
+	})
+}
+
 // NewResource builds a Redpanda container resource. The advertised
 // external listener must carry a host port known before the container
 // starts, so the free port is picked here; that reservation can fail,
@@ -83,7 +94,35 @@ func NewResource(dockerhost string, options ...Opt) (*testit.Resource, error) {
 		return nil, fmt.Errorf("redpanda: reserve host port: %w", err)
 	}
 
+	adminHostPort, err := freePort()
+	if err != nil {
+		return nil, fmt.Errorf("redpanda: reserve admin host port: %w", err)
+	}
+
 	log := cfg.Logger
+
+	cmd := []string{
+		"redpanda start",
+		"--smp 1",
+		"--overprovisioned",
+		"--kafka-addr PLAINTEXT://0.0.0.0:29092,OUTSIDE://0.0.0.0:9092",
+		fmt.Sprintf(
+			"--advertise-kafka-addr PLAINTEXT://redpanda:29092,OUTSIDE://%s:%d",
+			dockerhost,
+			hostPort,
+		),
+		"--pandaproxy-addr 0.0.0.0:8082",
+		"--advertise-pandaproxy-addr localhost:8082",
+	}
+
+	bootstrapKeys := make([]string, 0, len(cfg.BootstrapProperties))
+	for k := range cfg.BootstrapProperties {
+		bootstrapKeys = append(bootstrapKeys, k)
+	}
+	sort.Strings(bootstrapKeys)
+	for _, k := range bootstrapKeys {
+		cmd = append(cmd, fmt.Sprintf("--set redpanda.%s=%s", k, cfg.BootstrapProperties[k]))
+	}
 
 	return &testit.Resource{
 		RunOptions: &dockertest.RunOptions{
@@ -97,21 +136,10 @@ func NewResource(dockerhost string, options ...Opt) (*testit.Resource, error) {
 				"9644/tcp",
 				"29092/tcp",
 			},
-			Cmd: []string{
-				"redpanda start",
-				"--smp 1",
-				"--overprovisioned",
-				"--kafka-addr PLAINTEXT://0.0.0.0:29092,OUTSIDE://0.0.0.0:9092",
-				fmt.Sprintf(
-					"--advertise-kafka-addr PLAINTEXT://redpanda:29092,OUTSIDE://%s:%d",
-					dockerhost,
-					hostPort,
-				),
-				"--pandaproxy-addr 0.0.0.0:8082",
-				"--advertise-pandaproxy-addr localhost:8082",
-			},
+			Cmd: cmd,
 			PortBindings: map[docker.Port][]docker.PortBinding{
 				"9092/tcp": {{HostPort: fmt.Sprintf("%d/tcp", hostPort)}},
+				"9644/tcp": {{HostPort: fmt.Sprintf("%d/tcp", adminHostPort)}},
 			},
 		},
 		RetryFunc: func(dockerhost string, resource *dockertest.Resource) testit.RetryOp {
@@ -146,6 +174,15 @@ func BrokerAddr(dockerhost string, resource *dockertest.Resource) string {
 		dockerhost = "localhost"
 	}
 	return fmt.Sprintf("%s:%s", dockerhost, resource.GetPort("9092/tcp"))
+}
+
+// AdminAddr returns the host-visible admin API address for a running
+// Redpanda resource.
+func AdminAddr(dockerhost string, resource *dockertest.Resource) string {
+	if dockerhost == "" {
+		dockerhost = "localhost"
+	}
+	return fmt.Sprintf("%s:%s", dockerhost, resource.GetPort("9644/tcp"))
 }
 
 // SetClusterConfig applies each key with rpk cluster config set inside
