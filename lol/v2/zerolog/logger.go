@@ -6,6 +6,7 @@ package zerolog
 import (
 	"context"
 	"io"
+	"os"
 	"time"
 
 	rs "github.com/rs/zerolog"
@@ -29,7 +30,7 @@ func New(cfg lol.Config, opts ...Option) lol.Logger {
 
 	var base io.Writer = c.Writer
 	if c.Env == lol.EnvLocal {
-		base = rs.ConsoleWriter{Out: c.Writer}
+		base = rs.ConsoleWriter{Out: c.Writer, NoColor: !isTerminal(c.Writer)}
 	}
 	out := rs.MultiLevelWriter(append([]io.Writer{base}, c.extraWriters...)...)
 
@@ -98,4 +99,18 @@ type timestampHook struct {
 
 func (h timestampHook) Run(e *rs.Event, _ rs.Level, _ string) {
 	e.Str(rs.TimestampFieldName, time.Now().Format(h.layout))
+}
+
+// isTerminal reports whether w is a character device, so colour goes to a
+// person at a terminal and never into a file or a collector's pipe.
+func isTerminal(w io.Writer) bool {
+	f, ok := w.(*os.File)
+	if !ok {
+		return false
+	}
+	st, err := f.Stat()
+	if err != nil {
+		return false
+	}
+	return st.Mode()&os.ModeCharDevice != 0
 }
