@@ -11,6 +11,10 @@ use (
 	./db/postgres
 	./db/redis
 	./lol
+	./lol/v2
+	./lol/v2/slog
+	./lol/v2/zerolog
+	./lol/v2/zerolog/apm
 	./num
 	./rp
 	./rxconfig
