@@ -155,6 +155,7 @@ func TestNew(t *testing.T) {
 
 		require.Contains(t, buf.String(), "hi")
 		require.False(t, json.Valid(bytes.TrimSpace(buf.Bytes())))
+		require.NotContains(t, buf.String(), "\x1b[", "no colour into a writer that is not a terminal")
 	})
 
 	t.Run("TimeFormat shapes the timestamp", func(t *testing.T) {
