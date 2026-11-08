@@ -13,7 +13,7 @@ import (
 	"github.com/sonirico/vago/db"
 )
 
-func TestLaunchSqlite(t *testing.T) {
+func TestMigrate(t *testing.T) {
 	t.Parallel()
 
 	t.Run("unknown action is refused before opening the database", func(t *testing.T) {
@@ -24,7 +24,7 @@ func TestLaunchSqlite(t *testing.T) {
 		cfg := db.MigrationsConfig{Url: filepath.Join(t.TempDir(), "missing", "app.db")}
 
 		// Act
-		err := LaunchSqlite(cfg, "aplly", lol.ZeroTestLogger)
+		err := Migrate(cfg, "aplly", lol.ZeroTestLogger)
 
 		// Assert
 		require.Error(t, err)
@@ -38,13 +38,13 @@ func TestLaunchSqlite(t *testing.T) {
 		cfg := newTestMigrations(t)
 
 		// Act
-		upErr := LaunchSqlite(cfg, string(db.ActionUp), lol.ZeroTestLogger)
-		downErr := LaunchSqlite(cfg, string(db.ActionDown), lol.ZeroTestLogger)
+		upErr := Migrate(cfg, string(db.ActionUp), lol.ZeroTestLogger)
+		downErr := Migrate(cfg, string(db.ActionDown), lol.ZeroTestLogger)
 
 		// Assert
 		require.NoError(t, upErr)
 		require.NoError(t, downErr)
-		sdb, err := OpenSqlite(lol.ZeroTestLogger, cfg.Url)
+		sdb, err := Open(lol.ZeroTestLogger, cfg.Url)
 		require.NoError(t, err)
 		t.Cleanup(func() { assert.NoError(t, sdb.Close()) })
 		assert.Equal(t, []string{"users"}, tableNames(t, sdb))
@@ -55,10 +55,10 @@ func TestLaunchSqlite(t *testing.T) {
 
 		// Arrange
 		cfg := newTestMigrations(t)
-		require.NoError(t, LaunchSqlite(cfg, string(db.ActionUp), lol.ZeroTestLogger))
+		require.NoError(t, Migrate(cfg, string(db.ActionUp), lol.ZeroTestLogger))
 
 		// Act
-		err := LaunchSqlite(cfg, string(db.ActionUp), lol.ZeroTestLogger)
+		err := Migrate(cfg, string(db.ActionUp), lol.ZeroTestLogger)
 
 		// Assert
 		assert.NoError(t, err)
