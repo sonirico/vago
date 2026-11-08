@@ -24,6 +24,7 @@
 // Backend Modules:
 //   - github.com/sonirico/vago/db/postgres: Postgres (pgx and database/sql) support and migrations
 //   - github.com/sonirico/vago/db/clickhouse: ClickHouse support, including its HTTP client and migrations
+//   - github.com/sonirico/vago/db/sqlite: SQLite (modernc.org/sqlite, pure Go) support and migrations
 //   - github.com/sonirico/vago/db/mongo: MongoDB support
 //   - github.com/sonirico/vago/db/redis: Redis support
 //

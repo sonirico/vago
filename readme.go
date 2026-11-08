@@ -77,7 +77,7 @@ var moduleDescriptions = map[string]string{
 	"fp":      "Functional programming utilities including Option and Result types with JSON marshaling support.",
 	"lol":     "Structured logging utilities with multiple backends and APM integration.",
 	"num":     "Numeric utilities including high-precision decimal operations.",
-	"db":      "Database utilities and adapters for PostgreSQL, MongoDB, Redis, and ClickHouse.\n\n**Note:** This module always appears in the documentation, even if only interface or example tests are present, to ensure discoverability.",
+	"db":      "Database utilities and adapters for PostgreSQL, SQLite, MongoDB, Redis, and ClickHouse.\n\n**Note:** This module always appears in the documentation, even if only interface or example tests are present, to ensure discoverability.",
 	"opts":    "Functional options pattern implementation with Configurator interface and generic support.",
 	"ptr":     "Pointer utilities for creating pointers to values in a single expression.",
 	"str":     "String utility functions for common string operations and checks.",
