@@ -27,6 +27,7 @@ type Config struct {
 	SetEnvFunc          testit.SetEnvFunc
 	ClusterConfig       map[string]string
 	BootstrapProperties map[string]string
+	ContainerName       string
 }
 
 // Opt configures a Redpanda resource.
@@ -69,6 +70,16 @@ func WithClusterConfig(config map[string]string) Opt {
 func WithBootstrapProperties(props map[string]string) Opt {
 	return opts.Fn[Config](func(c *Config) {
 		c.BootstrapProperties = props
+	})
+}
+
+// WithContainerName names the container, so that a name other containers
+// use as the broker host, such as redpanda:29092, resolves on the testit
+// network. Empty by default: parallel suites of other users keep unnamed
+// containers.
+func WithContainerName(name string) Opt {
+	return opts.Fn[Config](func(c *Config) {
+		c.ContainerName = name
 	})
 }
 
@@ -128,6 +139,7 @@ func NewResource(dockerhost string, options ...Opt) (*testit.Resource, error) {
 		RunOptions: &dockertest.RunOptions{
 			Repository: cfg.Repository,
 			Tag:        cfg.Tag,
+			Name:       cfg.ContainerName,
 			Hostname:   "redpanda",
 			ExposedPorts: []string{
 				"8081/tcp",

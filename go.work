@@ -10,6 +10,7 @@ use (
 	./db/mongo
 	./db/postgres
 	./db/redis
+	./db/sqlite
 	./lol
 	./lol/v2
 	./lol/v2/slog
