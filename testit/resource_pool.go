@@ -31,6 +31,9 @@ type Resource struct {
 	RetryFunc   RetryFunc
 	MigrateFunc MigrateFunc
 	SetEnvFunc  SetEnvFunc
+	// Persist keeps the container after Expire's deadline and across stops,
+	// so tests can restart it; Pool.Down still purges it.
+	Persist bool
 }
 
 func NewPool(dockerhost string, log Logger) (res *Pool, err error) {
@@ -114,17 +117,21 @@ func (s *Pool) Retry(op RetryOp) error {
 func (s *Pool) run(
 	options *dockertest.RunOptions,
 	host *docker.HostConfig,
+	persist bool,
 ) (resource *dockertest.Resource, err error) {
 	// pulls an image, creates a container based on it and runs it
 	resource, err = s.pool.RunWithOptions(
 		options,
 		func(config *docker.HostConfig) {
 			// set AutoRemove to true so that stopped container goes away by itself
-			config.AutoRemove = true
+			config.AutoRemove = !persist
 			config.RestartPolicy = docker.RestartPolicy{Name: "no"}
 			if host == nil {
 				return
 			}
+			config.Memory = host.Memory
+			config.CPUPeriod = host.CPUPeriod
+			config.CPUQuota = host.CPUQuota
 			config.Mounts = append(config.Mounts, host.Mounts...)
 			config.PublishAllPorts = host.PublishAllPorts
 		})
@@ -132,8 +139,10 @@ func (s *Pool) run(
 		return
 	}
 
-	if err := resource.Expire(uint(s.exp.Seconds())); err != nil {
-		s.log.Errorf("could not set resource expiry: %s", err)
+	if !persist {
+		if err := resource.Expire(uint(s.exp.Seconds())); err != nil {
+			s.log.Errorf("could not set resource expiry: %s", err)
+		}
 	}
 	s.resource = append(s.resource, resource)
 	return
@@ -142,7 +151,7 @@ func (s *Pool) run(
 func (p *Pool) RunResource(res *Resource) error {
 	options := res.RunOptions
 	options.NetworkID = p.network.ID
-	dtResource, err := p.run(options, res.HostConfig)
+	dtResource, err := p.run(options, res.HostConfig, res.Persist)
 	if err != nil {
 		return fmt.Errorf("%w: error running resource: %s", err, options.Repository)
 	}
