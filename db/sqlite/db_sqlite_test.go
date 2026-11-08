@@ -13,7 +13,7 @@ import (
 	"github.com/sonirico/vago/db"
 )
 
-func TestOpenSqlite(t *testing.T) {
+func TestOpen(t *testing.T) {
 	t.Parallel()
 
 	t.Run("creates the file and honours the DSN pragmas", func(t *testing.T) {
@@ -23,7 +23,7 @@ func TestOpenSqlite(t *testing.T) {
 		uri := "file:" + filepath.Join(t.TempDir(), "app.db") + "?_pragma=foreign_keys(1)"
 
 		// Act
-		sdb, err := OpenSqlite(lol.ZeroTestLogger, uri)
+		sdb, err := Open(lol.ZeroTestLogger, uri)
 
 		// Assert
 		require.NoError(t, err)
@@ -40,7 +40,7 @@ func TestOpenSqlite(t *testing.T) {
 		uri := filepath.Join(t.TempDir(), "missing", "app.db")
 
 		// Act
-		sdb, err := OpenSqlite(lol.ZeroTestLogger, uri)
+		sdb, err := Open(lol.ZeroTestLogger, uri)
 
 		// Assert
 		require.Error(t, err)
@@ -73,7 +73,7 @@ func TestOpenSqlite(t *testing.T) {
 
 func newTestDB(t *testing.T) *sql.DB {
 	t.Helper()
-	sdb, err := OpenSqlite(lol.ZeroTestLogger, filepath.Join(t.TempDir(), "app.db"))
+	sdb, err := Open(lol.ZeroTestLogger, filepath.Join(t.TempDir(), "app.db"))
 	require.NoError(t, err)
 	t.Cleanup(func() { assert.NoError(t, sdb.Close()) })
 	return sdb

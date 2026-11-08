@@ -12,18 +12,18 @@ import (
 	"github.com/sonirico/vago/db"
 )
 
-// LaunchSqlite runs the migrations under cfg.MigrationsPath (a golang-migrate
+// Migrate runs the migrations under cfg.MigrationsPath (a golang-migrate
 // source URL such as "file://migrations") against the SQLite database at
 // cfg.Url, which is created when missing. ActionUp applies every pending
 // migration; ActionDown reverts the last applied one.
-func LaunchSqlite(cfg db.MigrationsConfig, action string, logger lol.Logger) error {
+func Migrate(cfg db.MigrationsConfig, action string, logger lol.Logger) error {
 	if err := db.ValidateMigrationAction(action); err != nil {
 		return err
 	}
 
 	log := logger.WithField("database", "sqlite")
 
-	write, err := OpenSqlite(log, cfg.Url)
+	write, err := Open(log, cfg.Url)
 	if err != nil {
 		return fmt.Errorf("cannot connect to sqlite: %w", err)
 	}

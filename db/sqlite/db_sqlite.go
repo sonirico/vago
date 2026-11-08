@@ -8,7 +8,7 @@ import (
 	_ "modernc.org/sqlite"
 )
 
-// OpenSqlite opens the SQLite database at uri (a file path or a "file:" URI with
+// Open opens the SQLite database at uri (a file path or a "file:" URI with
 // modernc.org/sqlite query parameters) and bounds the pool to one connection:
 // SQLite allows a single writer, and a pool of one turns "database is locked"
 // errors into waits inside database/sql.
@@ -16,7 +16,7 @@ import (
 // Example URI:
 //
 //	file:app.db?_pragma=foreign_keys(1)&_pragma=journal_mode(WAL)&_pragma=busy_timeout(5000)
-func OpenSqlite(log lol.Logger, uri string) (*sql.DB, error) {
+func Open(log lol.Logger, uri string) (*sql.DB, error) {
 	db, err := sql.Open("sqlite", uri)
 	if err != nil {
 		return nil, err
